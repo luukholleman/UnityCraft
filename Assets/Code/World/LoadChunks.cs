@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Assets.Code.World.Chunks;
 using UnityEngine;
 
 namespace Assets.Code.World
@@ -10,7 +9,7 @@ namespace Assets.Code.World
     {
         public World World;
 
-        int timer = 0;
+        int timer;
 
         static WorldPos[] chunkPositions = {   new WorldPos( 0, 0,  0), new WorldPos(-1, 0,  0), new WorldPos( 0, 0, -1), new WorldPos( 0, 0,  1), new WorldPos( 1, 0,  0),
                              new WorldPos(-1, 0, -1), new WorldPos(-1, 0,  1), new WorldPos( 1, 0, -1), new WorldPos( 1, 0,  1), new WorldPos(-2, 0,  0),
@@ -67,9 +66,9 @@ namespace Assets.Code.World
         void FindChunksToLoad()
         {
             WorldPos playerPos = new WorldPos(
-             Mathf.FloorToInt(transform.position.x / Chunk.Chunk.ChunkSize) * Chunk.Chunk.ChunkSize,
-             Mathf.FloorToInt(transform.position.y / Chunk.Chunk.ChunkSize) * Chunk.Chunk.ChunkSize,
-             Mathf.FloorToInt(transform.position.z / Chunk.Chunk.ChunkSize) * Chunk.Chunk.ChunkSize
+             Mathf.FloorToInt(transform.position.x / Chunk.ChunkSize) * Chunk.ChunkSize,
+             Mathf.FloorToInt(transform.position.y / Chunk.ChunkSize) * Chunk.ChunkSize,
+             Mathf.FloorToInt(transform.position.z / Chunk.ChunkSize) * Chunk.ChunkSize
              );
 
             if (!_updateList.Any())
@@ -77,13 +76,13 @@ namespace Assets.Code.World
                 for (int i = 0; i < chunkPositions.Length; i++)
                 {
                     WorldPos newChunkPos = new WorldPos(
-                     chunkPositions[i].x * Chunk.Chunk.ChunkSize + playerPos.x,
+                     chunkPositions[i].x * Chunk.ChunkSize + playerPos.x,
                      0,
-                     chunkPositions[i].z * Chunk.Chunk.ChunkSize + playerPos.z
+                     chunkPositions[i].z * Chunk.ChunkSize + playerPos.z
                      );
 
                     //Get the chunk in the defined position
-                    Chunk.Chunk newChunk = World.GetChunk(newChunkPos.x, newChunkPos.y, newChunkPos.z);
+                    Chunk newChunk = World.GetChunk(newChunkPos.x, newChunkPos.y, newChunkPos.z);
 
                     //If the chunk already exists and it's already
                     //rendered or in queue to be rendered continue
@@ -95,17 +94,17 @@ namespace Assets.Code.World
                     for (int y = -4; y < 4; y++)
                     {
 
-                        for (int x = newChunkPos.x - Chunk.Chunk.ChunkSize; x <= newChunkPos.x + Chunk.Chunk.ChunkSize; x += Chunk.Chunk.ChunkSize)
+                        for (int x = newChunkPos.x - Chunk.ChunkSize; x <= newChunkPos.x + Chunk.ChunkSize; x += Chunk.ChunkSize)
                         {
-                            for (int z = newChunkPos.z - Chunk.Chunk.ChunkSize; z <= newChunkPos.z + Chunk.Chunk.ChunkSize; z += Chunk.Chunk.ChunkSize)
+                            for (int z = newChunkPos.z - Chunk.ChunkSize; z <= newChunkPos.z + Chunk.ChunkSize; z += Chunk.ChunkSize)
                             {
                                 _buildList.Add(new WorldPos(
-                                    x, y * Chunk.Chunk.ChunkSize, z));
+                                    x, y * Chunk.ChunkSize, z));
                             }
                         }
 
                         _updateList.Add(new WorldPos(
-                                    newChunkPos.x, y * Chunk.Chunk.ChunkSize, newChunkPos.z));
+                                    newChunkPos.x, y * Chunk.ChunkSize, newChunkPos.z));
                     }
                     return;
                 }
@@ -133,7 +132,7 @@ namespace Assets.Code.World
 
             if (_updateList.Count != 0)
             {
-                Chunk.Chunk chunk = World.GetChunk(_updateList[0].x, _updateList[0].y, _updateList[0].z);
+                Chunk chunk = World.GetChunk(_updateList[0].x, _updateList[0].y, _updateList[0].z);
                 if (chunk != null)
                     chunk.update = true;
                 _updateList.RemoveAt(0);

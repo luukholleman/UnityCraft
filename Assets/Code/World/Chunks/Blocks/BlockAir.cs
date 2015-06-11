@@ -1,23 +1,17 @@
 ﻿using System;
 
-namespace Assets.Code.World.Chunk.Block
+namespace Assets.Code.World.Chunks.Blocks
 {
     [Serializable]
     public class BlockAir : Block
     {
-        public BlockAir()
-            : base()
-        {
-
-        }
-
         public override MeshData Blockdata
             (Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             return meshData;
         }
 
-        public override bool IsSolid(Block.Direction direction)
+        public override bool IsSolid(Direction direction)
         {
             return false;
         }

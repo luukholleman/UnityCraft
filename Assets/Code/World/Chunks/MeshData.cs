@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Code.World.Chunk
+namespace Assets.Code.World.Chunks
 {
     public class MeshData
     {
@@ -16,7 +16,6 @@ namespace Assets.Code.World.Chunk
 
         public bool UseRenderDataForCol;
 
-        public MeshData() { }
         public void AddQuadTriangles()
         {
             Triangles.Add(Vertices.Count - 4);

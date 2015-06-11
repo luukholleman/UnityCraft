@@ -82,7 +82,7 @@ namespace Assets.Code.SimplexNoise
             int i = FastFloor(xs);
             int j = FastFloor(ys);
 
-            float t = (float)(i + j) * G2;
+            float t = (i + j) * G2;
             float X0 = i - t; // Unskew the cell origin back to (x,y) space
             float Y0 = j - t;
             float x0 = x - X0; // The x,y distances from the cell origin
@@ -155,7 +155,7 @@ namespace Assets.Code.SimplexNoise
             int j = FastFloor(ys);
             int k = FastFloor(zs);
 
-            float t = (float)(i + j + k) * G3;
+            float t = (i + j + k) * G3;
             float X0 = i - t; // Unskew the cell origin back to (x,y,z) space
             float Y0 = j - t;
             float Z0 = k - t;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assets.Code.World.Chunk.Block
+namespace Assets.Code.World.Chunks.Blocks
 {
     [Serializable]
     public class BlockGrass : Block

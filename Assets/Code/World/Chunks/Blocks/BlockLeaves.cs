@@ -1,18 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
-using Assets.Code.World.Chunk.Block;
+﻿using System;
+using Assets.Code.World.Chunks.Blocks;
 
 [Serializable]
 public class BlockLeaves : Block
 {
-
-    public BlockLeaves()
-        : base()
-    {
-
-    }
-
     public override Tile TexturePosition(Direction direction)
     {
         Tile tile = new Tile();

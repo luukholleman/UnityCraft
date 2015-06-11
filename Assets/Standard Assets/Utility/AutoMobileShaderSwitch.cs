@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -103,9 +102,9 @@ namespace UnityStandardAssets.Utility.Inspector
             EditorGUI.indentLevel = 0;
 
             var items = property.FindPropertyRelative("items");
-            var titles = new string[] {"Original", "Replacement", ""};
-            var props = new string[] {"original", "replacement", "-"};
-            var widths = new float[] {.45f, .45f, .1f};
+            var titles = new[] {"Original", "Replacement", ""};
+            var props = new[] {"original", "replacement", "-"};
+            var widths = new[] {.45f, .45f, .1f};
             const float lineHeight = 18;
             bool changedLength = false;
             if (items.arraySize > 0)

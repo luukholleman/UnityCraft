@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace UnityStandardAssets.Utility
@@ -34,7 +33,7 @@ namespace UnityStandardAssets.Utility
         public enum ProgressStyle
         {
             SmoothAlongRoute,
-            PointToPoint,
+            PointToPoint
         }
 
         // these are public, readable by other objects - i.e. for an AI to know where to head!

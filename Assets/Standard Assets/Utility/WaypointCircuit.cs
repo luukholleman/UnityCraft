@@ -104,15 +104,12 @@ namespace UnityStandardAssets.Utility
 
                 return CatmullRom(P0, P1, P2, P3, i);
             }
-            else
-            {
-                // simple linear lerp between the two points:
+            // simple linear lerp between the two points:
 
-                p1n = ((point - 1) + numPoints)%numPoints;
-                p2n = point;
+            p1n = ((point - 1) + numPoints)%numPoints;
+            p2n = point;
 
-                return Vector3.Lerp(points[p1n], points[p2n], i);
-            }
+            return Vector3.Lerp(points[p1n], points[p2n], i);
         }
 
 
@@ -245,9 +242,9 @@ namespace UnityStandardAssets.Utility.Inspector
             EditorGUI.indentLevel = 0;
 
             var items = property.FindPropertyRelative("items");
-            var titles = new string[] {"Transform", "", "", ""};
-            var props = new string[] {"transform", "^", "v", "-"};
-            var widths = new float[] {.7f, .1f, .1f, .1f};
+            var titles = new[] {"Transform", "", "", ""};
+            var props = new[] {"transform", "^", "v", "-"};
+            var widths = new[] {.7f, .1f, .1f, .1f};
             float lineHeight = 18;
             bool changedLength = false;
             if (items.arraySize > 0)

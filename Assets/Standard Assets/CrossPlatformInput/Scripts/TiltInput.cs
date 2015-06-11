@@ -13,7 +13,7 @@ namespace UnityStandardAssets.CrossPlatformInput
         public enum AxisOptions
         {
             ForwardAxis,
-            SidewaysAxis,
+            SidewaysAxis
         }
 
 

@@ -10,7 +10,7 @@ namespace UnityStandardAssets.Utility
         public float BobDuration;
         public float BobAmount;
 
-        private float m_Offset = 0f;
+        private float m_Offset;
 
 
         // provides the offset that can be used

@@ -15,7 +15,7 @@ namespace UnityStandardAssets.Utility
             Deactivate,
             Destroy,
             ReloadLevel,
-            Call,
+            Call
         }
 
 

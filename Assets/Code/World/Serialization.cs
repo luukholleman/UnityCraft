@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using Assets.Code.IO;
-using Assets.Code.World.Chunk.Block;
+using Assets.Code.World.Chunks;
+using Assets.Code.World.Chunks.Blocks;
 
 namespace Assets.Code.World
 {
@@ -33,7 +31,7 @@ namespace Assets.Code.World
             return fileName;
         }
 
-        public static void SaveChunk(Chunk.Chunk chunk)
+        public static void SaveChunk(Chunk chunk)
         {
             Save save = new Save(chunk);
             if (save.blocks.Count == 0)
@@ -48,7 +46,7 @@ namespace Assets.Code.World
             stream.Close();
         }
 
-        public static bool Load(Chunk.Chunk chunk)
+        public static bool Load(Chunk chunk)
         {
             string saveFile = SaveLocation(chunk.World.WorldName);
             saveFile += FileName(chunk.WorldPos);

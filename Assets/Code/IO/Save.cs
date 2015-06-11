@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Assets.Code.World;
-using Assets.Code.World.Chunk;
-using Assets.Code.World.Chunk.Block;
+using Assets.Code.World.Chunks;
+using Assets.Code.World.Chunks.Blocks;
 
 namespace Assets.Code.IO
 {
@@ -21,7 +19,7 @@ namespace Assets.Code.IO
                 {
                     for (int z = 0; z < Chunk.ChunkSize; z++)
                     {
-                        if (!chunk.Blocks[x, y, z].changed)
+                        if (!chunk.Blocks[x, y, z].Changed)
                             continue;
 
                         WorldPos pos = new WorldPos(x, y, z);

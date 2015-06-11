@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Assets.Code.World.Chunk.Block
+namespace Assets.Code.World.Chunks.Blocks
 {
     [Serializable]
     public class Block
@@ -12,13 +12,9 @@ namespace Assets.Code.World.Chunk.Block
 
         public struct Tile { public int x; public int y;}
 
-        public bool changed = true;
+        public bool Changed = true;
 
         //Base block constructor
-        public Block()
-        {
-
-        }
         public virtual MeshData Blockdata(Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             meshData.UseRenderDataForCol = true;

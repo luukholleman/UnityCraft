@@ -1,7 +1,8 @@
-﻿using Assets.Code.World.Chunk.Block;
+﻿using Assets.Code.World.Chunks;
+using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
 
-namespace Assets.Code.World
+namespace Assets.Code.World.Terrain
 {
     public static class TerrainHelper
     {
@@ -46,7 +47,7 @@ namespace Assets.Code.World
 
         public static bool SetBlock(RaycastHit hit, Block block, bool adjacent = false)
         {
-            Chunk.Chunk chunk = hit.collider.GetComponent<Chunk.Chunk>();
+            Chunk chunk = hit.collider.GetComponent<Chunk>();
             if (chunk == null)
                 return false;
 
@@ -58,7 +59,7 @@ namespace Assets.Code.World
         }
         public static Block GetBlock(RaycastHit hit, bool adjacent = false)
         {
-            Chunk.Chunk chunk = hit.collider.GetComponent<Chunk.Chunk>();
+            Chunk chunk = hit.collider.GetComponent<Chunk>();
             if (chunk == null)
                 return null;
 

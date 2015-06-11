@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Assets.Code.World.Chunks.Blocks;
+using UnityEngine;
 
-namespace Assets.Code.World.Chunk
+namespace Assets.Code.World.Chunks
 {
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
@@ -8,9 +9,9 @@ namespace Assets.Code.World.Chunk
 
     public class Chunk : MonoBehaviour
     {
-        public Block.Block[, ,] Blocks = new Block.Block[ChunkSize, ChunkSize, ChunkSize];
-        public static int ChunkSize = 32;
-        public bool update = false;
+        public Block[, ,] Blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        public static int ChunkSize = 16;
+        public bool update;
 
         public bool rendered;
 
@@ -43,14 +44,14 @@ namespace Assets.Code.World.Chunk
             Serialization.SaveChunk(this);
         }
 
-        public Block.Block GetBlock(int x, int y, int z)
+        public Block GetBlock(int x, int y, int z)
         {
             if (InRange(x) && InRange(y) && InRange(z))
                 return Blocks[x, y, z];
             return World.GetBlock(WorldPos.x + x, WorldPos.y + y, WorldPos.z + z);
         }
 
-        public void SetBlock(int x, int y, int z, Block.Block block)
+        public void SetBlock(int x, int y, int z, Block block)
         {
             if (InRange(x) && InRange(y) && InRange(z))
             {
@@ -111,9 +112,9 @@ namespace Assets.Code.World.Chunk
 
         public void SetBlocksUnmodified()
         {
-            foreach (Block.Block block in Blocks)
+            foreach (Block block in Blocks)
             {
-                block.changed = false;
+                block.Changed = false;
             }
         }
     }

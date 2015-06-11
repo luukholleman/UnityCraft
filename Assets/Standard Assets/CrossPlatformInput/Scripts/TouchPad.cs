@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -21,7 +20,7 @@ namespace UnityStandardAssets.CrossPlatformInput
 		{
 			Absolute, // operates from teh center of the image
 			Relative, // operates from the center of the initial touch
-			Swipe, // swipe to touch touch no maintained center
+			Swipe // swipe to touch touch no maintained center
 		}
 
 
