@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
 using Assets.Code.World.Terrain;
@@ -8,63 +9,63 @@ namespace Assets.Code.World
 {
     public class World : MonoBehaviour
     {
-        public Dictionary<WorldPos, Chunk> Chunks = new Dictionary<WorldPos, Chunk>();
+        public Dictionary<WorldPosition, Chunk> Chunks = new Dictionary<WorldPosition, Chunk>();
 
         public GameObject ChunkPrefab;
 
-        public string WorldName = "world";
-    
-        public void CreateChunk(int x, int y, int z)
-        {
-            WorldPos worldPos = new WorldPos(x, y, z);
+        public const int ViewingRange = 16 * 10;
 
+        public const int LevelHeight = 4;
+
+        public string WorldName = "world";
+
+        public void CreateNewChunkPrefab(WorldPosition worldPosition)
+        {
             //Instantiate the chunk at the coordinates using the chunk prefab
             GameObject newChunkObject = Instantiate(
-                            ChunkPrefab, new Vector3(x, y, z),
+                            ChunkPrefab, worldPosition.ToVector3(),
                             Quaternion.Euler(Vector3.zero)
                         ) as GameObject;
 
             Chunk newChunk = newChunkObject.GetComponent<Chunk>();
 
-            newChunk.WorldPos = worldPos;
+            newChunk.WorldPosition = worldPosition;
             newChunk.World = this;
 
             //Add it to the chunks dictionary with the position as the key
-            Chunks.Add(worldPos, newChunk);
+            Chunks.Add(worldPosition, newChunk);
 
-            TerrainGen terrainGen = new TerrainGen();
+            ChunkGenerator chunkGenerator = new ChunkGenerator(newChunk);
 
-            newChunk = terrainGen.ChunkGen(newChunk);
+            chunkGenerator.FillChunk();
 
-            newChunk.SetBlocksUnmodified();
-
-            Serialization.Load(newChunk);
+            //Thread thread = new Thread(new ThreadStart());
         }
-        public Chunk GetChunk(int x, int y, int z)
+        public Chunk GetChunk(WorldPosition position)
         {
-            WorldPos pos = new WorldPos();
-            float multiple = Chunk.ChunkSize;
-            pos.x = Mathf.FloorToInt(x / multiple) * Chunk.ChunkSize;
-            pos.y = Mathf.FloorToInt(y / multiple) * Chunk.ChunkSize;
-            pos.z = Mathf.FloorToInt(z / multiple) * Chunk.ChunkSize;
+            WorldPosition absolutePosition = new WorldPosition();
+
+            absolutePosition.x = Mathf.FloorToInt(position.x / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+            absolutePosition.y = Mathf.FloorToInt(position.y / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+            absolutePosition.z = Mathf.FloorToInt(position.z / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
 
             Chunk containerChunk;
 
-            Chunks.TryGetValue(pos, out containerChunk);
+            Chunks.TryGetValue(absolutePosition, out containerChunk);
 
             return containerChunk;
         }
 
-        public Block GetBlock(int x, int y, int z)
+        public Block GetBlock(WorldPosition position)
         {
-            Chunk containerChunk = GetChunk(x, y, z);
+            Chunk containerChunk = GetChunk(position);
 
             if (containerChunk != null)
             {
                 Block block = containerChunk.GetBlock(
-                    x - containerChunk.WorldPos.x,
-                    y - containerChunk.WorldPos.y,
-                    z - containerChunk.WorldPos.z);
+                    position.x - containerChunk.WorldPosition.x,
+                    position.y - containerChunk.WorldPosition.y,
+                    position.z - containerChunk.WorldPosition.z);
 
                 return block;
             }
@@ -72,42 +73,44 @@ namespace Assets.Code.World
             return new BlockAir();
         }
 
-        public void SetBlock(int x, int y, int z, Block block)
+        public void SetBlock(WorldPosition position, Block block)
         {
-            Chunk chunk = GetChunk(x, y, z);
-
+            Chunk chunk = GetChunk(position);
+            
             if (chunk != null)
             {
-                chunk.SetBlock(x - chunk.WorldPos.x, y - chunk.WorldPos.y, z - chunk.WorldPos.z, block);
-                chunk.update = true;
+                if(chunk.SetBlock(position, block))
+                    chunk.Rebuild = true;
 
-                UpdateIfEqual(x - chunk.WorldPos.x, 0, new WorldPos(x - 1, y, z));
-                UpdateIfEqual(x - chunk.WorldPos.x, Chunk.ChunkSize - 1, new WorldPos(x + 1, y, z));
-                UpdateIfEqual(y - chunk.WorldPos.y, 0, new WorldPos(x, y - 1, z));
-                UpdateIfEqual(y - chunk.WorldPos.y, Chunk.ChunkSize - 1, new WorldPos(x, y + 1, z));
-                UpdateIfEqual(z - chunk.WorldPos.z, 0, new WorldPos(x, y, z - 1));
-                UpdateIfEqual(z - chunk.WorldPos.z, Chunk.ChunkSize - 1, new WorldPos(x, y, z + 1));
+                UpdateIfEqual(position.x - chunk.WorldPosition.x, 0, new WorldPosition(position.x - 1, position.y, position.z));
+                UpdateIfEqual(position.x - chunk.WorldPosition.x, Chunk.ChunkSize - 1, new WorldPosition(position.x + 1, position.y, position.z));
+                UpdateIfEqual(position.y - chunk.WorldPosition.y, 0, new WorldPosition(position.x, position.y - 1, position.z));
+                UpdateIfEqual(position.y - chunk.WorldPosition.y, Chunk.ChunkSize - 1, new WorldPosition(position.x, position.y + 1, position.z));
+                UpdateIfEqual(position.z - chunk.WorldPosition.z, 0, new WorldPosition(position.x, position.y, position.z - 1));
+                UpdateIfEqual(position.z - chunk.WorldPosition.z, Chunk.ChunkSize - 1, new WorldPosition(position.x, position.y, position.z + 1));
             }
         }
 
         public void DestroyChunk(int x, int y, int z)
         {
-            Chunk chunk = null;
-            if (Chunks.TryGetValue(new WorldPos(x, y, z), out chunk))
+            Chunk chunk;
+
+            if (Chunks.TryGetValue(new WorldPosition(x, y, z), out chunk))
             {
                 Serialization.SaveChunk(chunk);
                 Destroy(chunk.gameObject);
-                Chunks.Remove(new WorldPos(x, y, z));
+                Chunks.Remove(new WorldPosition(x, y, z));
             }
         }
 
-        void UpdateIfEqual(int value1, int value2, WorldPos pos)
+        void UpdateIfEqual(int value1, int value2, WorldPosition position)
         {
             if (value1 == value2)
             {
-                Chunk chunk = GetChunk(pos.x, pos.y, pos.z);
+                Chunk chunk = GetChunk(position);
+
                 if (chunk != null)
-                    chunk.update = true;
+                    chunk.Rebuild = true;
             }
         }
     }

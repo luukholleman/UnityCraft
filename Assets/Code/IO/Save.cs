@@ -9,7 +9,7 @@ namespace Assets.Code.IO
     [Serializable]
     class Save
     {
-        public Dictionary<WorldPos, Block> blocks = new Dictionary<WorldPos, Block>();
+        public Dictionary<WorldPosition, Block> blocks = new Dictionary<WorldPosition, Block>();
 
         public Save(Chunk chunk)
         {
@@ -22,8 +22,8 @@ namespace Assets.Code.IO
                         if (!chunk.Blocks[x, y, z].Changed)
                             continue;
 
-                        WorldPos pos = new WorldPos(x, y, z);
-                        blocks.Add(pos, chunk.Blocks[x, y, z]);
+                        WorldPosition position = new WorldPosition(x, y, z);
+                        blocks.Add(position, chunk.Blocks[x, y, z]);
                     }
                 }
             }

@@ -1,4 +1,6 @@
-﻿using Assets.Code.World.Chunks.Blocks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
 
 namespace Assets.Code.World.Chunks
@@ -11,31 +13,49 @@ namespace Assets.Code.World.Chunks
     {
         public Block[, ,] Blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
         public static int ChunkSize = 16;
-        public bool update;
 
-        public bool rendered;
+        public bool Built { get; set; }
+
+        public bool Rebuild { get; set; }
+
+        public bool Rendered { get; private set; }
 
         //Use this for initialization
         MeshFilter _filter;
         MeshCollider _coll;
 
         public World World;
-        public WorldPos WorldPos;
+        public WorldPosition WorldPosition;
 
         // Use this for initialization
         void Start()
         {
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
+
+            //StartCoroutine("Fade");
+        }
+        IEnumerator Fade()
+        {
+            for (float f = 0f; f <= 1; f += 0.005f)
+            {
+                Color c = GetComponent<MeshRenderer>().material.color;
+                c.a = f;
+                c.g = f;
+                c.b = f;
+                GetComponent<MeshRenderer>().material.color = c;
+
+                yield return new WaitForSeconds(1/60f);
+            }
         }
         
         //Update is called once per frame
         void Update()
         {
-            if (update)
+            if (Built && Rebuild)
             {
-                update = false;
-                UpdateChunk();
+                Rebuild = false;
+                RebuildMesh();
             }
         }
 
@@ -44,45 +64,56 @@ namespace Assets.Code.World.Chunks
             Serialization.SaveChunk(this);
         }
 
-        public Block GetBlock(int x, int y, int z)
+        public Block GetBlock(WorldPosition position)
         {
-            if (InRange(x) && InRange(y) && InRange(z))
-                return Blocks[x, y, z];
-            return World.GetBlock(WorldPos.x + x, WorldPos.y + y, WorldPos.z + z);
+            if (InRange(position.x) && InRange(position.y) && InRange(position.z))
+                return Blocks[position.x, position.y, position.z];
+
+            return World.GetBlock(WorldPosition + position);
         }
 
-        public void SetBlock(int x, int y, int z, Block block)
+        public Block GetBlock(int x, int y, int z)
         {
-            if (InRange(x) && InRange(y) && InRange(z))
+            return GetBlock(new WorldPosition(x, y, z));
+        }
+
+        public void SetBlocks(List<KeyValuePair<WorldPosition, Block>> blocks)
+        {
+            foreach (var block in blocks)
             {
-                Blocks[x, y, z] = block;
+                SetBlock(block.Key, block.Value);
             }
-            else
+        }
+
+        public bool SetBlock(WorldPosition position, Block block)
+        {
+            if (InRange(position.x) && InRange(position.y) && InRange(position.z))
             {
-                World.SetBlock(WorldPos.x + x, WorldPos.y + y, WorldPos.z + z, block);
+                Blocks[position.x, position.y, position.z] = block;
+
+                return true;
             }
+
+            World.SetBlock(WorldPosition + position, block);
+
+            return false;
         }
 
         // Updates the chunk based on its contents
-        void UpdateChunk()
+        void RebuildMesh()
         {
-            rendered = true;
-
             MeshData meshData = new MeshData();
 
             for (int x = 0; x < ChunkSize; x++)
-            {
                 for (int y = 0; y < ChunkSize; y++)
-                {
                     for (int z = 0; z < ChunkSize; z++)
-                    {
                         meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
-                    }
-                }
-            }
 
             RenderMesh(meshData);
+
+            Rendered = true;
         }
+
         // Sends the calculated mesh information
         // to the mesh and collision components
         void RenderMesh(MeshData meshData)
@@ -116,6 +147,11 @@ namespace Assets.Code.World.Chunks
             {
                 block.Changed = false;
             }
+        }
+
+        public override string ToString()
+        {
+            return "Chunk: " + WorldPosition.x + "," + WorldPosition.y + "," + WorldPosition.z;
         }
     }
 }

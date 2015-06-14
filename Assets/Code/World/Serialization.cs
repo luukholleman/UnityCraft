@@ -24,7 +24,7 @@ namespace Assets.Code.World
             return saveLocation;
         }
 
-        public static string FileName(WorldPos chunkLocation)
+        public static string FileName(WorldPosition chunkLocation)
         {
             string fileName = chunkLocation.x + "," + chunkLocation.y + "," + chunkLocation.z + ".bin";
 
@@ -38,7 +38,7 @@ namespace Assets.Code.World
                 return;
 
             string saveFile = SaveLocation(chunk.World.WorldName);
-            saveFile += FileName(chunk.WorldPos);
+            saveFile += FileName(chunk.WorldPosition);
 
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new FileStream(saveFile, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -49,7 +49,7 @@ namespace Assets.Code.World
         public static bool Load(Chunk chunk)
         {
             string saveFile = SaveLocation(chunk.World.WorldName);
-            saveFile += FileName(chunk.WorldPos);
+            saveFile += FileName(chunk.WorldPosition);
 
             if (!File.Exists(saveFile))
                 return false;
@@ -59,7 +59,7 @@ namespace Assets.Code.World
 
             Save save = (Save) formatter.Deserialize(stream);
 
-            foreach (KeyValuePair<WorldPos, Block> block in save.blocks)
+            foreach (KeyValuePair<WorldPosition, Block> block in save.blocks)
             {
                 chunk.Blocks[block.Key.x, block.Key.y, block.Key.z] = block.Value;
             }

@@ -7,19 +7,26 @@ namespace Assets.Code.GUI
         public Texture2D CrosshairTexture;
         public float CrosshairScale = 1;
 
-        void Start()
+        private Pausing _pausing;
+
+        void Awake()
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            Application.targetFrameRate = -1;
+
+            _pausing = GameObject.Find("General").GetComponent<Pausing>();
         }
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (_pausing.Paused)
             {
-                Time.timeScale = 0;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
         }
 
