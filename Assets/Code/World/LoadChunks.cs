@@ -69,12 +69,12 @@ namespace Assets.Code.World
                     {
                         yield return null;
 
-                        if (origPos != transform.position)
+                        if (Vector3.Distance(origPos,transform.position) > Chunk.ChunkSize)
                             break;
                     }
                 }
 
-                yield return new WaitForSeconds(Random.value);
+                yield return new WaitForSeconds(Random.value / 4);
             }
         }
 
@@ -110,7 +110,7 @@ namespace Assets.Code.World
 
                 foreach (var chunk in World.Chunks)
                 {
-                    float distance = Vector3.Distance(chunk.Value.WorldPosition.ToVector3(), new Vector3(transform.position.x, transform.position.y, transform.position.z));
+                    float distance = chunk.Value.WorldPosition.ManhattanDistance(new WorldPosition(transform.position));
 
                     if (distance > World.ViewingRange)
                         chunksToDelete.Add(chunk.Key);

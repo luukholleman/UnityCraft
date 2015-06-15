@@ -15,7 +15,7 @@ namespace Assets.Code.World
 
         public GameObject ChunkPrefab;
 
-        public const int ViewingRange = 16 * 15;
+        public const int ViewingRange = 16 * 10;
 
         public const int LevelHeight = 4;
 

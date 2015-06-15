@@ -75,6 +75,16 @@ namespace Assets.Code.World
             return new Vector3(x, y, z);
         }
 
+        public static int ManhattanDistance(WorldPosition pos1, WorldPosition pos2)
+        {
+            return Math.Max(Math.Abs(pos1.x - pos2.x), Math.Max(Math.Abs(pos1.y - pos2.y), (Math.Abs(pos1.z - pos2.z))));
+        }
+
+        public int ManhattanDistance(WorldPosition pos)
+        {
+            return ManhattanDistance(this, pos);
+        }
+
         public override string ToString()
         {
             return "WorldPosition: " + x + "," + y + "," + z;
