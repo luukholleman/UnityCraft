@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Code.World.Chunks;
@@ -14,80 +15,65 @@ namespace Assets.Code.World
 
         private static List<WorldPosition> _chunkPositions = new List<WorldPosition>();
 
-        private readonly List<WorldPosition> _updateList = new List<WorldPosition>();
         private readonly List<WorldPosition> _buildList = new List<WorldPosition>();
 
-        public const int BatchChunkCount = 1;
+        private readonly List<WorldPosition> _doneList = new List<WorldPosition>();
+
+        public const int BatchChunkCount = 8;
 
         void Start()
         {
             int range = (int)Math.Ceiling((float)(World.ViewingRange/Chunk.ChunkSize));
 
             for (int x = -range; x < range; x++)
-            {
                 for (int y = -range; y < range; y++)
-                {
                     for (int z = -range; z < range; z++)
-                    {
                         _chunkPositions.Add(new WorldPosition(x * Chunk.ChunkSize, y * Chunk.ChunkSize, z * Chunk.ChunkSize));   
-                    }
-                }
-            }
 
             _chunkPositions = _chunkPositions.OrderBy(w => w.ToVector3().magnitude).ToList();
+
+            StartCoroutine("FindChunksToLoad");
+            StartCoroutine("LoadAndRenderChunks");
+            StartCoroutine("DeleteChunks");
         }
-
-        void Update()
+        
+        IEnumerator FindChunksToLoad()
         {
-            if (DeleteChunks())
-                return;
-
-            FindChunksToLoad();
-            LoadAndRenderChunks();
-        }
-
-        void FindChunksToLoad()
-        {
-            WorldPosition playerPosition = new WorldPosition(
-                Mathf.FloorToInt(transform.position.x / Chunk.ChunkSize) * Chunk.ChunkSize,
-                Mathf.FloorToInt(transform.position.y / Chunk.ChunkSize) * Chunk.ChunkSize,
-                Mathf.FloorToInt(transform.position.z/ Chunk.ChunkSize) * Chunk.ChunkSize
-            );
-            
-            if (!_updateList.Any())
+            for (;;)
             {
-                int newChunkCount = 0;
+                Vector3 origPos = transform.position;
+
+                WorldPosition playerPosition = new WorldPosition(
+                    Mathf.FloorToInt(transform.position.x / Chunk.ChunkSize) * Chunk.ChunkSize,
+                    Mathf.FloorToInt(transform.position.y / Chunk.ChunkSize) * Chunk.ChunkSize,
+                    Mathf.FloorToInt(transform.position.z / Chunk.ChunkSize) * Chunk.ChunkSize
+                );
+
+                int i = 0;
                 foreach (WorldPosition chunkPosition in _chunkPositions)
                 {
                     WorldPosition newChunkWorldPosition = new WorldPosition(playerPosition + chunkPosition);
-                    //WorldPosition newChunkWorldPosition = new WorldPosition(_chunkPositions[i].x * Chunk.ChunkSize + playerPosition.x, _chunkPositions[i].y * Chunk.ChunkSize + playerPosition.y, _chunkPositions[i].z * Chunk.ChunkSize + playerPosition.z);
 
                     //Get the chunk in the defined position
                     Chunk newChunk = World.GetChunk(newChunkWorldPosition);
 
                     //If the chunk already exists and it's already
                     //Rendered or in queue to be Rendered continue
-                    if (newChunk != null && (newChunk.Rendered || _updateList.Contains(newChunkWorldPosition)))
+                    if (newChunk != null || _doneList.Contains(newChunkWorldPosition))
                         continue;
-
-                    //load a column of chunks in this position
-                    //for (int x = chunkPosition.x - Chunk.ChunkSize; x <= chunkPosition.x + Chunk.ChunkSize; x += Chunk.ChunkSize)
-                    //{
-                    //    for (int y = chunkPosition.y - Chunk.ChunkSize; y <= chunkPosition.y + Chunk.ChunkSize; y += Chunk.ChunkSize)
-                    //    {
-                    //        for (int z = chunkPosition.z - Chunk.ChunkSize; z <= chunkPosition.z + Chunk.ChunkSize; z += Chunk.ChunkSize)
-                    //        {
-                    _buildList.Add(new WorldPosition(newChunkWorldPosition));
-
-                    _updateList.Add(new WorldPosition(newChunkWorldPosition));
                     
-                    //        }
-                    //    }
-                    //}
+                    _buildList.Add(newChunkWorldPosition);
 
-                    if (++newChunkCount >= BatchChunkCount)
-                        return;
+                    if (++i >= BatchChunkCount)
+                    {
+                        yield return null;
+
+                        if (origPos != transform.position)
+                            break;
+                    }
                 }
+
+                yield return null;
             }
         }
 
@@ -97,50 +83,55 @@ namespace Assets.Code.World
                 World.CreateNewChunkPrefab(position);
         }
 
-        void LoadAndRenderChunks()
+        IEnumerator LoadAndRenderChunks()
         {
-            if (_buildList.Count != 0)
+            for (;;)
             {
-                for (int i = 0; i < _buildList.Count && i < 8; i++)
+                if (_buildList.Count != 0)
                 {
-                    CreateNewChunkPrefab(_buildList[0]);
-                    _buildList.RemoveAt(0);
+                    for (int i = 0; i < _buildList.Count && i < 8; i++)
+                    {
+                        CreateNewChunkPrefab(_buildList[0]);
+                        _doneList.Add(_buildList[0]);
+                        _buildList.RemoveAt(0);
+                    }
+
+                    yield return null;
                 }
-
-                return;
-            }
-
-            if (_updateList.Count != 0)
-            {
-                Chunk chunk = World.GetChunk(new WorldPosition(_updateList[0].x, _updateList[0].y, _updateList[0].z));
-                if (chunk != null)
-                    chunk.Rebuild = true;
-                _updateList.RemoveAt(0);
+                
+                yield return null;
             }
         }
 
-        bool DeleteChunks()
+        IEnumerator DeleteChunks()
         {
-            if (timer == 10)
+            for (;;)
             {
-                var chunksToDelete = new List<WorldPosition>();
-                foreach (var chunk in World.Chunks)
+                if (timer == 10)
                 {
-                    float distance = Vector3.Distance(new Vector3(chunk.Value.WorldPosition.x, 0, chunk.Value.WorldPosition.z), new Vector3(transform.position.x, 0, transform.position.z));
+                    var chunksToDelete = new List<WorldPosition>();
 
-                    if (distance > 256)
-                        chunksToDelete.Add(chunk.Key);
+                    foreach (var chunk in World.Chunks)
+                    {
+                        float distance = Vector3.Distance(chunk.Value.WorldPosition.ToVector3(), new Vector3(transform.position.x, transform.position.y, transform.position.z));
+
+                        if (distance > World.ViewingRange)
+                            chunksToDelete.Add(chunk.Key);
+                    }
+
+                    foreach (var chunk in chunksToDelete)
+                    {
+                        World.DestroyChunk(chunk.x, chunk.y, chunk.z);
+                        _doneList.Remove(chunk);
+                    }
+
+                    timer = 0;
+                    yield return null;
                 }
 
-                foreach (var chunk in chunksToDelete)
-                    World.DestroyChunk(chunk.x, chunk.y, chunk.z);
-
-                timer = 0;
-                return true;
+                timer++;
+                yield return null;
             }
-
-            timer++;
-            return false;
         }
     }
 }

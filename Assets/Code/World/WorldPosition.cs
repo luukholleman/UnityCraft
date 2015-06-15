@@ -17,7 +17,13 @@ namespace Assets.Code.World
             this.z = z;
         }
 
-        public WorldPosition(WorldPosition position) : this(position.x, position.y, position.z)
+        public WorldPosition(WorldPosition position)
+            : this(position.x, position.y, position.z)
+        {
+        }
+
+        public WorldPosition(Vector3 position)
+            : this((int)position.x, (int)position.y, (int)position.z)
         {
         }
 

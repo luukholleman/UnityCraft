@@ -14,7 +14,13 @@ namespace Assets.Code.World.Chunks
         public Block[, ,] Blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
         public static int ChunkSize = 16;
 
-        public bool Built { get; set; }
+        private bool _built;
+
+        public bool Built
+        {
+            get { return _built; }
+            set { _built = value; Rebuild = value; }
+        }
 
         public bool Rebuild { get; set; }
 
@@ -61,13 +67,20 @@ namespace Assets.Code.World.Chunks
 
         void OnDestroy()
         {
-            Serialization.SaveChunk(this);
+            //Serialization.SaveChunk(this);
         }
 
         public Block GetBlock(WorldPosition position)
         {
             if (InRange(position.x) && InRange(position.y) && InRange(position.z))
+            {
+                if (Blocks[position.x, position.y, position.z] == null)
+                {
+                    return new BlockAir();
+                }
+
                 return Blocks[position.x, position.y, position.z];
+            }
 
             return World.GetBlock(WorldPosition + position);
         }
@@ -107,7 +120,12 @@ namespace Assets.Code.World.Chunks
             for (int x = 0; x < ChunkSize; x++)
                 for (int y = 0; y < ChunkSize; y++)
                     for (int z = 0; z < ChunkSize; z++)
-                        meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
+                    {
+                        if (Blocks[x, y, z] != null)
+                        {
+                            meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
+                        }
+                    }
 
             RenderMesh(meshData);
 

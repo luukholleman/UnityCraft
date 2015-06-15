@@ -33,6 +33,9 @@ namespace Assets.Code.World
 
         public static void SaveChunk(Chunk chunk)
         {
+            if (!chunk.Built)
+                return;
+
             Save save = new Save(chunk);
             if (save.blocks.Count == 0)
                 return;

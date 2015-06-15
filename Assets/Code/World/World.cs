@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
 using Assets.Code.World.Terrain;
+using Assets.Code.World.Thread;
 using UnityEngine;
 
 namespace Assets.Code.World
@@ -13,11 +15,17 @@ namespace Assets.Code.World
 
         public GameObject ChunkPrefab;
 
-        public const int ViewingRange = 16 * 10;
+        public const int ViewingRange = 16 * 15;
 
         public const int LevelHeight = 4;
 
         public string WorldName = "world";
+
+        private readonly List<FillChunkJob> _jobs = new List<FillChunkJob>();
+
+        private const int ConcurrentJobCount = 8;
+
+        private const int JobsFinishPerFrame = 10;
 
         public void CreateNewChunkPrefab(WorldPosition worldPosition)
         {
@@ -32,15 +40,57 @@ namespace Assets.Code.World
             newChunk.WorldPosition = worldPosition;
             newChunk.World = this;
 
-            //Add it to the chunks dictionary with the position as the key
             Chunks.Add(worldPosition, newChunk);
 
-            ChunkGenerator chunkGenerator = new ChunkGenerator(newChunk);
-
-            chunkGenerator.FillChunk();
-
-            //Thread thread = new Thread(new ThreadStart());
+            FillChunkJob chunkJobFiller = new FillChunkJob(worldPosition);
+            
+            _jobs.Add(chunkJobFiller);
         }
+
+        void Update()
+        {
+            Debug.Log(_jobs.Count);
+            foreach (FillChunkJob job in _jobs.Take(ConcurrentJobCount))
+            {
+                job.Start();
+            }
+
+            List<FillChunkJob> done = new List<FillChunkJob>();
+
+            int i = 0;
+
+            foreach (FillChunkJob job in _jobs)
+            {
+                if (job.IsDone)
+                {
+                    Chunk newChunk = GetChunk(job.WorldPosition);
+
+                    // chunk can be deleted meanwhile
+                    if (newChunk != null)
+                    {
+                        newChunk.SetBlocks(job.Blocks.ToList());
+
+                        newChunk.SetBlocksUnmodified();
+
+                        Serialization.Load(newChunk);
+
+                        newChunk.Built = true;
+                        newChunk.Rebuild = true;
+
+                        done.Add(job);
+                    }
+
+                    if (++i >= JobsFinishPerFrame)
+                        break;
+                }
+            }
+
+            foreach (FillChunkJob chunk in done)
+            {
+                _jobs.Remove(chunk);
+            }
+        }
+
         public Chunk GetChunk(WorldPosition position)
         {
             WorldPosition absolutePosition = new WorldPosition();
