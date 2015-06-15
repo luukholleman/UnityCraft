@@ -49,7 +49,6 @@ namespace Assets.Code.World
 
         void Update()
         {
-            Debug.Log(_jobs.Count);
             foreach (FillChunkJob job in _jobs.Take(ConcurrentJobCount))
             {
                 job.Start();
