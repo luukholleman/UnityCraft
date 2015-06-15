@@ -102,9 +102,9 @@ namespace Assets.Code.Player
             }
 
             // Read the mouse input axis
-            _rotationX += Input.GetAxis("Mouse X") * LookSensivity * Time.deltaTime;
-            _rotationY += Input.GetAxis("Mouse Y") * LookSensivity * Time.deltaTime;
-
+            _rotationX += Input.GetAxis("Mouse X") * LookSensivity;
+            _rotationY += Input.GetAxis("Mouse Y") * LookSensivity;
+            
             //_rotationX = ClampAngle(_rotationX, minimumX, maximumX);
             //_rotationY = ClampAngle(_rotationY, minimumY, maximumY);
 
