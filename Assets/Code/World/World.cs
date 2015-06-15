@@ -58,7 +58,7 @@ namespace Assets.Code.World
 
             int i = 0;
 
-            foreach (FillChunkJob job in _jobs)
+            foreach (FillChunkJob job in _jobs.Take(ConcurrentJobCount))
             {
                 if (job.IsDone)
                 {
