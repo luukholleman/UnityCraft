@@ -88,13 +88,22 @@ namespace Assets.Code.World
             }
         }
 
-        public Chunk GetChunk(WorldPosition position)
+        public Chunk GetChunk(WorldPosition position, bool alreadyAbsolute = false)
         {
-            WorldPosition absolutePosition = new WorldPosition();
+            WorldPosition absolutePosition;
 
-            absolutePosition.x = Mathf.FloorToInt(position.x / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
-            absolutePosition.y = Mathf.FloorToInt(position.y / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
-            absolutePosition.z = Mathf.FloorToInt(position.z / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+            if (!alreadyAbsolute)
+            {
+                absolutePosition = new WorldPosition();
+
+                absolutePosition.x = Mathf.FloorToInt(position.x / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+                absolutePosition.y = Mathf.FloorToInt(position.y / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+                absolutePosition.z = Mathf.FloorToInt(position.z / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
+            }
+            else
+            {
+                absolutePosition = position;
+            }
 
             Chunk containerChunk;
 
@@ -119,15 +128,17 @@ namespace Assets.Code.World
             
             return new BlockAir();
         }
-
+        
         public void SetBlock(WorldPosition position, Block block)
         {
             Chunk chunk = GetChunk(position);
             
             if (chunk != null)
             {
-                if(chunk.SetBlock(position, block))
+                if (chunk.SetBlock(position, block))
+                {
                     chunk.Rebuild = true;
+                }
 
                 UpdateIfEqual(position.x - chunk.WorldPosition.x, 0, new WorldPosition(position.x - 1, position.y, position.z));
                 UpdateIfEqual(position.x - chunk.WorldPosition.x, Chunk.ChunkSize - 1, new WorldPosition(position.x + 1, position.y, position.z));

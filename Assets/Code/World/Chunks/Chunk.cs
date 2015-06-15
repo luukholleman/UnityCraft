@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
@@ -98,11 +99,26 @@ namespace Assets.Code.World.Chunks
             }
         }
 
+        int Mod(int a, int n)
+        {
+            int result = a % n;
+            if ((a < 0 && n > 0) || (a > 0 && n < 0))
+                result += n;
+            return result;
+        }
+
+        public WorldPosition InnerChunkPosition(WorldPosition pos)
+        {
+            return new WorldPosition(Mod(pos.x, ChunkSize), Mod(pos.y, ChunkSize), Mod(pos.z, ChunkSize));
+        }
+
         public bool SetBlock(WorldPosition position, Block block)
         {
-            if (InRange(position.x) && InRange(position.y) && InRange(position.z))
+            WorldPosition innerblockPosition = InnerChunkPosition(position);
+
+            if (InRange(innerblockPosition.x) && InRange(innerblockPosition.y) && InRange(innerblockPosition.z))
             {
-                Blocks[position.x, position.y, position.z] = block;
+                Blocks[innerblockPosition.x, innerblockPosition.y, innerblockPosition.z] = block;
 
                 return true;
             }

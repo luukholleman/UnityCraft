@@ -23,8 +23,8 @@ namespace Assets.Code.World.Terrain
                 MoveWithinBlock(hit.point.x, hit.normal.x, adjacent),
                 MoveWithinBlock(hit.point.y, hit.normal.y, adjacent),
                 MoveWithinBlock(hit.point.z, hit.normal.z, adjacent)
-                );
-
+            );
+            
             return GetBlockPos(pos);
         }
 
@@ -48,6 +48,7 @@ namespace Assets.Code.World.Terrain
         public static bool SetBlock(RaycastHit hit, Block block, bool adjacent = false)
         {
             Chunk chunk = hit.collider.GetComponent<Chunk>();
+
             if (chunk == null)
                 return false;
 

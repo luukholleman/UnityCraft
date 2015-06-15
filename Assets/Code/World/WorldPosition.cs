@@ -70,6 +70,28 @@ namespace Assets.Code.World
             return newPosition;
         }
 
+        public static WorldPosition operator /(WorldPosition pos, WorldPosition pos2)
+        {
+            WorldPosition newPosition = new WorldPosition();
+
+            newPosition.x = pos.x / pos2.x;
+            newPosition.y = pos.y / pos2.y;
+            newPosition.z = pos.z / pos2.z;
+
+            return newPosition;
+        }
+
+        public static WorldPosition operator /(WorldPosition pos, int divider)
+        {
+            WorldPosition newPosition = new WorldPosition();
+
+            newPosition.x = pos.x / divider;
+            newPosition.y = pos.y / divider;
+            newPosition.z = pos.z / divider;
+
+            return newPosition;
+        }
+
         public Vector3 ToVector3()
         {
             return new Vector3(x, y, z);

@@ -10,13 +10,23 @@ namespace Assets.Code.Player
 
         void Update()
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Q))
             {
                 RaycastHit hit;
-                
+
                 if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
                 {
                     TerrainHelper.SetBlock(hit, new BlockAir());
+                }
+            }
+
+            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.E))
+            {
+                RaycastHit hit;
+
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+                {
+                    TerrainHelper.SetBlock(hit, new Block(), true);
                 }
             }
 
