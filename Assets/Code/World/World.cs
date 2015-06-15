@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using Assets.Code.Thread;
 using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
-using Assets.Code.World.Terrain;
-using Assets.Code.World.Thread;
 using UnityEngine;
 
 namespace Assets.Code.World

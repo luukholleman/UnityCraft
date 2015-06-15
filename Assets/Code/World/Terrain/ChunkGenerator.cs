@@ -38,9 +38,10 @@ namespace Assets.Code.World.Terrain
         private const int TreeDensity = 3;
 
         private WorldPosition _worldPosition;
-        
+
         private static readonly Generator MainLandNoise = new GradientNoise2D(123456789);
         private static readonly Generator MeteoriteNoise = new BillowNoise(123456789);
+        private static readonly Generator CaveNoise = new GradientNoise(123456789);
 
         public List<KeyValuePair<WorldPosition, Block>> Blocks = new List<KeyValuePair<WorldPosition, Block>>();
 
@@ -49,7 +50,7 @@ namespace Assets.Code.World.Terrain
             _worldPosition = worldPosition;
         }
 
-        public void FillChunk()
+        public void Generate()
         {
             for (int x = _worldPosition.x; x < _worldPosition.x + Chunk.ChunkSize; x++)
             {
@@ -62,16 +63,17 @@ namespace Assets.Code.World.Terrain
 
         private static float GetMeteoriteNoise(WorldPosition position, float scale, int max)
         {
-            //return Mathf.FloorToInt((_mainLandNoise.GetValue(position.x * scale, position.y * scale, position.z * scale) + _meteoriteNoise.GetValue(position.x * scale, position.y * scale, position.z * scale)) * (max / 4f));           
-            //return Mathf.FloorToInt(_meteoriteNoise.GetValue(position.x * scale, position.y * scale, position.z * scale) * (max / 4f));
             return MeteoriteNoise.GetValue(position.x*scale, position.y*scale, position.z*scale) *(max/2f);
         }
 
-        private static int GetPerlinNoise(WorldPosition position, float scale, int max)
+        private static int GetSurfaceNoise(WorldPosition position, float scale, int max)
         {
-            //return Mathf.FloorToInt((Noise.Generate(position.x * scale, position.y * scale, position.z * scale) + 1f) * (max / 2f));
-            //return  Mathf.FloorToInt(Mathf.PerlinNoise(position.x*scale, position.z*scale)*(max/2f));
             return Mathf.FloorToInt((Mathf.Clamp(MainLandNoise.GetValue(position.x * scale, position.z * scale, 0), -1, 1) + 1) * (max / 2f));
+        }
+
+        private static float GetCaveNoise(WorldPosition position, float scale, int max)
+        {
+            return CaveNoise.GetValue(position.x * scale, position.y * scale, position.z * scale) * (max / 2f);
         }
 
         private void SetBlock(WorldPosition position, Block block, bool replaceBlocks = false)
@@ -79,12 +81,6 @@ namespace Assets.Code.World.Terrain
             position -= _worldPosition;
 
             Blocks.Add(new KeyValuePair<WorldPosition, Block>(position, block));
-
-            //if (Chunk.InRange(position.x) && Chunk.InRange(position.y) && Chunk.InRange(position.z))
-            //{
-            //    if (replaceBlocks || _chunk.Blocks[position.x, position.y, position.z] == null)
-            //        _chunk.SetBlock(position, block);
-            //}
         }
 
         private void GenerateColumnInChunk(int x, int z)
@@ -97,17 +93,14 @@ namespace Assets.Code.World.Terrain
         private void GenerateColumn(WorldPosition columnPosition)
         {
             int stoneHeight = Mathf.FloorToInt(RockBaseHeight);
-            stoneHeight += GetPerlinNoise(columnPosition, MountainFrequency, Mathf.FloorToInt(MountainHeight));
+            stoneHeight += GetSurfaceNoise(columnPosition, MountainFrequency, Mathf.FloorToInt(MountainHeight));
 
-            //if (stoneHeight < StoneMinHeight)
-            //    stoneHeight = Mathf.FloorToInt(StoneMinHeight);
-
-            stoneHeight += GetPerlinNoise(columnPosition, StoneBaseNoise, Mathf.FloorToInt(StoneBaseNoiseHeight));
+            stoneHeight += GetSurfaceNoise(columnPosition, StoneBaseNoise, Mathf.FloorToInt(StoneBaseNoiseHeight));
 
             stoneHeight = Math.Abs(stoneHeight);
 
             int dirtHeight = stoneHeight + Mathf.FloorToInt(DirtBaseHeight);
-            dirtHeight += GetPerlinNoise(columnPosition + new WorldPosition(0, 100, 0), DirtNoise, Mathf.FloorToInt(DirtNoiseHeight));
+            dirtHeight += GetSurfaceNoise(columnPosition + new WorldPosition(0, 100, 0), DirtNoise, Mathf.FloorToInt(DirtNoiseHeight));
 
             for (int y = _worldPosition.y - Chunk.ChunkSize; y < _worldPosition.y + Chunk.ChunkSize; y++)
             {
@@ -115,9 +108,13 @@ namespace Assets.Code.World.Terrain
 
                 blockPosition.y = y;
 
-                int caveChance = GetPerlinNoise(blockPosition, CaveFrequency, 100);
+                int caveChance = GetSurfaceNoise(blockPosition, CaveFrequency, 100);
 
-                if (y <= stoneHeight)
+                if (y <= stoneHeight && GetCaveNoise(blockPosition, 0.1f, 1) >= 0.2f)
+                {
+                    SetBlock(blockPosition, new BlockAir());
+                }
+                else if (y <= stoneHeight)
                 {
                     SetBlock(blockPosition, new Block());
                 }
@@ -125,7 +122,7 @@ namespace Assets.Code.World.Terrain
                 {
                     SetBlock(blockPosition, new BlockGrass());
                 }
-                else if (GetMeteoriteNoise(blockPosition, 0.01f, 10) >= 5)
+                else if (GetMeteoriteNoise(blockPosition, 0.01f, 10) >= 8)
                 {
                     SetBlock(blockPosition, new Block());
                 }
@@ -138,7 +135,7 @@ namespace Assets.Code.World.Terrain
 
         private void CreateTree(WorldPosition position)
         {
-            int height = GetPerlinNoise(position, 2, 8);
+            int height = GetSurfaceNoise(position, 2, 8);
 
             //create trunk
             for (int yt = 0; yt < height; yt++)
@@ -153,7 +150,7 @@ namespace Assets.Code.World.Terrain
             WorldPosition noisePosition = new WorldPosition(position);
             noisePosition.y += height;
 
-            float radius = GetPerlinNoise(noisePosition, 2, height / 2) + 3;
+            float radius = GetSurfaceNoise(noisePosition, 2, height / 2) + 3;
 
             for (int xi = (int)Math.Floor(-radius); xi <= (int)Math.Ceiling(radius); xi++)
             {

@@ -1,51 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Assets.Code.World.Thread
+﻿namespace Assets.Code.Thread
 {
-    class ThreadedJob
+    abstract class ThreadedJob
     {
-        private bool m_IsDone = false;
-        private object m_Handle = new object();
-        private System.Threading.Thread m_Thread = null;
+        private bool _isDone;
+        private object _handle = new object();
+        private System.Threading.Thread _thread;
+
         public bool IsDone
         {
             get
             {
                 bool tmp;
-                lock (m_Handle)
+                lock (_handle)
                 {
-                    tmp = m_IsDone;
+                    tmp = _isDone;
                 }
                 return tmp;
             }
             set
             {
-                lock (m_Handle)
+                lock (_handle)
                 {
-                    m_IsDone = value;
+                    _isDone = value;
                 }
             }
         }
 
         public virtual void Start()
         {
-            if (m_Thread == null && !m_IsDone)
+            if (_thread == null && !_isDone)
             {
-                m_Thread = new System.Threading.Thread(Run);
-                m_Thread.Start();
+                _thread = new System.Threading.Thread(Run);
+                _thread.Start();
             }
         }
         public virtual void Abort()
         {
-            m_Thread.Abort();
+            _thread.Abort();
         }
 
-        protected virtual void ThreadFunction() { }
+        protected abstract void ThreadFunction();
 
-        protected virtual void OnFinished() { }
+        protected abstract void OnFinished();
 
         public virtual bool Update()
         {

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Assets.Code.World.Chunks;
+﻿using System.Collections.Generic;
+using Assets.Code.World;
 using Assets.Code.World.Chunks.Blocks;
 using Assets.Code.World.Terrain;
-using UnityEngine;
 
-namespace Assets.Code.World.Thread
+namespace Assets.Code.Thread
 {
     class FillChunkJob : ThreadedJob
     {
@@ -25,8 +21,9 @@ namespace Assets.Code.World.Thread
         {
             _chunkGenerator = new ChunkGenerator(WorldPosition);
 
-            _chunkGenerator.FillChunk();
+            _chunkGenerator.Generate();
         }
+
         protected override void OnFinished()
         {
 
