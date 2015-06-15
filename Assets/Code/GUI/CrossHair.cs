@@ -11,8 +11,6 @@ namespace Assets.Code.GUI
 
         void Awake()
         {
-            Application.targetFrameRate = -1;
-
             _pausing = GameObject.Find("General").GetComponent<Pausing>();
         }
 
