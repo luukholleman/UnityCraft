@@ -120,12 +120,7 @@ namespace Assets.Code.World.Chunks
             for (int x = 0; x < ChunkSize; x++)
                 for (int y = 0; y < ChunkSize; y++)
                     for (int z = 0; z < ChunkSize; z++)
-                    {
-                        if (Blocks[x, y, z] != null)
-                        {
-                            meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
-                        }
-                    }
+                        meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
 
             RenderMesh(meshData);
 
