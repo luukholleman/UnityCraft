@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Assets.Code.World.Chunks;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Code.World
 {
@@ -73,7 +74,7 @@ namespace Assets.Code.World
                     }
                 }
 
-                yield return null;
+                yield return new WaitForSeconds(Random.value);
             }
         }
 
@@ -95,8 +96,6 @@ namespace Assets.Code.World
                         _doneList.Add(_buildList[0]);
                         _buildList.RemoveAt(0);
                     }
-
-                    yield return null;
                 }
                 
                 yield return null;
@@ -107,30 +106,24 @@ namespace Assets.Code.World
         {
             for (;;)
             {
-                if (timer == 10)
+                var chunksToDelete = new List<WorldPosition>();
+
+                foreach (var chunk in World.Chunks)
                 {
-                    var chunksToDelete = new List<WorldPosition>();
+                    float distance = Vector3.Distance(chunk.Value.WorldPosition.ToVector3(), new Vector3(transform.position.x, transform.position.y, transform.position.z));
 
-                    foreach (var chunk in World.Chunks)
-                    {
-                        float distance = Vector3.Distance(chunk.Value.WorldPosition.ToVector3(), new Vector3(transform.position.x, transform.position.y, transform.position.z));
-
-                        if (distance > World.ViewingRange)
-                            chunksToDelete.Add(chunk.Key);
-                    }
-
-                    foreach (var chunk in chunksToDelete)
-                    {
-                        World.DestroyChunk(chunk.x, chunk.y, chunk.z);
-                        _doneList.Remove(chunk);
-                    }
-
-                    timer = 0;
-                    yield return null;
+                    if (distance > World.ViewingRange)
+                        chunksToDelete.Add(chunk.Key);
                 }
 
-                timer++;
-                yield return null;
+                foreach (var chunk in chunksToDelete)
+                {
+                    World.DestroyChunk(chunk.x, chunk.y, chunk.z);
+                    _doneList.Remove(chunk);
+                }
+
+                timer = 0;
+                yield return new WaitForSeconds(1f);
             }
         }
     }
