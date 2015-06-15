@@ -65,14 +65,7 @@ namespace Assets.Code.World
                     // chunk can be deleted meanwhile
                     if (newChunk != null)
                     {
-                        newChunk.SetBlocks(job.Blocks.ToList());
-
-                        newChunk.SetBlocksUnmodified();
-
-                        Serialization.Load(newChunk);
-
-                        newChunk.Built = true;
-                        newChunk.Rebuild = true;
+                        newChunk.FillWithPreBuiltBlocks(job.Blocks.ToList());
 
                         done.Add(job);
                     }

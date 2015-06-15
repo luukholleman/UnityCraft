@@ -27,6 +27,8 @@ namespace Assets.Code.World.Chunks
 
         public bool Rendered { get; private set; }
 
+        public List<KeyValuePair<WorldPosition, Block>> toBuild;
+
         //Use this for initialization
         MeshFilter _filter;
         MeshCollider _coll;
@@ -91,14 +93,21 @@ namespace Assets.Code.World.Chunks
             return GetBlock(new WorldPosition(x, y, z));
         }
 
-        public void SetBlocks(List<KeyValuePair<WorldPosition, Block>> blocks)
+        public void FillWithPreBuiltBlocks(List<KeyValuePair<WorldPosition, Block>> blocks)
         {
-            foreach (var block in blocks)
+            foreach (KeyValuePair<WorldPosition, Block> block in blocks)
             {
                 SetBlock(block.Key, block.Value);
             }
-        }
 
+            SetBlocksUnmodified();
+
+            Serialization.Load(this);
+
+            Built = true;
+            Rebuild = true;
+        }
+        
         int Mod(int a, int n)
         {
             int result = a % n;
