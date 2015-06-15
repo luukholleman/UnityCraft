@@ -68,7 +68,7 @@ namespace Assets.Code.World.Chunks
 
         void OnDestroy()
         {
-            //Serialization.SaveChunk(this);
+            Serialization.SaveChunk(this);
         }
 
         public Block GetBlock(WorldPosition position)
