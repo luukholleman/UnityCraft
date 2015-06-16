@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Code.Thread;
 using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
 
@@ -36,6 +37,8 @@ namespace Assets.Code.World.Chunks
         public World World;
         public WorldPosition WorldPosition;
 
+        private GenerateChunkMesh _chunkMeshGenerator;
+
         // Use this for initialization
         void Start()
         {
@@ -64,7 +67,18 @@ namespace Assets.Code.World.Chunks
             if (Built && Rebuild)
             {
                 Rebuild = false;
-                RebuildMesh();
+                _chunkMeshGenerator = new GenerateChunkMesh(this, Blocks);
+                _chunkMeshGenerator.Start();
+            }
+
+            if (_chunkMeshGenerator != null && _chunkMeshGenerator.IsDone)
+            {
+                RenderMesh(_chunkMeshGenerator.MeshData);
+
+                Rendered = true;
+
+                _chunkMeshGenerator.Abort();
+                _chunkMeshGenerator = null;
             }
         }
 
@@ -136,22 +150,7 @@ namespace Assets.Code.World.Chunks
 
             return false;
         }
-
-        // Updates the chunk based on its contents
-        void RebuildMesh()
-        {
-            MeshData meshData = new MeshData();
-
-            for (int x = 0; x < ChunkSize; x++)
-                for (int y = 0; y < ChunkSize; y++)
-                    for (int z = 0; z < ChunkSize; z++)
-                        meshData = Blocks[x, y, z].Blockdata(this, x, y, z, meshData);
-
-            RenderMesh(meshData);
-
-            Rendered = true;
-        }
-
+        
         // Sends the calculated mesh information
         // to the mesh and collision components
         void RenderMesh(MeshData meshData)

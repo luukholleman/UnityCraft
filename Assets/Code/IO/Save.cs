@@ -19,7 +19,7 @@ namespace Assets.Code.IO
                 {
                     for (int z = 0; z < Chunk.ChunkSize; z++)
                     {
-                        if (chunk.Blocks[x, y, z] != null && !chunk.Blocks[x, y, z].Changed)
+                        if (chunk.Blocks[x, y, z] == null || !chunk.Blocks[x, y, z].Changed)
                             continue;
 
                         WorldPosition position = new WorldPosition(x, y, z);

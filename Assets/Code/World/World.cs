@@ -13,7 +13,7 @@ namespace Assets.Code.World
 
         public GameObject ChunkPrefab;
 
-        public const int ViewingRange = 16 * 10;
+        public const int ViewingRange = 16 * 5;
 
         public const int LevelHeight = 4;
 
@@ -23,7 +23,7 @@ namespace Assets.Code.World
 
         private const int ConcurrentJobCount = 8;
 
-        private const int JobsFinishPerFrame = 10;
+        private const int JobsFinishPerFrame = 5;
 
         public void CreateNewChunkPrefab(WorldPosition worldPosition)
         {
@@ -65,7 +65,7 @@ namespace Assets.Code.World
                     // chunk can be deleted meanwhile
                     if (newChunk != null)
                     {
-                        newChunk.FillWithPreBuiltBlocks(job.Blocks.ToList());
+                        newChunk.FillWithPreBuiltBlocks(job.Blocks);
 
                         done.Add(job);
                     }

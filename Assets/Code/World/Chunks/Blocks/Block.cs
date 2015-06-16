@@ -21,39 +21,52 @@ namespace Assets.Code.World.Chunks.Blocks
 
             if (!chunk.GetBlock(x, y + 1, z).IsSolid(Direction.Down))
             {
-                meshData = FaceDataUp(chunk, x, y, z, meshData);
+                meshData = FaceDataUp(x, y, z, meshData);
             }
 
             if (!chunk.GetBlock(x, y - 1, z).IsSolid(Direction.Up))
             {
-                meshData = FaceDataDown(chunk, x, y, z, meshData);
+                meshData = FaceDataDown(x, y, z, meshData);
             }
 
             if (!chunk.GetBlock(x, y, z + 1).IsSolid(Direction.South))
             {
-                meshData = FaceDataNorth(chunk, x, y, z, meshData);
+                meshData = FaceDataNorth(x, y, z, meshData);
             }
 
             if (!chunk.GetBlock(x, y, z - 1).IsSolid(Direction.North))
             {
-                meshData = FaceDataSouth(chunk, x, y, z, meshData);
+                meshData = FaceDataSouth(x, y, z, meshData);
             }
 
             if (!chunk.GetBlock(x + 1, y, z).IsSolid(Direction.West))
             {
-                meshData = FaceDataEast(chunk, x, y, z, meshData);
+                meshData = FaceDataEast(x, y, z, meshData);
             }
 
             if (!chunk.GetBlock(x - 1, y, z).IsSolid(Direction.East))
             {
-                meshData = FaceDataWest(chunk, x, y, z, meshData);
+                meshData = FaceDataWest(x, y, z, meshData);
             }
 
             return meshData;
 
         }
+
+        public MeshData StandaloneBlockData(MeshData meshData)
+        {
+                meshData = FaceDataUp(0, 0, 0, meshData);
+                meshData = FaceDataDown(0, 0, 0, meshData);
+                meshData = FaceDataNorth(0, 0, 0, meshData);
+                meshData = FaceDataSouth(0, 0, 0, meshData);
+                meshData = FaceDataEast(0, 0, 0, meshData);
+                meshData = FaceDataWest(0, 0, 0, meshData);
+
+            return meshData;;
+        }
+
         protected virtual MeshData FaceDataUp
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));
             meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
@@ -67,7 +80,7 @@ namespace Assets.Code.World.Chunks.Blocks
             return meshData;
         }
         protected virtual MeshData FaceDataDown
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
             meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
@@ -82,7 +95,7 @@ namespace Assets.Code.World.Chunks.Blocks
         }
 
         protected virtual MeshData FaceDataNorth
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z + 0.5f));
             meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z + 0.5f));
@@ -97,7 +110,7 @@ namespace Assets.Code.World.Chunks.Blocks
         }
 
         protected virtual MeshData FaceDataEast
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x + 0.5f, y - 0.5f, z - 0.5f));
             meshData.AddVertex(new Vector3(x + 0.5f, y + 0.5f, z - 0.5f));
@@ -112,7 +125,7 @@ namespace Assets.Code.World.Chunks.Blocks
         }
 
         protected virtual MeshData FaceDataSouth
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z - 0.5f));
             meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z - 0.5f));
@@ -127,7 +140,7 @@ namespace Assets.Code.World.Chunks.Blocks
         }
 
         protected virtual MeshData FaceDataWest
-            (Chunk chunk, int x, int y, int z, MeshData meshData)
+            (int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x - 0.5f, y - 0.5f, z + 0.5f));
             meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));

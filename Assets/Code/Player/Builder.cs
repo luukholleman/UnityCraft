@@ -1,4 +1,6 @@
-﻿using Assets.Code.World.Chunks.Blocks;
+﻿using Assets.Code.World;
+using Assets.Code.World.Chunks;
+using Assets.Code.World.Chunks.Blocks;
 using Assets.Code.World.Terrain;
 using UnityEngine;
 
@@ -14,9 +16,17 @@ namespace Assets.Code.Player
             {
                 RaycastHit hit;
 
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks")))
                 {
+                    Block block = TerrainHelper.GetBlock(hit);
+                    WorldPosition pos = TerrainHelper.GetBlockPos(hit);
+
                     TerrainHelper.SetBlock(hit, new BlockAir());
+
+                    GameObject floatingBlock = Instantiate(Resources.Load<GameObject>("Prefabs/DroppedBlock"), pos.ToVector3(), new Quaternion()) as GameObject;
+
+                    floatingBlock.GetComponent<DroppedBlock>().Position = pos;
+                    floatingBlock.GetComponent<DroppedBlock>().OrigBlock = block;
                 }
             }
 

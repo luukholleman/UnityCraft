@@ -41,6 +41,9 @@ namespace Assets.Code.Player
 
         void Update()
         {
+            if (Time.timeScale == 0)
+                return;
+
             UpdateView();
 
             if (Input.GetKeyDown(KeyCode.F))
