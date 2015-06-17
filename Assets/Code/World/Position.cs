@@ -4,25 +4,30 @@ using UnityEngine;
 namespace Assets.Code.World
 {
     [Serializable]
-    public struct WorldPosition
+    public class Position
     {
         public int x;
         public int y;
         public int z;
 
-        public WorldPosition(int x, int y, int z)
+        public Position()
+        {
+            
+        }
+
+        public Position(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
         }
 
-        public WorldPosition(WorldPosition position)
+        public Position(Position position)
             : this(position.x, position.y, position.z)
         {
         }
 
-        public WorldPosition(Vector3 position)
+        public Position(Vector3 position)
             : this((int)position.x, (int)position.y, (int)position.z)
         {
         }
@@ -48,9 +53,9 @@ namespace Assets.Code.World
             }
         }
 
-        public static WorldPosition operator +(WorldPosition pos1, WorldPosition pos2)
+        public static Position operator +(Position pos1, Position pos2)
         {
-            WorldPosition newPosition = new WorldPosition();
+            Position newPosition = new Position();
 
             newPosition.x = pos1.x + pos2.x;
             newPosition.y = pos1.y + pos2.y;
@@ -59,9 +64,9 @@ namespace Assets.Code.World
             return newPosition;
         }
 
-        public static WorldPosition operator -(WorldPosition pos1, WorldPosition pos2)
+        public static Position operator -(Position pos1, Position pos2)
         {
-            WorldPosition newPosition = new WorldPosition();
+            Position newPosition = new Position();
 
             newPosition.x = pos1.x - pos2.x;
             newPosition.y = pos1.y - pos2.y;
@@ -70,9 +75,9 @@ namespace Assets.Code.World
             return newPosition;
         }
 
-        public static WorldPosition operator /(WorldPosition pos, WorldPosition pos2)
+        public static Position operator /(Position pos, Position pos2)
         {
-            WorldPosition newPosition = new WorldPosition();
+            Position newPosition = new Position();
 
             newPosition.x = pos.x / pos2.x;
             newPosition.y = pos.y / pos2.y;
@@ -81,9 +86,9 @@ namespace Assets.Code.World
             return newPosition;
         }
 
-        public static WorldPosition operator /(WorldPosition pos, int divider)
+        public static Position operator /(Position pos, int divider)
         {
-            WorldPosition newPosition = new WorldPosition();
+            Position newPosition = new Position();
 
             newPosition.x = pos.x / divider;
             newPosition.y = pos.y / divider;
@@ -97,19 +102,19 @@ namespace Assets.Code.World
             return new Vector3(x, y, z);
         }
 
-        public static int ManhattanDistance(WorldPosition pos1, WorldPosition pos2)
+        public static int ManhattanDistance(Position pos1, Position pos2)
         {
             return Math.Max(Math.Abs(pos1.x - pos2.x), Math.Max(Math.Abs(pos1.y - pos2.y), (Math.Abs(pos1.z - pos2.z))));
         }
 
-        public int ManhattanDistance(WorldPosition pos)
+        public int ManhattanDistance(Position pos)
         {
             return ManhattanDistance(this, pos);
         }
 
         public override string ToString()
         {
-            return "WorldPosition: " + x + "," + y + "," + z;
+            return "Position: " + x + "," + y + "," + z;
         }
     }
 }

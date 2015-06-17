@@ -4,7 +4,7 @@ namespace Assets.Code.World.Chunks.Blocks
 {
     class DroppedBlock : MonoBehaviour
     {
-        public WorldPosition Position;
+        public Position Position;
 
         public Block OrigBlock;
 

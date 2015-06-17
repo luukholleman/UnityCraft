@@ -1,19 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Code.GenerationEngine;
 using Assets.Code.Thread;
-using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
+using Chunk = Assets.Code.World.Chunks.Chunk;
 
 namespace Assets.Code.World
 {
     public class World : MonoBehaviour
     {
-        public Dictionary<WorldPosition, Chunk> Chunks = new Dictionary<WorldPosition, Chunk>();
+        public Dictionary<Position, Chunk> Chunks = new Dictionary<Position, Chunk>();
 
         public GameObject ChunkPrefab;
 
-        public const int ViewingRange = 16 * 5;
+        public static Generator Generator;
+
+        public const int ViewingRange = 16*10;
 
         public const int LevelHeight = 4;
 
@@ -25,26 +28,67 @@ namespace Assets.Code.World
 
         private const int JobsFinishPerFrame = 5;
 
-        public void CreateNewChunkPrefab(WorldPosition worldPosition)
+        public void CreateNewChunkPrefab(Position position)
         {
+            if (Chunks.ContainsKey(position))
+                return;
+
             //Instantiate the chunk at the coordinates using the chunk prefab
             GameObject newChunkObject = Instantiate(
-                            ChunkPrefab, worldPosition.ToVector3(),
+                            ChunkPrefab, position.ToVector3(),
                             Quaternion.Euler(Vector3.zero)
                         ) as GameObject;
 
             Chunk newChunk = newChunkObject.GetComponent<Chunk>();
 
-            newChunk.WorldPosition = worldPosition;
+            newChunk.Position = position;
             newChunk.World = this;
 
-            Chunks.Add(worldPosition, newChunk);
+            Chunks.Add(position, newChunk);
 
-            FillChunkJob chunkJobFiller = new FillChunkJob(worldPosition);
-            
-            _jobs.Add(chunkJobFiller);
+            foreach (KeyValuePair<Position, Block> block in Generator.GetChunk(position).Blocks)
+            {
+                newChunk.SetBlock(block.Key, block.Value);
+            }
+
+            //newChunk.SetBlocksUnmodified();
+
+            //Serialization.Load(newChunk);
+
+            newChunk.Built = true;
+            newChunk.Rebuild = true;
+        }
+        //public void CreateNewChunkPrefab(Position position)
+        //{
+        //    //Instantiate the chunk at the coordinates using the chunk prefab
+        //    GameObject newChunkObject = Instantiate(
+        //                    ChunkPrefab, position.ToVector3(),
+        //                    Quaternion.Euler(Vector3.zero)
+        //                ) as GameObject;
+
+        //    Chunk newChunk = newChunkObject.GetComponent<Chunk>();
+
+        //    newChunk.Position = position;
+        //    newChunk.World = this;
+
+        //    Chunks.Add(position, newChunk);
+
+        //    FillChunkJob chunkJobFiller = new FillChunkJob(position);
+
+        //    _jobs.Add(chunkJobFiller);
+        //}
+
+        void Start()
+        {
+            Generator = new Generator();
+            Generator.Start();
         }
 
+        void OnDestroy()
+        {
+            Generator.Abort();
+        }
+        
         void Update()
         {
             foreach (FillChunkJob job in _jobs.Take(ConcurrentJobCount))
@@ -60,7 +104,7 @@ namespace Assets.Code.World
             {
                 if (job.IsDone)
                 {
-                    Chunk newChunk = GetChunk(job.WorldPosition);
+                    Chunk newChunk = GetChunk(job.Position);
 
                     // chunk can be deleted meanwhile
                     if (newChunk != null)
@@ -81,13 +125,13 @@ namespace Assets.Code.World
             }
         }
 
-        public Chunk GetChunk(WorldPosition position, bool alreadyAbsolute = false)
+        public Chunk GetChunk(Position position, bool alreadyAbsolute = false)
         {
-            WorldPosition absolutePosition;
+            Position absolutePosition;
 
             if (!alreadyAbsolute)
             {
-                absolutePosition = new WorldPosition();
+                absolutePosition = new Position();
 
                 absolutePosition.x = Mathf.FloorToInt(position.x / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
                 absolutePosition.y = Mathf.FloorToInt(position.y / (float)Chunk.ChunkSize) * Chunk.ChunkSize;
@@ -105,16 +149,16 @@ namespace Assets.Code.World
             return containerChunk;
         }
 
-        public Block GetBlock(WorldPosition position)
+        public Block GetBlock(Position position)
         {
             Chunk containerChunk = GetChunk(position);
 
             if (containerChunk != null)
             {
                 Block block = containerChunk.GetBlock(
-                    position.x - containerChunk.WorldPosition.x,
-                    position.y - containerChunk.WorldPosition.y,
-                    position.z - containerChunk.WorldPosition.z);
+                    position.x - containerChunk.Position.x,
+                    position.y - containerChunk.Position.y,
+                    position.z - containerChunk.Position.z);
 
                 return block;
             }
@@ -122,7 +166,7 @@ namespace Assets.Code.World
             return new BlockAir();
         }
         
-        public void SetBlock(WorldPosition position, Block block)
+        public void SetBlock(Position position, Block block)
         {
             Chunk chunk = GetChunk(position);
             
@@ -133,12 +177,12 @@ namespace Assets.Code.World
                     chunk.Rebuild = true;
                 }
 
-                UpdateIfEqual(position.x - chunk.WorldPosition.x, 0, new WorldPosition(position.x - 1, position.y, position.z));
-                UpdateIfEqual(position.x - chunk.WorldPosition.x, Chunk.ChunkSize - 1, new WorldPosition(position.x + 1, position.y, position.z));
-                UpdateIfEqual(position.y - chunk.WorldPosition.y, 0, new WorldPosition(position.x, position.y - 1, position.z));
-                UpdateIfEqual(position.y - chunk.WorldPosition.y, Chunk.ChunkSize - 1, new WorldPosition(position.x, position.y + 1, position.z));
-                UpdateIfEqual(position.z - chunk.WorldPosition.z, 0, new WorldPosition(position.x, position.y, position.z - 1));
-                UpdateIfEqual(position.z - chunk.WorldPosition.z, Chunk.ChunkSize - 1, new WorldPosition(position.x, position.y, position.z + 1));
+                UpdateIfEqual(position.x - chunk.Position.x, 0, new Position(position.x - 1, position.y, position.z));
+                UpdateIfEqual(position.x - chunk.Position.x, Chunk.ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
+                UpdateIfEqual(position.y - chunk.Position.y, 0, new Position(position.x, position.y - 1, position.z));
+                UpdateIfEqual(position.y - chunk.Position.y, Chunk.ChunkSize - 1, new Position(position.x, position.y + 1, position.z));
+                UpdateIfEqual(position.z - chunk.Position.z, 0, new Position(position.x, position.y, position.z - 1));
+                UpdateIfEqual(position.z - chunk.Position.z, Chunk.ChunkSize - 1, new Position(position.x, position.y, position.z + 1));
             }
         }
 
@@ -146,15 +190,15 @@ namespace Assets.Code.World
         {
             Chunk chunk;
 
-            if (Chunks.TryGetValue(new WorldPosition(x, y, z), out chunk))
+            if (Chunks.TryGetValue(new Position(x, y, z), out chunk))
             {
                 Serialization.SaveChunk(chunk);
                 Destroy(chunk.gameObject);
-                Chunks.Remove(new WorldPosition(x, y, z));
+                Chunks.Remove(new Position(x, y, z));
             }
         }
 
-        void UpdateIfEqual(int value1, int value2, WorldPosition position)
+        void UpdateIfEqual(int value1, int value2, Position position)
         {
             if (value1 == value2)
             {

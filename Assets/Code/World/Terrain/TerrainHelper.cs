@@ -6,9 +6,9 @@ namespace Assets.Code.World.Terrain
 {
     public static class TerrainHelper
     {
-        public static WorldPosition GetBlockPos(Vector3 pos)
+        public static Position GetBlockPos(Vector3 pos)
         {
-            WorldPosition blockPosition = new WorldPosition(
+            Position blockPosition = new Position(
                 Mathf.RoundToInt(pos.x),
                 Mathf.RoundToInt(pos.y),
                 Mathf.RoundToInt(pos.z)
@@ -17,7 +17,7 @@ namespace Assets.Code.World.Terrain
             return blockPosition;
         }
 
-        public static WorldPosition GetBlockPos(RaycastHit hit, bool adjacent = false)
+        public static Position GetBlockPos(RaycastHit hit, bool adjacent = false)
         {
             Vector3 pos = new Vector3(
                 MoveWithinBlock(hit.point.x, hit.normal.x, adjacent),
@@ -52,7 +52,7 @@ namespace Assets.Code.World.Terrain
             if (chunk == null)
                 return false;
 
-            WorldPosition position = GetBlockPos(hit, adjacent);
+            Position position = GetBlockPos(hit, adjacent);
             
             chunk.World.SetBlock(position, block);
 
@@ -64,7 +64,7 @@ namespace Assets.Code.World.Terrain
             if (chunk == null)
                 return null;
 
-            WorldPosition position = GetBlockPos(hit, adjacent);
+            Position position = GetBlockPos(hit, adjacent);
 
             Block block = chunk.World.GetBlock(position);
 

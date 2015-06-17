@@ -14,43 +14,49 @@ namespace Assets.Code.World.Chunks.Blocks
 
         public bool Changed = true;
 
-        //Base block constructor
         public virtual MeshData Blockdata(Chunk chunk, int x, int y, int z, MeshData meshData)
         {
             meshData.UseRenderDataForCol = true;
 
-            if (!chunk.GetBlock(x, y + 1, z).IsSolid(Direction.Down))
+            Position position = new Position(x, y, z);
+
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x, y + 1, z).IsSolid(Direction.Down))
             {
                 meshData = FaceDataUp(x, y, z, meshData);
             }
 
-            if (!chunk.GetBlock(x, y - 1, z).IsSolid(Direction.Up))
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x, y - 1, z).IsSolid(Direction.Up))
             {
                 meshData = FaceDataDown(x, y, z, meshData);
             }
 
-            if (!chunk.GetBlock(x, y, z + 1).IsSolid(Direction.South))
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x, y, z + 1).IsSolid(Direction.South))
             {
                 meshData = FaceDataNorth(x, y, z, meshData);
             }
 
-            if (!chunk.GetBlock(x, y, z - 1).IsSolid(Direction.North))
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x, y, z - 1).IsSolid(Direction.North))
             {
                 meshData = FaceDataSouth(x, y, z, meshData);
             }
 
-            if (!chunk.GetBlock(x + 1, y, z).IsSolid(Direction.West))
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x + 1, y, z).IsSolid(Direction.West))
             {
                 meshData = FaceDataEast(x, y, z, meshData);
             }
 
-            if (!chunk.GetBlock(x - 1, y, z).IsSolid(Direction.East))
+            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetBlock(x - 1, y, z).IsSolid(Direction.East))
             {
                 meshData = FaceDataWest(x, y, z, meshData);
             }
 
             return meshData;
 
+        }
+
+        private bool IsPossibleSolidBlock(Chunk chunk, Position position)
+        {
+            return chunk.Blocks[position.x, position.y, position.z] != null || chunk.Blocks[position.x, position.y, position.z] is BlockAir;
         }
 
         public MeshData StandaloneBlockData(MeshData meshData)

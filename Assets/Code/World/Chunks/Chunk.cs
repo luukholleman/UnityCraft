@@ -28,14 +28,14 @@ namespace Assets.Code.World.Chunks
 
         public bool Rendered { get; private set; }
 
-        public List<KeyValuePair<WorldPosition, Block>> toBuild;
+        public List<KeyValuePair<Position, Block>> toBuild;
 
         //Use this for initialization
         MeshFilter _filter;
         MeshCollider _coll;
 
         public World World;
-        public WorldPosition WorldPosition;
+        public Position Position;
 
         private GenerateChunkMesh _chunkMeshGenerator;
 
@@ -87,7 +87,7 @@ namespace Assets.Code.World.Chunks
             Serialization.SaveChunk(this);
         }
 
-        public Block GetBlock(WorldPosition position)
+        public Block GetBlock(Position position)
         {
             if (InRange(position.x) && InRange(position.y) && InRange(position.z))
             {
@@ -99,17 +99,17 @@ namespace Assets.Code.World.Chunks
                 return Blocks[position.x, position.y, position.z];
             }
 
-            return World.GetBlock(WorldPosition + position);
+            return World.GetBlock(Position + position);
         }
 
         public Block GetBlock(int x, int y, int z)
         {
-            return GetBlock(new WorldPosition(x, y, z));
+            return GetBlock(new Position(x, y, z));
         }
 
-        public void FillWithPreBuiltBlocks(List<KeyValuePair<WorldPosition, Block>> blocks)
+        public void FillWithPreBuiltBlocks(List<KeyValuePair<Position, Block>> blocks)
         {
-            foreach (KeyValuePair<WorldPosition, Block> block in blocks)
+            foreach (KeyValuePair<Position, Block> block in blocks)
             {
                 SetBlock(block.Key, block.Value);
             }
@@ -130,14 +130,14 @@ namespace Assets.Code.World.Chunks
             return result;
         }
 
-        public WorldPosition InnerChunkPosition(WorldPosition pos)
+        public Position InnerChunkPosition(Position pos)
         {
-            return new WorldPosition(Mod(pos.x, ChunkSize), Mod(pos.y, ChunkSize), Mod(pos.z, ChunkSize));
+            return new Position(Mod(pos.x, ChunkSize), Mod(pos.y, ChunkSize), Mod(pos.z, ChunkSize));
         }
 
-        public bool SetBlock(WorldPosition position, Block block)
+        public bool SetBlock(Position position, Block block)
         {
-            WorldPosition innerblockPosition = InnerChunkPosition(position);
+            Position innerblockPosition = InnerChunkPosition(position);
 
             if (InRange(innerblockPosition.x) && InRange(innerblockPosition.y) && InRange(innerblockPosition.z))
             {
@@ -146,7 +146,7 @@ namespace Assets.Code.World.Chunks
                 return true;
             }
 
-            World.SetBlock(WorldPosition + position, block);
+            World.SetBlock(Position + position, block);
 
             return false;
         }
@@ -188,7 +188,7 @@ namespace Assets.Code.World.Chunks
 
         public override string ToString()
         {
-            return "Chunk: " + WorldPosition.x + "," + WorldPosition.y + "," + WorldPosition.z;
+            return "Chunk: " + Position.x + "," + Position.y + "," + Position.z;
         }
     }
 }

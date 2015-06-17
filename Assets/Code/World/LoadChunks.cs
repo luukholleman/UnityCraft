@@ -14,11 +14,11 @@ namespace Assets.Code.World
 
         int timer;
 
-        private static List<WorldPosition> _chunkPositions = new List<WorldPosition>();
+        private static List<Position> _chunkPositions = new List<Position>();
 
-        private readonly List<WorldPosition> _buildList = new List<WorldPosition>();
+        private readonly List<Position> _buildList = new List<Position>();
 
-        private readonly List<WorldPosition> _doneList = new List<WorldPosition>();
+        private readonly List<Position> _doneList = new List<Position>();
 
         public const int BatchChunkCount = 8;
 
@@ -29,13 +29,43 @@ namespace Assets.Code.World
             for (int x = -range; x < range; x++)
                 for (int y = -range; y < range; y++)
                     for (int z = -range; z < range; z++)
-                        _chunkPositions.Add(new WorldPosition(x * Chunk.ChunkSize, y * Chunk.ChunkSize, z * Chunk.ChunkSize));   
+                        _chunkPositions.Add(new Position(x * Chunk.ChunkSize, y * Chunk.ChunkSize, z * Chunk.ChunkSize));   
 
             _chunkPositions = _chunkPositions.OrderBy(w => w.ToVector3().magnitude).ToList();
 
-            StartCoroutine("FindChunksToLoad");
-            StartCoroutine("LoadAndRenderChunks");
-            StartCoroutine("DeleteChunks");
+            //StartCoroutine("FindChunksToLoad");
+            //StartCoroutine("LoadAndRenderChunks");
+            //StartCoroutine("DeleteChunks");
+            StartCoroutine("GetChunksFromGenerationEngine");
+        }
+
+        IEnumerator GetChunksFromGenerationEngine()
+        {
+            for (;;)
+            {
+                if (World.Generator == null)
+                    yield return null;
+
+                World.Generator.SetPlayerPosition(new Position(transform.position));
+
+                foreach (Position chunkPosition in _chunkPositions)
+                {
+                    Position newChunkPosition = new Position(World.Generator.PlayerPosition + chunkPosition);
+
+                    //Get the chunk in the defined position
+                    GenerationEngine.Chunk newChunk = World.Generator.GetChunk(newChunkPosition);
+
+                    //If the chunk already exists and it's already
+                    //Rendered or in queue to be Rendered continue
+                    if (newChunk == null)
+                        continue;
+
+                    if (!CreateNewChunkPrefab(newChunkPosition))
+                        break;
+                }
+
+                yield return null;
+            }
         }
         
         IEnumerator FindChunksToLoad()
@@ -44,26 +74,26 @@ namespace Assets.Code.World
             {
                 Vector3 origPos = transform.position;
 
-                WorldPosition playerPosition = new WorldPosition(
+                Position playerPosition = new Position(
                     Mathf.FloorToInt(transform.position.x / Chunk.ChunkSize) * Chunk.ChunkSize,
                     Mathf.FloorToInt(transform.position.y / Chunk.ChunkSize) * Chunk.ChunkSize,
                     Mathf.FloorToInt(transform.position.z / Chunk.ChunkSize) * Chunk.ChunkSize
                 );
 
                 int i = 0;
-                foreach (WorldPosition chunkPosition in _chunkPositions)
+                foreach (Position chunkPosition in _chunkPositions)
                 {
-                    WorldPosition newChunkWorldPosition = new WorldPosition(playerPosition + chunkPosition);
+                    Position newChunkPosition = new Position(playerPosition + chunkPosition);
 
                     //Get the chunk in the defined position
-                    Chunk newChunk = World.GetChunk(newChunkWorldPosition);
+                    Chunk newChunk = World.GetChunk(newChunkPosition);
 
                     //If the chunk already exists and it's already
                     //Rendered or in queue to be Rendered continue
-                    if (newChunk != null || _doneList.Contains(newChunkWorldPosition))
+                    if (newChunk != null || _doneList.Contains(newChunkPosition))
                         continue;
                     
-                    _buildList.Add(newChunkWorldPosition);
+                    _buildList.Add(newChunkPosition);
 
                     if (++i >= BatchChunkCount)
                     {
@@ -78,10 +108,16 @@ namespace Assets.Code.World
             }
         }
 
-        void CreateNewChunkPrefab(WorldPosition position)
+        bool CreateNewChunkPrefab(Position position)
         {
-            if (World.GetChunk(position) == null)
+            if (World.Generator.GetChunk(position) != null)
+            {
                 World.CreateNewChunkPrefab(position);
+
+                return true;
+            }
+
+            return false;
         }
 
         IEnumerator LoadAndRenderChunks()
@@ -104,13 +140,15 @@ namespace Assets.Code.World
 
         IEnumerator DeleteChunks()
         {
+            yield return null;
             for (;;)
             {
-                var chunksToDelete = new List<WorldPosition>();
+                break;
+                var chunksToDelete = new List<Position>();
 
                 foreach (var chunk in World.Chunks)
                 {
-                    float distance = chunk.Value.WorldPosition.ManhattanDistance(new WorldPosition(transform.position));
+                    float distance = chunk.Value.Position.ManhattanDistance(new Position(transform.position));
 
                     if (distance > World.ViewingRange)
                         chunksToDelete.Add(chunk.Key);

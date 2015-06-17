@@ -7,19 +7,19 @@ namespace Assets.Code.Thread
 {
     class FillChunkJob : ThreadedJob
     {
-        public WorldPosition WorldPosition;  // arbitary job data
-        public List<KeyValuePair<WorldPosition, Block>> Blocks { get { return _chunkGenerator.Blocks; } }
+        public Position Position;
+        public List<KeyValuePair<Position, Block>> Blocks { get { return _chunkGenerator.Blocks; } }
 
         private ChunkGenerator _chunkGenerator;
 
-        public FillChunkJob(WorldPosition worldPosition)
+        public FillChunkJob(Position position)
         {
-            WorldPosition = worldPosition;
+            Position = position;
         }
 
         protected override void ThreadFunction()
         {
-            _chunkGenerator = new ChunkGenerator(WorldPosition);
+            _chunkGenerator = new ChunkGenerator(Position);
 
             _chunkGenerator.Generate();
         }

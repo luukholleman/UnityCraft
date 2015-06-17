@@ -1,6 +1,6 @@
 ﻿namespace Assets.Code.Thread
 {
-    abstract class ThreadedJob
+    public abstract class ThreadedJob
     {
         private bool _isDone;
         private object _handle = new object();

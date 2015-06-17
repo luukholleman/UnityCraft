@@ -19,7 +19,7 @@ namespace Assets.Code.Player
                 if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks")))
                 {
                     Block block = TerrainHelper.GetBlock(hit);
-                    WorldPosition pos = TerrainHelper.GetBlockPos(hit);
+                    Position pos = TerrainHelper.GetBlockPos(hit);
 
                     TerrainHelper.SetBlock(hit, new BlockAir());
 
