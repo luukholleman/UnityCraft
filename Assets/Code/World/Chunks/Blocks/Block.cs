@@ -1,4 +1,6 @@
 ﻿using System;
+using Assets.Code.Items;
+using Assets.Code.Items.Blocks;
 using UnityEngine;
 
 namespace Assets.Code.World.Chunks.Blocks
@@ -54,12 +56,17 @@ namespace Assets.Code.World.Chunks.Blocks
 
         }
 
+        public virtual Item GetItem()
+        {
+            return new StoneBlock();
+        }
+
         private bool IsPossibleSolidBlock(Chunk chunk, Position position)
         {
             return chunk.Blocks[position.x, position.y, position.z] != null || chunk.Blocks[position.x, position.y, position.z] is BlockAir;
         }
 
-        public MeshData StandaloneBlockData(MeshData meshData)
+        public MeshData PropData(MeshData meshData)
         {
                 meshData = FaceDataUp(0, 0, 0, meshData);
                 meshData = FaceDataDown(0, 0, 0, meshData);

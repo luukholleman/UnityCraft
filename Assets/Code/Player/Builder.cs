@@ -23,10 +23,10 @@ namespace Assets.Code.Player
 
                     TerrainHelper.SetBlock(hit, new BlockAir());
 
-                    GameObject floatingBlock = Instantiate(Resources.Load<GameObject>("Prefabs/DroppedBlock"), pos.ToVector3(), new Quaternion()) as GameObject;
+                    GameObject droppedItem = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
 
-                    floatingBlock.GetComponent<DroppedBlock>().Position = pos;
-                    floatingBlock.GetComponent<DroppedBlock>().OrigBlock = block;
+                    droppedItem.GetComponent<DroppedItem>().Position = pos;
+                    droppedItem.GetComponent<DroppedItem>().Item = block.GetItem();
                 }
             }
 

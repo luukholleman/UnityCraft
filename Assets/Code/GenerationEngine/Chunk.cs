@@ -121,7 +121,7 @@ namespace Assets.Code.GenerationEngine
                 }
                 else if (y <= dirtHeight)
                 {
-                    SetBlock(blockPosition, new BlockGrass());
+                    SetBlock(blockPosition, new BlockSand());
                 }
                 else if (GetMeteoriteNoise(blockPosition, 0.01f, 10) >= 8)
                 {

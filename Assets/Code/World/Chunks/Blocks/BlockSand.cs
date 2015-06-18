@@ -1,9 +1,11 @@
 ﻿using System;
+using Assets.Code.Items;
+using Assets.Code.Items.Blocks;
 
 namespace Assets.Code.World.Chunks.Blocks
 {
     [Serializable]
-    public class BlockGrass : Block
+    public class BlockSand : Block
     {
         public override Tile TexturePosition(Direction direction)
         {
@@ -25,6 +27,11 @@ namespace Assets.Code.World.Chunks.Blocks
             tile.y = 15;
 
             return tile;
+        }
+
+        public override Item GetItem()
+        {
+            return new SandBlock();
         }
     }
 }
