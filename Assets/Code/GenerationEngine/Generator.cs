@@ -16,8 +16,8 @@ namespace Assets.Code.GenerationEngine
 
         public const int ChunkSize = 16;
 
-        public const int MaxHorizontalGenerationDistance = 20;
-        public const int MaxVerticalGenerationDistance = 10;
+        public const int MaxHorizontalGenerationDistance = 40;
+        public const int MaxVerticalGenerationDistance = 20;
 
         private Dictionary<Position, Chunk> _chunks = new Dictionary<Position, Chunk>();
 
@@ -39,12 +39,12 @@ namespace Assets.Code.GenerationEngine
 
         public void SetPlayerPosition(Position playerPosition)
         {
-            PlayerPosition = SnapToGrid(playerPosition);
+            PlayerPosition = Helper.SnapToGrid(playerPosition);
         }
 
         public Chunk GetChunk(Position position)
         {
-            position = SnapToGrid(position);
+            position = Helper.SnapToGrid(position);
             Chunk chunk = null;
 
             lock (_chunks)
@@ -55,25 +55,13 @@ namespace Assets.Code.GenerationEngine
             return chunk;
         }
 
-        public Position SnapToGrid(Position origPosition)
-        {
-
-            Position playerChunk = new Position(
-                Mathf.FloorToInt(origPosition.x / ChunkSize) * ChunkSize,
-                Mathf.FloorToInt(origPosition.y / ChunkSize) * ChunkSize,
-                Mathf.FloorToInt(origPosition.z / ChunkSize) * ChunkSize
-                );
-
-            return playerChunk;
-        }
-
         protected override void ThreadFunction()
         {
             while(!_aborted)
             {
                 Position currentPlayerPosition = PlayerPosition;
 
-                Position playerChunk = SnapToGrid(currentPlayerPosition);
+                Position playerChunk = Helper.SnapToGrid(currentPlayerPosition);
 
                 foreach (Position chunkPosition in _chunkScope)
                 {

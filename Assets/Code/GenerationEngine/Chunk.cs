@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World;
+using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
 using CoherentNoise.Generation;
 using CoherentNoise.Generation.Fractal;
@@ -12,9 +13,14 @@ namespace Assets.Code.GenerationEngine
 {
     public class Chunk
     {
-        //public Block[, ,] Blocks = new Block[World.Chunks.Chunk.ChunkSize, World.Chunks.Chunk.ChunkSize, World.Chunks.Chunk.ChunkSize];
+        public Block[, ,] Blocks = new Block[Generator.ChunkSize, Generator.ChunkSize, Generator.ChunkSize];
 
-        public List<KeyValuePair<Position, Block>> Blocks = new List<KeyValuePair<Position, Block>>(); 
+        public List<KeyValuePair<Position, Block>> BeyondChunkBlocks = new List<KeyValuePair<Position, Block>>(); 
+
+
+        private MeshFilter _filter;
+        private MeshCollider _collider;
+        //public Block[, ,] Blocks = new Block[World.Chunks.Chunk.ChunkSize, World.Chunks.Chunk.ChunkSize, World.Chunks.Chunk.ChunkSize];
 
         public Position Position;
 
@@ -33,6 +39,8 @@ namespace Assets.Code.GenerationEngine
         private static readonly CoherentNoise.Generator MainLandNoise = new GradientNoise2D(123456789);
         private static readonly CoherentNoise.Generator MeteoriteNoise = new BillowNoise(123456789);
         private static readonly CoherentNoise.Generator CaveNoise = new GradientNoise(123456789);
+
+        public MeshData MeshData = new MeshData();
 
         public Chunk(Position position)
         {
@@ -53,7 +61,14 @@ namespace Assets.Code.GenerationEngine
         {
             position -= Position;
 
-            Blocks.Add(new KeyValuePair<Position, Block>(position, block));
+            if (Helper.InChunk(position))
+            {
+                Blocks[position.x, position.y, position.z] = block;
+            }
+            else
+            {
+                BeyondChunkBlocks.Add(new KeyValuePair<Position, Block>(position, block));
+            }
         }
 
         private static float GetMeteoriteNoise(Position position, float scale, int max)

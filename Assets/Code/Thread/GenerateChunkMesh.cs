@@ -5,6 +5,7 @@ using System.Text;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.World.Chunks.Blocks;
+using UnityEngine;
 
 namespace Assets.Code.Thread
 {
@@ -14,6 +15,13 @@ namespace Assets.Code.Thread
         private Block[,,] _blocks;
 
         public MeshData MeshData;
+
+        public Vector3[] Vertices;
+        public int[] Triangles;
+        public Vector2[] Uv;
+
+        public Vector3[] ColVertices;
+        public int[] ColTriangles;
 
         public GenerateChunkMesh(Chunk chunk, Block[, ,] blocks)
         {
@@ -25,10 +33,17 @@ namespace Assets.Code.Thread
 
         protected override void ThreadFunction()
         {
-            for (int x = 0; x < Chunk.ChunkSize; x++)
-                for (int y = 0; y < Chunk.ChunkSize; y++)
-                    for (int z = 0; z < Chunk.ChunkSize; z++)
+            for (int x = 0; x < World.World.ChunkSize; x++)
+                for (int y = 0; y < World.World.ChunkSize; y++)
+                    for (int z = 0; z < World.World.ChunkSize; z++)
                         MeshData = _blocks[x, y, z].Blockdata(_chunk, x, y, z, MeshData);
+
+            Vertices = MeshData.Vertices.ToArray();
+            Triangles = MeshData.Triangles.ToArray();
+            Uv = MeshData.Uv.ToArray();
+
+            ColVertices = MeshData.ColVertices.ToArray();
+            ColTriangles = MeshData.ColTriangles.ToArray();
         }
 
         protected override void OnFinished()

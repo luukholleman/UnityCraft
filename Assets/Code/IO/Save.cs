@@ -13,11 +13,11 @@ namespace Assets.Code.IO
 
         public Save(Chunk chunk)
         {
-            for (int x = 0; x < Chunk.ChunkSize; x++)
+            for (int x = 0; x < World.World.ChunkSize; x++)
             {
-                for (int y = 0; y < Chunk.ChunkSize; y++)
+                for (int y = 0; y < World.World.ChunkSize; y++)
                 {
-                    for (int z = 0; z < Chunk.ChunkSize; z++)
+                    for (int z = 0; z < World.World.ChunkSize; z++)
                     {
                         if (chunk.Blocks[x, y, z] == null || !chunk.Blocks[x, y, z].Changed)
                             continue;
