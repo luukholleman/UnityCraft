@@ -1,6 +1,8 @@
-﻿using Assets.Code.World;
+﻿using Assets.Code.Blocks;
+using Assets.Code.GUI.Inventory;
+using Assets.Code.Items;
+using Assets.Code.World;
 using Assets.Code.World.Chunks;
-using Assets.Code.World.Chunks.Blocks;
 using Assets.Code.World.Terrain;
 using UnityEngine;
 
@@ -9,6 +11,13 @@ namespace Assets.Code.Player
     public class Builder : MonoBehaviour
     {
         Vector2 rot;
+
+        private InventoryComponent Inventory;
+
+        void Start()
+        {
+            Inventory = GameObject.Find("Inventory").GetComponent<InventoryComponent>();
+        }
 
         void Update()
         {
@@ -21,12 +30,17 @@ namespace Assets.Code.Player
                     Block block = TerrainHelper.GetBlock(hit);
                     Position pos = TerrainHelper.GetBlockPos(hit);
 
-                    TerrainHelper.SetBlock(hit, new BlockAir());
+                    TerrainHelper.SetBlock(hit, new Air());
 
-                    GameObject droppedItem = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
+                    Item droppedItem = block.GetItem();
 
-                    droppedItem.GetComponent<DroppedItem>().Position = pos;
-                    droppedItem.GetComponent<DroppedItem>().Item = block.GetItem();
+                    if (droppedItem != null)
+                    {
+                        GameObject droppedItemGo = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
+
+                        droppedItemGo.GetComponent<DroppedItem>().Position = pos;
+                        droppedItemGo.GetComponent<DroppedItem>().Item = droppedItem;
+                    }
                 }
             }
 
@@ -36,7 +50,17 @@ namespace Assets.Code.Player
 
                 if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
                 {
-                    TerrainHelper.SetBlock(hit, new Block(), true);
+                    Item item = Inventory.PopSelectedItem();
+
+                    if (item != null)
+                    {
+                        Block block = item.GetBlock();
+
+                        if (block != null)
+                        {
+                            TerrainHelper.SetBlock(hit, block, true);
+                        }
+                    }
                 }
             }
 

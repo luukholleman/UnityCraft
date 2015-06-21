@@ -1,5 +1,5 @@
-﻿using Assets.Code.World.Chunks;
-using Assets.Code.World.Chunks.Blocks;
+﻿using Assets.Code.Blocks;
+using Assets.Code.World.Chunks;
 using UnityEngine;
 
 namespace Assets.Code.World.Terrain

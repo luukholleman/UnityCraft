@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Assets.Code.Blocks;
 using Assets.Code.GenerationEngine;
-using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
 using Chunk = Assets.Code.World.Chunks.Chunk;
 
@@ -14,7 +15,7 @@ namespace Assets.Code.World
 
         public static Generator Generator;
 
-        public const int ViewingRange = 16*10;
+        public const int ViewingRange = 16*20;
 
         public const int LevelHeight = 4;
 
@@ -22,18 +23,17 @@ namespace Assets.Code.World
 
         public static int ChunkSize = 16;
 
-        public void CreateNewChunkPrefab(Position position)
+        public bool CreateNewChunkPrefab(Position position)
         {
             if (Chunks.ContainsKey(position))
-                return;
+                return false;
 
-            GameObject newChunkObject = Instantiate(
-                            ChunkPrefab, position.ToVector3(),
-                            Quaternion.Euler(Vector3.zero)
-                        ) as GameObject;
+            GameObject newChunkObject = PoolManager.Spawn(ChunkPrefab);
 
             if (newChunkObject != null)
             {
+                newChunkObject.transform.position = position.ToVector3();
+
                 Chunk newChunk = newChunkObject.GetComponent<Chunk>();
 
                 newChunk.Position = position;
@@ -54,12 +54,21 @@ namespace Assets.Code.World
 
                 Chunks.Add(position, newChunk);
             }
+
+            return true;
         }
         
         void Start()
         {
             Generator = new Generator();
             Generator.Start();
+        }
+
+        void Update()
+        {
+            //Debug.Log("----");
+            //Debug.Log(Generator.ChunkGenerators.Count);
+            //Debug.Log(Generator.ChunkGenerators.Count(g => g.IsDone));
         }
 
         void OnDestroy()
@@ -105,7 +114,7 @@ namespace Assets.Code.World
                 return block;
             }
             
-            return new BlockAir();
+            return new Air();
         }
         
         public void SetBlock(Position position, Block block)
@@ -134,7 +143,8 @@ namespace Assets.Code.World
 
             if (chunk != null)
             {
-                Destroy(chunk.gameObject);
+                chunk.GetComponent<MeshFilter>().mesh = new Mesh();
+                PoolManager.Despawn(chunk.gameObject);
                 Chunks.Remove(position);
             }
         }

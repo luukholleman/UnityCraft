@@ -12,7 +12,7 @@ namespace Assets.Code.GUI
 
         void Update()
         {
-            if(Input.GetKeyDown(KeyCode.Escape))
+            if(Input.GetKeyDown(KeyCode.P))
                 Paused = !Paused;
 
             if (Paused)

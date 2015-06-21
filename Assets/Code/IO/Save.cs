@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Assets.Code.Blocks;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
-using Assets.Code.World.Chunks.Blocks;
 
 namespace Assets.Code.IO
 {

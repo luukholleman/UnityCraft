@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Code.Blocks;
 using Assets.Code.Thread;
-using Assets.Code.World.Chunks.Blocks;
 using UnityEngine;
 
 namespace Assets.Code.World.Chunks
@@ -15,10 +15,10 @@ namespace Assets.Code.World.Chunks
     public class Chunk : MonoBehaviour
     {
         public Block[, ,] Blocks = new Block[World.ChunkSize, World.ChunkSize, World.ChunkSize];
-        
-        public bool Rebuild { get; set; }
 
-        public bool Rendered { get; private set; }
+        public bool Rebuild;
+
+        public bool Rendered;
 
         private MeshFilter _filter;
         private MeshCollider _coll;
@@ -36,7 +36,6 @@ namespace Assets.Code.World.Chunks
             _coll = gameObject.GetComponent<MeshCollider>();
         }
         
-        //Update is called once per frame
         void Update()
         {
             if (Rebuild)

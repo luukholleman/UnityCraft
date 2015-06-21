@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Assets.Code.GenerationEngine;
 using UnityEngine;
 using Chunk = Assets.Code.World.Chunks.Chunk;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace Assets.Code.World
@@ -15,7 +17,9 @@ namespace Assets.Code.World
 
         private static List<Position> _chunkPositions = new List<Position>();
 
-        public const int BatchChunkCount = 8;
+        public const int BatchChunkCount = 3;
+
+        private const int MaxMillisecondtime = 5;
 
         void Start()
         {
@@ -37,12 +41,20 @@ namespace Assets.Code.World
             for (;;)
             {
                 if (World.Generator == null)
-                    yield return null;
+                    yield return null; 
+                
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
 
                 World.Generator.SetPlayerPosition(new Position(transform.position));
 
+                int i = 0;
+
                 foreach (Position chunkPosition in _chunkPositions)
                 {
+                    if (sw.ElapsedMilliseconds >= MaxMillisecondtime)
+                        break;
+
                     Position newChunkPosition = new Position(World.Generator.PlayerPosition + chunkPosition);
 
                     //Get the chunk in the defined position
@@ -58,7 +70,11 @@ namespace Assets.Code.World
                         break;
                     }
 
-                    World.CreateNewChunkPrefab(newChunkPosition);
+                    if (World.CreateNewChunkPrefab(newChunkPosition))
+                    {
+                        if (++i > BatchChunkCount)
+                            break;
+                    }
                 }
 
                 yield return null;

@@ -2,9 +2,9 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Assets.Code.Blocks;
 using Assets.Code.IO;
 using Assets.Code.World.Chunks;
-using Assets.Code.World.Chunks.Blocks;
 
 namespace Assets.Code.World
 {

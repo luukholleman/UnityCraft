@@ -9,7 +9,11 @@ namespace Assets.Code.Player
 {
     class Controller : MonoBehaviour
     {
-        public float MoveSpeed = 10f;
+        public Camera Cam;
+
+        public float FlySpeed = 10f;
+        public float MoveAccelerationSpeed = 10f;
+        public float MaxMoveSpeed = 10f;
         public float JumpSpeed = 20f;
         public float RotateSpeed = 10f;
         public float LookSensivity = 15f;
@@ -30,6 +34,8 @@ namespace Assets.Code.Player
 
         private bool _stableThrusters;
 
+        private float _distToGround;
+
         void Start()
         {
             if (GetComponent<Rigidbody>())
@@ -38,6 +44,8 @@ namespace Assets.Code.Player
             _originalRotation = transform.localRotation;
 
             _rigidbody = GetComponent<Rigidbody>();
+
+            _distToGround = GetComponent<Collider>().bounds.extents.y;
         }
 
         void Update()
@@ -52,11 +60,14 @@ namespace Assets.Code.Player
                 _stableThrusters = !_stableThrusters;
                 _rigidbody.useGravity = !_rigidbody.useGravity;
             }
-            
-            if(_stableThrusters)
-                UpdateStableVelocity();
+        }
+
+        void FixedUpdate()
+        {
+            if (_stableThrusters)
+                UpdateJetpackVelocity();
             else
-                UpdateFreeVelocity();
+                UpdateWalkVelocity();
         }
 
         void OnGUI()
@@ -65,33 +76,36 @@ namespace Assets.Code.Player
             UnityEngine.GUI.Label(new Rect(10, 50, 200, 20), "Speed: " + _rigidbody.velocity.magnitude);
         }
 
-        private void UpdateStableVelocity()
+        private void UpdateJetpackVelocity()
         {
             _rigidbody.AddForce(-_rigidbody.velocity);
 
             Vector3 velocity = new Vector3();
 
-            velocity.x = Input.GetAxis("Horizontal") * MoveSpeed;
-            velocity.z = Input.GetAxis("Vertical") * MoveSpeed;
+            velocity.x = Input.GetAxis("Horizontal") * FlySpeed;
+            velocity.z = Input.GetAxis("Vertical") * FlySpeed;
 
             if (Input.GetKey(KeyCode.Space))
-                velocity.y = MoveSpeed;
+                velocity.y = FlySpeed;
 
-            _rigidbody.AddRelativeForce(velocity.normalized * MoveSpeed * (MoveSpeed / 3));
+            velocity *= Time.deltaTime;
+
+            _rigidbody.AddRelativeForce(-velocity.normalized * FlySpeed * (FlySpeed / 3));
         }
 
-        private void UpdateFreeVelocity()
+        private void UpdateWalkVelocity()
         {
             Vector3 velocity = new Vector3();
 
-            velocity.x = Input.GetAxis("Horizontal") * MoveSpeed;
-            velocity.z = Input.GetAxis("Vertical") * MoveSpeed;
+            velocity.x = Input.GetAxis("Horizontal") * MoveAccelerationSpeed;
+            velocity.z = Input.GetAxis("Vertical") * MoveAccelerationSpeed;
 
-            _rigidbody.AddRelativeForce(velocity);
+            velocity = velocity.normalized*MaxMoveSpeed*_rigidbody.drag;
 
-            if (Input.GetKey(KeyCode.Space))
-                _rigidbody.AddForce(new Vector3(0, JumpSpeed, 0));
+            if (Input.GetKey(KeyCode.Space) && IsGrounded())
+                velocity.y = -JumpSpeed;
 
+            _rigidbody.AddRelativeForce(-velocity, ForceMode.Acceleration);
         }
 
         void UpdateView()
@@ -108,27 +122,28 @@ namespace Assets.Code.Player
             // Read the mouse input axis
             _rotationX += Input.GetAxis("Mouse X") * LookSensivity;
             _rotationY += Input.GetAxis("Mouse Y") * LookSensivity;
-            
-            //_rotationX = ClampAngle(_rotationX, minimumX, maximumX);
-            //_rotationY = ClampAngle(_rotationY, minimumY, maximumY);
 
             Quaternion xQuaternion = Quaternion.AngleAxis(_rotationX, Vector3.up);
             Quaternion yQuaternion = Quaternion.AngleAxis(_rotationY, -Vector3.right);
             Quaternion zQuaternion = Quaternion.AngleAxis(_rot, Vector3.forward);
 
-            transform.localRotation = _originalRotation * xQuaternion * yQuaternion;
-
-            //transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles + rot);
+            Cam.transform.localRotation = _originalRotation * yQuaternion;
+            transform.rotation = _originalRotation * xQuaternion;
         }
 
-        public static float ClampAngle (float angle, float min, float max)
-         {
-             if (angle < -360F)
-                 angle += 360F;
-             if (angle > 360F)
-                 angle -= 360F;
-             return Mathf.Clamp (angle, min, max);
-         }
+        public static float ClampAngle(float angle, float min, float max)
+        {
+            if (angle < -360F)
+                angle += 360F;
+            if (angle > 360F)
+                angle -= 360F;
+            return Mathf.Clamp(angle, min, max);
+        }
+
+        bool IsGrounded()
+        {
+            return Physics.Raycast(transform.position, -Vector3.up, _distToGround + 0.1f);
+        }
 
     }
 }
