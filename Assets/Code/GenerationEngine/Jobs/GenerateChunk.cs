@@ -10,6 +10,7 @@ using Assets.Code.World.Chunks;
 using Assets.CoherentNoise;
 using Assets.CoherentNoise.Generation;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Code.GenerationEngine.Jobs
 {
@@ -63,11 +64,25 @@ namespace Assets.Code.GenerationEngine.Jobs
 
         public void Generate()
         {
-            for (int x = Position.x; x < Position.x + Generator.ChunkSize; x++)
+            for (int x = Position.x - Generator.ChunkSize; x < Position.x + Generator.ChunkSize + Generator.ChunkSize; x++)
             {
-                for (int z = Position.z; z < Position.z + Generator.ChunkSize; z++)
+                for (int z = Position.z - Generator.ChunkSize; z < Position.z + Generator.ChunkSize + Generator.ChunkSize; z++)
                 {
                     GenerateColumnInChunk(x, z);
+                }
+            }
+
+            for (int x = 0; x < Generator.ChunkSize; x++)
+            {
+                for (int y = 0; y < Generator.ChunkSize; y++)
+                {
+                    for (int z = 0; z < Generator.ChunkSize; z++)
+                    {
+                        if (Chunk.Blocks[x, y, z] == null)
+                        {
+                            Chunk.Blocks[x,y,z] = new Air();
+                        }
+                    }
                 }
             }
         }
@@ -82,9 +97,9 @@ namespace Assets.Code.GenerationEngine.Jobs
             return (CaveNoise.GetValue(position.x * scale, position.y * scale, position.z * scale) + CaveNoise.GetValue(position.x * scale * 3, position.y * scale * 3, position.z * scale * 3)) * (max / 2f);
         }
 
-        public static int GetSimpleNoise(int x, int y, int z, float scale, int max)
+        public static int GetSimpleNoise(Position position, float scale, int max)
         {
-            return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1f) * (max / 2f));
+            return Mathf.FloorToInt((Noise.Generate(position.x * scale, position.y * scale, position.z * scale) + 1f) * (max / 2f));
         }
 
         private void GenerateColumnInChunk(int x, int z)
@@ -109,7 +124,7 @@ namespace Assets.Code.GenerationEngine.Jobs
             stoneHeight -= dirtHeight;
             dirtHeight += stoneHeight;
 
-            for (int y = Position.y; y < Position.y + Generator.ChunkSize; y++)
+            for (int y = Position.y - Generator.ChunkSize; y < Position.y + Generator.ChunkSize; y++)
             {
                 Position blockPosition = new Position(columnPosition);
 
@@ -127,21 +142,17 @@ namespace Assets.Code.GenerationEngine.Jobs
                 {
                     Chunk.SetBlock(blockPosition, new Earth());
 
-                    if (Math.Abs(y - dirtHeight) < 0.5f && GetSimpleNoise(blockPosition.x, blockPosition.z, 0, treeFrequency, 100) < treeDensity)
+                    if (Math.Abs(y - dirtHeight) < 0.5f && GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), treeFrequency, 100) < treeDensity)
                     {
                         CreateTree(blockPosition);
                     }
-                }
-                else
-                {
-                    Chunk.SetBlock(blockPosition, new Air());
                 }
             }
         }
 
         private void CreateTree(Position position)
         {
-            int treeHeight = GetSimpleNoise(position.x, 0, position.z, 1, 4) + 10;
+            int treeHeight = GetSimpleNoise(new Position(position.x, 0, position.z), 1, 4) + 10;
 
             for (int i = 0; i < treeHeight; i++)
             {
@@ -154,17 +165,17 @@ namespace Assets.Code.GenerationEngine.Jobs
 
             treeTop.y += treeHeight;
 
-            int leafRadius = GetSimpleNoise(position.x, treeHeight, position.z, 1, 3) + treeHeight / 2;
+            int leafRadius = GetSimpleNoise(new Position(position.x, treeHeight, position.z), 1, 3) + treeHeight / 2;
 
-            for (int x = position.x - leafRadius; x < position.x + leafRadius; x++)
+            for (int x = treeTop.x - leafRadius; x < treeTop.x + leafRadius; x++)
             {
-                for (int y = position.y - leafRadius; y < position.y + leafRadius; y++)
+                for (int y = treeTop.y - leafRadius; y < treeTop.y + leafRadius; y++)
                 {
-                    for (int z = position.z - leafRadius; z < position.z + leafRadius; z++)
+                    for (int z = treeTop.z - leafRadius; z < treeTop.z + leafRadius; z++)
                     {
                         Position leafPosition = new Position(x, y, z);
 
-                        if (Vector3.Distance(treeTop.ToVector3(), leafPosition.ToVector3()) < leafRadius)
+                        if (Vector3.Distance(treeTop.ToVector3(), leafPosition.ToVector3()) < leafRadius - GetSimpleNoise(leafPosition, 1, 2))
                         {
                             Chunk.SetBlock(leafPosition, new Leaves());
                         }

@@ -37,7 +37,7 @@ namespace Assets.Code.GenerationEngine
             }
             else
             {
-                BeyondChunkBlocks.Add(new KeyValuePair<Position, Block>(position, block));
+                //BeyondChunkBlocks.Add(new KeyValuePair<Position, Block>(position, block));
             }
         }
     }

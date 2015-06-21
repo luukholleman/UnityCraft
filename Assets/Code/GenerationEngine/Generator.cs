@@ -13,7 +13,7 @@ namespace Assets.Code.GenerationEngine
     {
         // Generation parameters
         public const int ChunkSize = 16;
-        public const int MaxHorizontalGenerationDistance = World.World.ViewingRange / ChunkSize * 5;
+        public const int MaxHorizontalGenerationDistance = World.World.ViewingRange / ChunkSize;
         public const int MaxVerticalGenerationDistance = World.World.ViewingRange / ChunkSize / 5;
 
         // Thread parameters
