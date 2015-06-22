@@ -26,7 +26,7 @@ public class PoolObject : MonoBehaviour
 	public EventHandler Despawned;
 	
 	/// <summary>
-	/// Dynamic objects do not cache their hierarchy.
+	/// DynamicObject objects do not cache their hierarchy.
 	/// </summary>
 	public bool IsDynamic = false;
 	

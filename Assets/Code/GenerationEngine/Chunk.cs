@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.Code.Blocks;
-using Assets.Code.Blocks.Plants;
+using System.Linq;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Static;
 using Assets.CoherentNoise;
 using Assets.CoherentNoise.Generation;
 using UnityEngine;
@@ -15,29 +16,25 @@ namespace Assets.Code.GenerationEngine
     {
         public Position Position;
 
-        public Block[, ,] Blocks = new Block[Generator.ChunkSize, Generator.ChunkSize, Generator.ChunkSize];
-
-        public List<KeyValuePair<Position, Block>> BeyondChunkBlocks = new List<KeyValuePair<Position, Block>>();
+        public WorldObject[, ,] Objects = new WorldObject[Generator.ChunkSize, Generator.ChunkSize, Generator.ChunkSize];
+        
+        public List<KeyValuePair<Position, WorldObject>> WorldObjects = new List<KeyValuePair<Position, WorldObject>>();
 
         public Chunk(Position position)
         {
             Position = position;
         }
 
-        public void SetBlock(Position position, Block block, bool replaceBlocks = false)
+        public void SetObject(Position position, WorldObject staticObject, bool replaceBlocks = false)
         {
-            if (Helper.InChunk(position - Position))
+            if (Helper.InChunk(position - Position) && (!WorldObjects.Any(w => w.Key == position) || replaceBlocks))
             {
                 position -= Position;
 
-                if (!replaceBlocks && Blocks[position.x, position.y, position.z] != null)
+                if (!replaceBlocks && Objects[position.x, position.y, position.z] != null)
                     return;
 
-                Blocks[position.x, position.y, position.z] = block;
-            }
-            else
-            {
-                //BeyondChunkBlocks.Add(new KeyValuePair<Position, Block>(position, block));
+                Objects[position.x, position.y, position.z] = staticObject;
             }
         }
     }

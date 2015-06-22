@@ -158,7 +158,7 @@ public class PoolManagerEditor : Editor
 				
 					// AllocBlock
 					EditorGUILayout.BeginHorizontal();
-						GUILayout.Label("Allocate Block", EditorStyles.label, GUILayout.Width(115f));
+						GUILayout.Label("Allocate StaticObject", EditorStyles.label, GUILayout.Width(115f));
 						pp.AllocBlock = EditorGUILayout.IntField(pp.AllocBlock);
 						if (pp.AllocBlock < 1) pp.AllocBlock = 1;
 					EditorGUILayout.EndHorizontal();

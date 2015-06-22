@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Code.Blocks;
 using Assets.Code.GenerationEngine;
+using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
-using Chunk = Assets.Code.World.Chunks.Chunk;
 
 namespace Assets.Code.World
 {
     public class World : MonoBehaviour
     {
-        public Dictionary<Position, Chunk> Chunks = new Dictionary<Position, Chunk>();
+        public Dictionary<Position, ChunkComponent> Chunks = new Dictionary<Position, ChunkComponent>();
 
         public GameObject ChunkPrefab;
 
@@ -34,25 +35,25 @@ namespace Assets.Code.World
             {
                 newChunkObject.transform.position = position.ToVector3();
 
-                Chunk newChunk = newChunkObject.GetComponent<Chunk>();
+                ChunkComponent newChunkComponent = newChunkObject.GetComponent<ChunkComponent>();
 
-                newChunk.Position = position;
-                newChunk.World = this;
+                newChunkComponent.Position = position;
+                newChunkComponent.World = this;
 
-                newChunk.Blocks = Generator.GetChunk(position).Blocks;
+                newChunkComponent.Blocks = Generator.GetChunk(position).Objects;
 
-                foreach (KeyValuePair<Position, Block> block in Generator.GetChunk(position).BeyondChunkBlocks)
-                {
-                    newChunk.SetBlock(block.Key, block.Value);
-                }
+                //foreach (KeyValuePair<Position, StaticObject> block in Generator.GetChunk(position).BeyondChunkBlocks)
+                //{
+                //    newChunkComponent.SetObject(block.Key, block.Value);
+                //}
 
-                newChunk.SetBlocksUnmodified();
+                newChunkComponent.SetBlocksUnmodified();
 
-                //Serialization.Load(newChunk);
+                //Serialization.Load(newChunkComponent);
 
-                newChunk.Rebuild = true;
+                newChunkComponent.Rebuild = true;
 
-                Chunks.Add(position, newChunk);
+                Chunks.Add(position, newChunkComponent);
             }
 
             return true;
@@ -76,7 +77,7 @@ namespace Assets.Code.World
             Generator.Abort();
         }
         
-        public Chunk GetChunk(Position position, bool alreadyAbsolute = false)
+        public ChunkComponent GetChunk(Position position, bool alreadyAbsolute = false)
         {
             Position absolutePosition;
 
@@ -93,58 +94,58 @@ namespace Assets.Code.World
                 absolutePosition = position;
             }
 
-            Chunk containerChunk;
+            ChunkComponent containerChunkComponent;
 
-            Chunks.TryGetValue(absolutePosition, out containerChunk);
+            Chunks.TryGetValue(absolutePosition, out containerChunkComponent);
 
-            return containerChunk;
+            return containerChunkComponent;
         }
 
-        public Block GetBlock(Position position)
+        public WorldObject GetObject(Position position)
         {
-            Chunk containerChunk = GetChunk(position);
+            ChunkComponent containerChunkComponent = GetChunk(position);
 
-            if (containerChunk != null)
+            if (containerChunkComponent != null)
             {
-                Block block = containerChunk.GetBlock(
-                    position.x - containerChunk.Position.x,
-                    position.y - containerChunk.Position.y,
-                    position.z - containerChunk.Position.z);
+                WorldObject block = containerChunkComponent.GetObject(
+                    position.x - containerChunkComponent.Position.x,
+                    position.y - containerChunkComponent.Position.y,
+                    position.z - containerChunkComponent.Position.z);
 
                 return block;
             }
             
             return new Air();
         }
-        
-        public void SetBlock(Position position, Block block)
+
+        public void SetObject(Position position, WorldObject @object)
         {
-            Chunk chunk = GetChunk(position);
+            ChunkComponent chunkComponent = GetChunk(position);
             
-            if (chunk != null)
+            if (chunkComponent != null)
             {
-                if (chunk.SetBlock(position, block))
+                if (chunkComponent.SetObject(position, @object))
                 {
-                    chunk.Rebuild = true;
+                    chunkComponent.Rebuild = true;
                 }
 
-                UpdateIfEqual(position.x - chunk.Position.x, 0, new Position(position.x - 1, position.y, position.z));
-                UpdateIfEqual(position.x - chunk.Position.x, ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
-                UpdateIfEqual(position.y - chunk.Position.y, 0, new Position(position.x, position.y - 1, position.z));
-                UpdateIfEqual(position.y - chunk.Position.y, ChunkSize - 1, new Position(position.x, position.y + 1, position.z));
-                UpdateIfEqual(position.z - chunk.Position.z, 0, new Position(position.x, position.y, position.z - 1));
-                UpdateIfEqual(position.z - chunk.Position.z, ChunkSize - 1, new Position(position.x, position.y, position.z + 1));
+                UpdateIfEqual(position.x - chunkComponent.Position.x, 0, new Position(position.x - 1, position.y, position.z));
+                UpdateIfEqual(position.x - chunkComponent.Position.x, ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
+                UpdateIfEqual(position.y - chunkComponent.Position.y, 0, new Position(position.x, position.y - 1, position.z));
+                UpdateIfEqual(position.y - chunkComponent.Position.y, ChunkSize - 1, new Position(position.x, position.y + 1, position.z));
+                UpdateIfEqual(position.z - chunkComponent.Position.z, 0, new Position(position.x, position.y, position.z - 1));
+                UpdateIfEqual(position.z - chunkComponent.Position.z, ChunkSize - 1, new Position(position.x, position.y, position.z + 1));
             }
         }
 
         public void DestroyChunk(Position position)
         {
-            Chunk chunk = GetChunk(position);
+            ChunkComponent chunkComponent = GetChunk(position);
 
-            if (chunk != null)
+            if (chunkComponent != null)
             {
-                chunk.GetComponent<MeshFilter>().mesh = new Mesh();
-                PoolManager.Despawn(chunk.gameObject);
+                chunkComponent.GetComponent<MeshFilter>().mesh = new Mesh();
+                PoolManager.Despawn(chunkComponent.gameObject);
                 Chunks.Remove(position);
             }
         }
@@ -153,10 +154,10 @@ namespace Assets.Code.World
         {
             if (value1 == value2)
             {
-                Chunk chunk = GetChunk(position);
+                ChunkComponent chunkComponent = GetChunk(position);
 
-                if (chunk != null)
-                    chunk.Rebuild = true;
+                if (chunkComponent != null)
+                    chunkComponent.Rebuild = true;
             }
         }
     }

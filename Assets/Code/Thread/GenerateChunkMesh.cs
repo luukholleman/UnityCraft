@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Code.Blocks;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
 namespace Assets.Code.Thread
 {
     class GenerateChunkMesh : ThreadedJob
     {
-        private Chunk _chunk;
-        private Block[,,] _blocks;
+        private ChunkComponent _chunkComponent;
+        private WorldObject[, ,] _blocks;
 
         public MeshData MeshData;
 
@@ -23,9 +24,9 @@ namespace Assets.Code.Thread
         public Vector3[] ColVertices;
         public int[] ColTriangles;
 
-        public GenerateChunkMesh(Chunk chunk, Block[, ,] blocks)
+        public GenerateChunkMesh(ChunkComponent chunkComponent, WorldObject[, ,] blocks)
         {
-            _chunk = chunk;
+            _chunkComponent = chunkComponent;
             _blocks = blocks;
 
             MeshData = new MeshData();
@@ -34,9 +35,16 @@ namespace Assets.Code.Thread
         protected override void ThreadFunction()
         {
             for (int x = 0; x < World.World.ChunkSize; x++)
+            {
                 for (int y = 0; y < World.World.ChunkSize; y++)
+                {
                     for (int z = 0; z < World.World.ChunkSize; z++)
-                        MeshData = _blocks[x, y, z].Blockdata(_chunk, x, y, z, MeshData);
+                    {
+                        if (_blocks[x, y, z] is StaticObject)
+                            MeshData = _blocks[x, y, z].GetMeshData(_chunkComponent, x, y, z, MeshData);
+                    }
+                }
+            }
 
             Vertices = MeshData.Vertices.ToArray();
             Triangles = MeshData.Triangles.ToArray();
@@ -48,7 +56,7 @@ namespace Assets.Code.Thread
 
         protected override void OnFinished()
         {
-            throw new NotImplementedException();
+
         }
     }
 }

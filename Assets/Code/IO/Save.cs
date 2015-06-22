@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assets.Code.Blocks;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Static;
 
 namespace Assets.Code.IO
 {
     [Serializable]
     class Save
     {
-        public Dictionary<Position, Block> blocks = new Dictionary<Position, Block>();
+        public Dictionary<Position, WorldObject> blocks = new Dictionary<Position, WorldObject>();
 
-        public Save(Chunk chunk)
+        public Save(ChunkComponent chunkComponent)
         {
             for (int x = 0; x < World.World.ChunkSize; x++)
             {
@@ -19,11 +20,11 @@ namespace Assets.Code.IO
                 {
                     for (int z = 0; z < World.World.ChunkSize; z++)
                     {
-                        if (chunk.Blocks[x, y, z] == null || !chunk.Blocks[x, y, z].Changed)
+                        if (chunkComponent.Blocks[x, y, z] == null || !chunkComponent.Blocks[x, y, z].Changed)
                             continue;
 
                         Position position = new Position(x, y, z);
-                        blocks.Add(position, chunk.Blocks[x, y, z]);
+                        blocks.Add(position, chunkComponent.Blocks[x, y, z]);
                     }
                 }
             }

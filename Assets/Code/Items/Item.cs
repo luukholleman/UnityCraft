@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Code.Blocks;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
 namespace Assets.Code.Items
@@ -11,7 +11,7 @@ namespace Assets.Code.Items
     {
         public abstract Mesh GetMesh();
 
-        public virtual Block GetBlock()
+        public virtual StaticObject GetBlock()
         {
             return null;
         }

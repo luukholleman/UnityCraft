@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Code.Blocks;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
 namespace Assets.Code.Items.Plants
@@ -14,7 +14,7 @@ namespace Assets.Code.Items.Plants
         {
             MeshData meshData = new MeshData();
 
-            Code.Blocks.Plants.Wood block = new Code.Blocks.Plants.Wood();
+            WorldObjects.Static.Plants.Wood block = new WorldObjects.Static.Plants.Wood();
 
             meshData = block.PropData(meshData);
 
@@ -29,9 +29,9 @@ namespace Assets.Code.Items.Plants
             return mesh;
         }
 
-        public override Block GetBlock()
+        public override StaticObject GetBlock()
         {
-            return new Code.Blocks.Plants.Wood();
+            return new WorldObjects.Static.Plants.Wood();
         }
     }
 }

@@ -1,9 +1,9 @@
-﻿using Assets.Code.Blocks;
-using Assets.Code.GUI.Inventory;
+﻿using Assets.Code.GUI.Inventory;
 using Assets.Code.Items;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
-using Assets.Code.World.Terrain;
+using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
 namespace Assets.Code.Player
@@ -27,10 +27,10 @@ namespace Assets.Code.Player
 
                 if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks")))
                 {
-                    Block block = TerrainHelper.GetBlock(hit);
-                    Position pos = TerrainHelper.GetBlockPos(hit);
+                    WorldObject block = Helper.GetObject(hit);
+                    Position pos = Helper.GetBlockPos(hit);
 
-                    TerrainHelper.SetBlock(hit, new Air());
+                    Helper.SetBlock(hit, new Air());
 
                     Item droppedItem = block.GetItem();
 
@@ -54,11 +54,11 @@ namespace Assets.Code.Player
 
                     if (item != null)
                     {
-                        Block block = item.GetBlock();
+                        StaticObject staticObject = item.GetBlock();
 
-                        if (block != null)
+                        if (staticObject != null)
                         {
-                            TerrainHelper.SetBlock(hit, block, true);
+                            Helper.SetBlock(hit, staticObject, true);
                         }
                     }
                 }
