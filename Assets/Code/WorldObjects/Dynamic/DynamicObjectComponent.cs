@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects.Dynamic.Behaviours;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic
@@ -11,6 +12,8 @@ namespace Assets.Code.WorldObjects.Dynamic
     {
         public DynamicObject DynamicObject;
 
+        public BaseBehaviour BaseBehaviour;
+
         public ChunkComponent ChunkComponent;
 
         private MeshFilter _filter;
@@ -18,14 +21,26 @@ namespace Assets.Code.WorldObjects.Dynamic
 
         void Start()
         {
+            BuildMesh();
+
+            BaseBehaviour = DynamicObject.GetBehaviour();
+
+            if (BaseBehaviour != null)
+            {
+                BaseBehaviour.Setup(this);
+
+                BaseBehaviour.Start();
+            }
+        }
+
+        public void BuildMesh()
+        {
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
 
             MeshData meshData = new MeshData();
 
-            Position pos = Helper.InnerChunkPosition(new Position((int) transform.position.x, (int) transform.position.y, (int) transform.position.z));
-
-            meshData = DynamicObject.PropData(meshData);
+            meshData = DynamicObject.GetMeshData();
 
             _filter.mesh.Clear();
             _filter.mesh.vertices = meshData.Vertices.ToArray();
@@ -34,7 +49,7 @@ namespace Assets.Code.WorldObjects.Dynamic
             _filter.mesh.RecalculateNormals();
 
             _coll.sharedMesh = null;
-            
+
             Mesh mesh = new Mesh();
             mesh.vertices = meshData.ColVertices.ToArray();
             mesh.triangles = meshData.ColTriangles.ToArray();
@@ -43,5 +58,28 @@ namespace Assets.Code.WorldObjects.Dynamic
             _coll.sharedMesh = mesh;
         }
 
+        void Update()
+        {
+            if(BaseBehaviour != null)
+                BaseBehaviour.Update();
+        }
+
+        public void Action()
+        {
+            if (BaseBehaviour != null)
+                BaseBehaviour.Action();
+        }
+
+        public void Interact()
+        {
+            if (BaseBehaviour != null)
+                BaseBehaviour.Interact();
+        }
+
+        void OnGUI()
+        {
+            if(BaseBehaviour != null)
+                BaseBehaviour.OnGUI();
+        }
     }
 }

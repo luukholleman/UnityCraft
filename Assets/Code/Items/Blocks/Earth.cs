@@ -16,7 +16,7 @@ namespace Assets.Code.Items.Blocks
 
             WorldObjects.Static.Earth block = new WorldObjects.Static.Earth();
 
-            meshData = block.PropData(meshData);
+            meshData = block.GetMeshData();
 
             Mesh mesh = new Mesh();
 

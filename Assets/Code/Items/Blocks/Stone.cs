@@ -16,7 +16,7 @@ namespace Assets.Code.Items.Blocks
             
             WorldObjects.Static.Stone block = new WorldObjects.Static.Stone();
 
-            meshData = block.PropData(meshData);
+            meshData = block.GetMeshData();
 
             Mesh mesh = new Mesh();
 

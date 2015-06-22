@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Code.Items;
 using Assets.Code.Thread;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Dynamic;
@@ -53,16 +54,12 @@ namespace Assets.Code.World.Chunks
                         {
                             GameObject dynObjectPrefab = Resources.Load<GameObject>("Prefabs/DynamicObject");
 
-                            //GameObject newDynamicObject = Instantiate(dynObjectPrefab, transform.position + new Vector3(x, y, z), new Quaternion()) as GameObject;
-
                             GameObject newDynamicObject = PoolManager.Spawn(dynObjectPrefab);
 
                             newDynamicObject.transform.position = transform.position + new Vector3(x, y, z);
 
                             newDynamicObject.GetComponent<DynamicObjectComponent>().DynamicObject = dynamicObject;
                             newDynamicObject.GetComponent<DynamicObjectComponent>().ChunkComponent = this;
-                            
-                            Debug.Log("created");
                         }
                     }
                 }
@@ -150,6 +147,27 @@ namespace Assets.Code.World.Chunks
             foreach (WorldObject block in Blocks)
             {
                 block.Changed = false;
+            }
+        }
+
+        public void Action(RaycastHit hit)
+        {
+            Position position = Helper.GetBlockPos(hit);
+
+            WorldObject block = World.GetObject(position);
+
+            Position pos = Helper.GetBlockPos(hit);
+
+            Helper.SetBlock(hit, new Air());
+
+            Item droppedItem = block.GetItem();
+
+            if (droppedItem != null)
+            {
+                GameObject droppedItemGo = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
+
+                droppedItemGo.GetComponent<DroppedItem>().Position = pos;
+                droppedItemGo.GetComponent<DroppedItem>().Item = droppedItem;
             }
         }
     }

@@ -16,7 +16,7 @@ namespace Assets.Code.Items.Plants
 
             WorldObjects.Static.Plants.Wood block = new WorldObjects.Static.Plants.Wood();
 
-            meshData = block.PropData(meshData);
+            meshData = block.GetMeshData();
 
             Mesh mesh = new Mesh();
 

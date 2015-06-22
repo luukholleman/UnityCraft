@@ -1,10 +1,11 @@
 ﻿using System;
 using Assets.Code.Items;
+using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static
 {
     [Serializable]
-    public class Earth : StaticObject
+    public class Earth : StaticBlock
     {
         public override Tile TexturePosition(Direction direction)
         {

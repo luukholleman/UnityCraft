@@ -3,15 +3,15 @@ using Assets.Code.Items;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
+using UnityEngineInternal;
 
 namespace Assets.Code.Player
 {
     public class Builder : MonoBehaviour
     {
-        Vector2 rot;
-
         private InventoryComponent Inventory;
 
         void Start()
@@ -25,21 +25,19 @@ namespace Assets.Code.Player
             {
                 RaycastHit hit;
 
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks")))
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks", "DynamicObjects")))
                 {
-                    WorldObject block = Helper.GetObject(hit);
-                    Position pos = Helper.GetBlockPos(hit);
-
-                    Helper.SetBlock(hit, new Air());
-
-                    Item droppedItem = block.GetItem();
-
-                    if (droppedItem != null)
+                    if (hit.collider.CompareTag("Chunk"))
                     {
-                        GameObject droppedItemGo = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
+                        ChunkComponent chunk = Helper.GetMonoBehaviour(hit) as ChunkComponent;
 
-                        droppedItemGo.GetComponent<DroppedItem>().Position = pos;
-                        droppedItemGo.GetComponent<DroppedItem>().Item = droppedItem;
+                        chunk.Action(hit);
+                    }
+                    else if (hit.collider.CompareTag("DynamicObject"))
+                    {
+                        DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
+
+                        component.Action();
                     }
                 }
             }
@@ -50,16 +48,25 @@ namespace Assets.Code.Player
 
                 if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
                 {
-                    Item item = Inventory.PopSelectedItem();
-
-                    if (item != null)
+                    if (hit.collider.CompareTag("Chunk"))
                     {
-                        StaticObject staticObject = item.GetBlock();
+                        Item item = Inventory.PopSelectedItem();
 
-                        if (staticObject != null)
+                        if (item != null)
                         {
-                            Helper.SetBlock(hit, staticObject, true);
+                            StaticObject staticObject = item.GetBlock();
+
+                            if (staticObject != null)
+                            {
+                                Helper.SetBlock(hit, staticObject, true);
+                            }
                         }
+                    }
+                    else if(hit.collider.CompareTag("DynamicObject"))
+                    {
+                        DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
+
+                        component.Interact();
                     }
                 }
             }

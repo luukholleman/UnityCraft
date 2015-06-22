@@ -42,11 +42,6 @@ namespace Assets.Code.World
 
                 newChunkComponent.Blocks = Generator.GetChunk(position).Objects;
 
-                //foreach (KeyValuePair<Position, StaticObject> block in Generator.GetChunk(position).BeyondChunkBlocks)
-                //{
-                //    newChunkComponent.SetObject(block.Key, block.Value);
-                //}
-
                 newChunkComponent.SetBlocksUnmodified();
 
                 //Serialization.Load(newChunkComponent);
@@ -63,13 +58,6 @@ namespace Assets.Code.World
         {
             Generator = new Generator();
             Generator.Start();
-        }
-
-        void Update()
-        {
-            //Debug.Log("----");
-            //Debug.Log(Generator.ChunkGenerators.Count);
-            //Debug.Log(Generator.ChunkGenerators.Count(g => g.IsDone));
         }
 
         void OnDestroy()

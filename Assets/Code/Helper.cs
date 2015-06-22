@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Assets.Code.GenerationEngine;
-using Assets.Code.World;
+﻿using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
+using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
@@ -16,9 +12,9 @@ namespace Assets.Code
         public static Position SnapToGrid(Position origPosition)
         {
             Position playerChunk = new Position(
-                Mathf.FloorToInt(origPosition.x / World.World.ChunkSize) * World.World.ChunkSize,
-                Mathf.FloorToInt(origPosition.y / World.World.ChunkSize) * World.World.ChunkSize,
-                Mathf.FloorToInt(origPosition.z / World.World.ChunkSize) * World.World.ChunkSize
+                origPosition.x / World.World.ChunkSize * World.World.ChunkSize,
+                origPosition.y / World.World.ChunkSize * World.World.ChunkSize,
+                origPosition.z / World.World.ChunkSize * World.World.ChunkSize
                 );
 
             return playerChunk;
@@ -92,7 +88,7 @@ namespace Assets.Code
 
         public static bool SetBlock(RaycastHit hit, StaticObject staticObject, bool adjacent = false)
         {
-            World.Chunks.ChunkComponent chunkComponent = hit.collider.GetComponent<World.Chunks.ChunkComponent>();
+            ChunkComponent chunkComponent = hit.collider.GetComponent<ChunkComponent>();
 
             if (chunkComponent == null)
                 return false;
@@ -103,17 +99,23 @@ namespace Assets.Code
 
             return true;
         }
-        public static WorldObject GetObject(RaycastHit hit, bool adjacent = false)
+
+        public static MonoBehaviour GetMonoBehaviour(RaycastHit hit, bool adjacent = false)
         {
-            World.Chunks.ChunkComponent chunkComponent = hit.collider.GetComponent<ChunkComponent>();
-            if (chunkComponent == null)
-                return null;
+            if (hit.collider.CompareTag("Chunk"))
+            {
+                ChunkComponent chunkComponent = hit.collider.GetComponent<ChunkComponent>();
 
-            Position position = GetBlockPos(hit, adjacent);
+                return chunkComponent;
+            }
+            else if (hit.collider.CompareTag("DynamicObject"))
+            {
+                DynamicObjectComponent objectComponent = hit.collider.GetComponent<DynamicObjectComponent>();
 
-            WorldObject block = chunkComponent.World.GetObject(position);
+                return objectComponent;
+            }
 
-            return block;
+            return null;
         }
 
     }

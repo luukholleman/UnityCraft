@@ -41,7 +41,11 @@ namespace Assets.Code.Thread
                     for (int z = 0; z < World.World.ChunkSize; z++)
                     {
                         if (_blocks[x, y, z] is StaticObject)
-                            MeshData = _blocks[x, y, z].GetMeshData(_chunkComponent, x, y, z, MeshData);
+                        {
+                            StaticObject so = _blocks[x, y, z] as StaticObject;
+
+                            MeshData = so.GetChunkMeshData(_chunkComponent, new Position(x, y, z), MeshData);
+                        }
                     }
                 }
             }

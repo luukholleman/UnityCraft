@@ -30,11 +30,16 @@ namespace Assets.Code.GenerationEngine
         private const float DirtScale = 0.01f;
         private const float DirtHeightRange = 5;
 
-        float treeFrequency = 0.2f;
-        int treeDensity = 3;
+        private const float TreeFrequency = 0.2f;
+        private const int TreeDensity = 3;
+
+        private const float FlowerFrequency = 0.4f;
+        private const int FlowerDensity = 4;
+
+        private const float GrassFrequency = 0.35f;
+        private const int GrassDensity = 10;
 
         private static readonly CoherentNoise.Generator MainLandNoise = new GradientNoise2D(123456789);
-        private static readonly Noise SimplexNoise = new Noise();
         private static readonly CoherentNoise.Generator CaveNoise = new GradientNoise(123456789);
 
         public MeshData MeshData = new MeshData();
@@ -135,16 +140,22 @@ namespace Assets.Code.GenerationEngine
                 {
                     Chunk.SetObject(blockPosition, new Earth());
 
-                    if (Math.Abs(y - dirtHeight) < 0.5f && GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), treeFrequency, 100) < treeDensity)
+                    if (Math.Abs(y - dirtHeight) < 0.5f)
                     {
-                        CreateTree(blockPosition);
+                        blockPosition.y++;
 
-                        Position chestPosition = new Position(blockPosition);
-
-                        chestPosition.y++;
-                        chestPosition.x++;
-
-                        Chunk.SetObject(chestPosition, new Chest());
+                        if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), TreeFrequency, 100) < TreeDensity)
+                        {
+                            CreateTree(blockPosition);
+                        }
+                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
+                        {
+                            Chunk.SetObject(blockPosition, new Chest());
+                        }
+                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
+                        {
+                            Chunk.SetObject(blockPosition, new Grass());
+                        }
                     }
                 }
             }

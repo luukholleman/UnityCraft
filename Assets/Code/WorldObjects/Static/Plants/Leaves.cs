@@ -1,10 +1,11 @@
 ﻿using System;
 using Assets.Code.Items;
+using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static.Plants
 {
     [Serializable]
-    public class Leaves : StaticObject
+    public class Leaves : StaticBlock
     {
         public override Tile TexturePosition(Direction direction)
         {
