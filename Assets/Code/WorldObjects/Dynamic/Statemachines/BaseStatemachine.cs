@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
-namespace Assets.Code.WorldObjects.Dynamic.Behaviours
+namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 {
-    abstract class BaseBehaviour
+    abstract class BaseStatemachine
     {
         protected DynamicObjectComponent DynamicObjectComponent;
+
+        protected GameObject GO;
 
         public void Setup(DynamicObjectComponent dynamicObject)
         {
             DynamicObjectComponent = dynamicObject;
+
+            GO = DynamicObjectComponent.gameObject;
         }
 
         public abstract void Start();

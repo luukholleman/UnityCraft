@@ -37,7 +37,7 @@ namespace Assets.Code.World.Chunks
         {
             _filter = gameObject.GetComponent<MeshFilter>();
             _coll = gameObject.GetComponent<MeshCollider>();
-
+            
             PlaceDynamicObjects();
         }
 
@@ -126,13 +126,11 @@ namespace Assets.Code.World.Chunks
         
         void RenderMesh(GenerateChunkMesh generateChunkMesh)
         {
-            _filter.mesh.Clear();
+            //_filter.mesh.Clear();
             _filter.mesh.vertices = generateChunkMesh.Vertices;
             _filter.mesh.triangles = generateChunkMesh.Triangles;
             _filter.mesh.uv = generateChunkMesh.Uv;
             _filter.mesh.RecalculateNormals();
-
-            _coll.sharedMesh = null;
 
             Mesh mesh = new Mesh();
             mesh.vertices = generateChunkMesh.ColVertices;

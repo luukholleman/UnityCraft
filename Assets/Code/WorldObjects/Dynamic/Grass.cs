@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.Items;
-using Assets.Code.WorldObjects.Dynamic.Behaviours;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
 using Assets.Code.WorldObjects.Dynamic.Defaults;
 
 namespace Assets.Code.WorldObjects.Dynamic
@@ -25,9 +25,9 @@ namespace Assets.Code.WorldObjects.Dynamic
             return null;
         }
 
-        public override BaseBehaviour GetBehaviour()
+        public override BaseStatemachine GetBehaviour()
         {
-            return new GrassBaseBehaviour();
+            return new GrassBaseStatemachine();
         }
     }
 }

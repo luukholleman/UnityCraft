@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Assets.Code.WorldObjects.Dynamic.Behaviours;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
 
 namespace Assets.Code.WorldObjects.Dynamic
 {
@@ -13,6 +13,6 @@ namespace Assets.Code.WorldObjects.Dynamic
             return false;
         }
 
-        public abstract BaseBehaviour GetBehaviour();
+        public abstract BaseStatemachine GetBehaviour();
     }
 }

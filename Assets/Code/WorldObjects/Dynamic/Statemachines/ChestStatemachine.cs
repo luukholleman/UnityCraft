@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Assets.Code.WorldObjects.Dynamic.Behaviours
+namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 {
-    class ChestBehaviour : BaseBehaviour
+    class ChestStatemachine : BaseStatemachine
     {
         private bool _open;
 
@@ -27,7 +27,7 @@ namespace Assets.Code.WorldObjects.Dynamic.Behaviours
 
         public override void Action()
         {
-
+            GameObject.Destroy(GO);
         }
 
         public override void OnGUI()

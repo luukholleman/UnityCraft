@@ -1,24 +1,16 @@
 ﻿using UnityEngine;
 
-namespace Assets.Code.WorldObjects.Dynamic.Behaviours
+namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 {
-    class GrassBaseBehaviour : BaseBehaviour
+    class GrassBaseStatemachine : BaseStatemachine
     {
-        private float time;
-
         public override void Start()
         {
-            time = Time.timeSinceLevelLoad;
         }
 
         public override void Update()
         {
-            if (Time.timeSinceLevelLoad > time + 10)
-            {
-                DynamicObjectComponent.DynamicObject = new Flower();
 
-                DynamicObjectComponent.BuildMesh();
-            }
         }
 
         public override void Interact()

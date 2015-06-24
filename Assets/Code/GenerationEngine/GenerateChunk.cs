@@ -150,7 +150,7 @@ namespace Assets.Code.GenerationEngine
                         }
                         else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
                         {
-                            Chunk.SetObject(blockPosition, new Chest());
+                            Chunk.SetObject(blockPosition, new Flower());
                         }
                         else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
                         {

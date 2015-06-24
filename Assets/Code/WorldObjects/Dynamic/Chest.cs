@@ -5,7 +5,7 @@ using System.Text;
 using Assets.Code.Items;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
-using Assets.Code.WorldObjects.Dynamic.Behaviours;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
 using Assets.Code.WorldObjects.Dynamic.Defaults;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
@@ -42,9 +42,9 @@ namespace Assets.Code.WorldObjects.Dynamic
             return false;
         }
 
-        public override BaseBehaviour GetBehaviour()
+        public override BaseStatemachine GetBehaviour()
         {
-            return new ChestBehaviour();
+            return new ChestStatemachine();
         }
 
         public override Item GetItem()

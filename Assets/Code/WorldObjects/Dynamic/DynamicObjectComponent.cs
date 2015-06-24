@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World.Chunks;
-using Assets.Code.WorldObjects.Dynamic.Behaviours;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic
@@ -12,7 +12,7 @@ namespace Assets.Code.WorldObjects.Dynamic
     {
         public DynamicObject DynamicObject;
 
-        public BaseBehaviour BaseBehaviour;
+        public BaseStatemachine BaseStatemachine;
 
         public ChunkComponent ChunkComponent;
 
@@ -23,13 +23,13 @@ namespace Assets.Code.WorldObjects.Dynamic
         {
             BuildMesh();
 
-            BaseBehaviour = DynamicObject.GetBehaviour();
+            BaseStatemachine = DynamicObject.GetBehaviour();
 
-            if (BaseBehaviour != null)
+            if (BaseStatemachine != null)
             {
-                BaseBehaviour.Setup(this);
+                BaseStatemachine.Setup(this);
 
-                BaseBehaviour.Start();
+                BaseStatemachine.Start();
             }
         }
 
@@ -60,26 +60,26 @@ namespace Assets.Code.WorldObjects.Dynamic
 
         void Update()
         {
-            if(BaseBehaviour != null)
-                BaseBehaviour.Update();
+            if(BaseStatemachine != null)
+                BaseStatemachine.Update();
         }
 
         public void Action()
         {
-            if (BaseBehaviour != null)
-                BaseBehaviour.Action();
+            if (BaseStatemachine != null)
+                BaseStatemachine.Action();
         }
 
         public void Interact()
         {
-            if (BaseBehaviour != null)
-                BaseBehaviour.Interact();
+            if (BaseStatemachine != null)
+                BaseStatemachine.Interact();
         }
 
-        void OnGUI()
-        {
-            if(BaseBehaviour != null)
-                BaseBehaviour.OnGUI();
-        }
+        //void OnGUI()
+        //{
+        //    if(BaseStatemachine != null)
+        //        BaseStatemachine.OnGUI();
+        //}
     }
 }
