@@ -22,7 +22,9 @@ namespace Assets.Code.GenerationEngine
 
         public void SetObject(Position position, WorldObject staticObject, bool replaceBlocks = false)
         {
-            if (((!_staticObjects.ContainsKey(position - Position) && !_dynamicObjects.ContainsKey(position - Position)) || replaceBlocks) && Helper.InOuterChunk(position - Position))
+            bool emptyOrAir = !_staticObjects.ContainsKey(position - Position) || _staticObjects[position - Position] is Air;
+
+            if (((emptyOrAir && !_dynamicObjects.ContainsKey(position - Position)) || replaceBlocks) && Helper.InOuterChunk(position - Position))
             {
                 if(staticObject is StaticObject)
                     _staticObjects[position - Position] = (StaticObject)staticObject;

@@ -116,7 +116,7 @@ namespace Assets.Code.World.Chunks
 
         public WorldObject GetObject(Position position)
         {
-            if (Helper.InChunk(position) && _chunkData.HasObjectAtPosition(position))
+            if (Helper.InChunk(position))
             {
                 return _chunkData.GetObject(position);
             }

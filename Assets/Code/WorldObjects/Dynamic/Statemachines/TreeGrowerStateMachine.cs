@@ -12,33 +12,37 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 
         public override void Start()
         {
-            _start = Time.realtimeSinceStartup;
+            _start = Time.time;
         }
 
         public override void Update()
         {
-            if (Time.realtimeSinceStartup < _start + 5)
+            if (Time.time > _start + 5)
             {
+                DynamicObjectComponent.Chunk.RemoveObject(new Position(DynamicObjectComponent.transform.position));
+
                 CreateTree(new Position(GO.transform.position));
+
+                GameObject.Destroy(DynamicObjectComponent.gameObject);
             }
         }
 
         private void CreateTree(Position position)
         {
-            int treeHeight = (int)Math.Round(Random.value*5 + 3);
+            int treeHeight = (int)Math.Round(Random.value*3 + 4);
 
             for (int i = 0; i < treeHeight; i++)
             {
                 Position treeblockPosition = new Position(position.x, position.y + i, position.z);
 
-                DynamicObjectComponent.Chunk.SetObject(treeblockPosition, new Wood(), true);
+                DynamicObjectComponent.Chunk.SetObject(treeblockPosition, new Wood());
             }
 
             Position treeTop = new Position(position);
 
             treeTop.y += treeHeight;
 
-            int leafRadius = (int)Math.Round(Random.value * treeHeight / 2f);
+            int leafRadius = (int)(Math.Round(Random.value * 2) + treeHeight / 2f + 1);
 
             for (int x = treeTop.x - leafRadius; x < treeTop.x + leafRadius; x++)
             {
@@ -50,7 +54,7 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 
                         if (Vector3.Distance(treeTop.ToVector3(), leafPosition.ToVector3()) < leafRadius - (int)Math.Round(Random.value))
                         {
-                            DynamicObjectComponent.Chunk.SetObject(leafPosition, new Leaves(), true);
+                            DynamicObjectComponent.Chunk.SetObject(leafPosition, new Leaves());
                         }
                     }
                 }
