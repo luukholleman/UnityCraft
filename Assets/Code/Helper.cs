@@ -12,9 +12,9 @@ namespace Assets.Code
         public static Position SnapToGrid(Position origPosition)
         {
             Position playerChunk = new Position(
-                origPosition.x / World.World.ChunkSize * World.World.ChunkSize,
-                origPosition.y / World.World.ChunkSize * World.World.ChunkSize,
-                origPosition.z / World.World.ChunkSize * World.World.ChunkSize
+                origPosition.x / World.WorldSettings.ChunkSize * World.WorldSettings.ChunkSize,
+                origPosition.y / World.WorldSettings.ChunkSize * World.WorldSettings.ChunkSize,
+                origPosition.z / World.WorldSettings.ChunkSize * World.WorldSettings.ChunkSize
                 );
 
             return playerChunk;
@@ -30,7 +30,7 @@ namespace Assets.Code
 
         public static Position InnerChunkPosition(Position pos)
         {
-            return new Position(Mod(pos.x, World.World.ChunkSize), Mod(pos.y, World.World.ChunkSize), Mod(pos.z, World.World.ChunkSize));
+            return new Position(Mod(pos.x, World.WorldSettings.ChunkSize), Mod(pos.y, World.WorldSettings.ChunkSize), Mod(pos.z, World.WorldSettings.ChunkSize));
         }
 
 
@@ -46,7 +46,7 @@ namespace Assets.Code
 
         public static bool InChunk(int index)
         {
-            if (index < 0 || index >= World.World.ChunkSize)
+            if (index < 0 || index >= World.WorldSettings.ChunkSize)
                 return false;
 
             return true;
@@ -54,7 +54,7 @@ namespace Assets.Code
 
         public static bool InOuterChunk(int index)
         {
-            if (index < -1 || index >= World.World.ChunkSize + 1)
+            if (index < -1 || index >= World.WorldSettings.ChunkSize + 1)
                 return false;
 
             return true;

@@ -11,8 +11,8 @@ namespace Assets.Code.GenerationEngine
     public class Generator : ThreadedJob
     {
         // Generation parameters
-        public const int MaxHorizontalGenerationDistance = World.World.ViewingRange / World.World.ChunkSize;
-        public const int MaxVerticalGenerationDistance = World.World.ViewingRange / World.World.ChunkSize / 5;
+        public const int MaxHorizontalGenerationDistance = World.WorldSettings.ViewingRange / World.WorldSettings.ChunkSize;
+        public const int MaxVerticalGenerationDistance = World.WorldSettings.ViewingRange / World.WorldSettings.ChunkSize / 5;
 
         // Thread parameters
         public List<GenerateChunk> ChunkGenerators = new List<GenerateChunk>();
@@ -23,7 +23,7 @@ namespace Assets.Code.GenerationEngine
         private Dictionary<Position, ChunkData> _chunks = new Dictionary<Position, ChunkData>();
 
         private readonly Dictionary<Position, ChunkData> _toAdd = new Dictionary<Position, ChunkData>();
-        private readonly Dictionary<Position, ChunkData> _toRemove = new Dictionary<Position, ChunkData>();
+        private readonly List<Position> _toRemove = new List<Position>();
 
         private readonly List<Position> _chunkScope = new List<Position>((MaxHorizontalGenerationDistance * 2) * (MaxVerticalGenerationDistance * 2) * (MaxHorizontalGenerationDistance * 2));
 
@@ -32,12 +32,14 @@ namespace Assets.Code.GenerationEngine
         
         public Generator()
         {
-            _maxActiveThreads = Math.Max(2, Environment.ProcessorCount - 2);
+            _maxActiveThreads = Math.Max(2, Environment.ProcessorCount);
 
             for (int x = -MaxHorizontalGenerationDistance / 2; x < MaxHorizontalGenerationDistance; x++)
                 for (int y = -MaxVerticalGenerationDistance / 2; y < MaxVerticalGenerationDistance; y++)
                     for (int z = -MaxHorizontalGenerationDistance / 2; z < MaxHorizontalGenerationDistance; z++)
-                        _chunkScope.Add(new Position(x * World.World.ChunkSize, y * World.World.ChunkSize, z * World.World.ChunkSize));
+                        if (Vector3.Distance(Vector3.zero, new Position(x * World.WorldSettings.ChunkSize, y * World.WorldSettings.ChunkSize, z * World.WorldSettings.ChunkSize).ToVector3()) < MaxHorizontalGenerationDistance * World.WorldSettings.ChunkSize)
+                            _chunkScope.Add(new Position(x * World.WorldSettings.ChunkSize, y * World.WorldSettings.ChunkSize, z * World.WorldSettings.ChunkSize));
+
             _chunkScope = _chunkScope.OrderBy(w => w.ToVector3().magnitude).ToList();
         }
 
@@ -50,6 +52,8 @@ namespace Assets.Code.GenerationEngine
         {
             try
             {
+                System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
+
                 while (!_aborted)
                 {
                     Position currentPlayerPosition = PlayerPosition;
@@ -92,17 +96,24 @@ namespace Assets.Code.GenerationEngine
 
                     ChunkGenerators.RemoveAll(g => g.IsDone);
 
+                    List<KeyValuePair<Position, ChunkData>> tmpRoRemove = new List<KeyValuePair<Position, ChunkData>>();
+
                     foreach (KeyValuePair<Position, ChunkData> chunk in _chunks)
                     {
-                        if (chunk.Key.ManhattanDistance(PlayerPosition) > 1000)
+                        if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * World.WorldSettings.ChunkSize)
                         {
                             lock (_toRemove)
                             {
-                                _toRemove.Add(chunk.Key, chunk.Value);
+                                _toRemove.Add(chunk.Key);
                             }
 
-                            _chunks.Remove(chunk.Key);
+                            tmpRoRemove.Add(chunk);
                         }
+                    }
+
+                    foreach (KeyValuePair<Position, ChunkData> pair in tmpRoRemove)
+                    {
+                        _chunks.Remove(pair.Key);
                     }
 
                     _chunks = new Dictionary<Position, ChunkData>(_chunks);
@@ -138,22 +149,31 @@ namespace Assets.Code.GenerationEngine
 
         public IEnumerable<Position> GetOutOfRangeChunks()
         {
-            for (; ; )
+            List<Position> tmp;
+
+            lock (_toRemove)
             {
-                KeyValuePair<Position, ChunkData> chunk;
-
-                lock (_toRemove)
-                {
-                    chunk = _toRemove.FirstOrDefault();
-
-                    if (chunk.Equals(default(KeyValuePair<Position, ChunkData>)))
-                        yield break;
-
-                    _toRemove.Remove(chunk.Key);
-                }
-
-                yield return chunk.Key;
+                tmp = new List<Position>(_toRemove);
+                _toRemove.Clear();
             }
+
+            return tmp;
+            //for (; ; )
+            //{
+            //    KeyValuePair<Position, ChunkData> chunk;
+
+            //    lock (_toRemove)
+            //    {
+            //        chunk = _toRemove.FirstOrDefault();
+
+            //        if (chunk.Equals(default(KeyValuePair<Position, ChunkData>)))
+            //            yield break;
+
+            //        _toRemove.Remove(chunk.Key);
+            //    }
+
+            //    yield return chunk.Key;
+            //}
         }
 
         private bool ChunkExists(Position position)

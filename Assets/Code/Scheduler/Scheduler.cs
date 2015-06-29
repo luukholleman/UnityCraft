@@ -21,11 +21,12 @@ namespace Assets.Code.Scheduler
         {
             Tasks.Enqueue(task);
         }
-
+        
         void Update()
         {
-            if(!Tasks.Any())
+            if (!Tasks.Any())
                 return;
+                
             
             IScheduleTask task = Tasks.Dequeue();
 

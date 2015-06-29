@@ -1,12 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Assets.Code.GenerationEngine;
 using Assets.Code.Items;
+using Assets.Code.Messenger;
 using Assets.Code.Scheduler;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Code.World.Chunks
 {
@@ -33,6 +37,8 @@ namespace Assets.Code.World.Chunks
 
         private const int UpdateIterationsPerFrame = 4000;
 
+        private List<KeyValuePair<Position, GameObject>> _dynamicGos = new List<KeyValuePair<Position, GameObject>>(); 
+
         void Start()
         {
             _filter = gameObject.GetComponent<MeshFilter>();
@@ -48,7 +54,7 @@ namespace Assets.Code.World.Chunks
 
             foreach (KeyValuePair<Position, DynamicObject> worldObject in dynamicObjects)
             {
-                if (Helper.InChunk(worldObject.Key))
+                if (Helper.InChunk(worldObject.Key) && !_dynamicGos.Any(o => o.Key == worldObject.Key))
                 {
                     GameObject newDynamicObject = PoolManager.Spawn(DynamicObjectPrefab);
 
@@ -58,6 +64,8 @@ namespace Assets.Code.World.Chunks
 
                     dOC.DynamicObject = worldObject.Value;
                     dOC.Chunk = this;
+
+                    _dynamicGos.Add(new KeyValuePair<Position, GameObject>(worldObject.Key, newDynamicObject));
 
                     yield return null;
                 }
@@ -86,32 +94,19 @@ namespace Assets.Code.World.Chunks
 
         IEnumerator GenerateMesh()
         {
-            MeshData meshdata = new MeshData();
+            Scheduler.Scheduler.Instance.Add(new GenerateMesh() {_chunkData = _chunkData, _filter = _filter, _collider = _collider});
 
-            int i = 0;
-
-            Dictionary<Position, StaticObject> blocks = _chunkData.GetStaticObjects();
-
-            foreach (KeyValuePair<Position, StaticObject> block in blocks)
-            {
-                if (Helper.InChunk(block.Key))
-                {
-                    meshdata = block.Value.GetChunkMeshData(_chunkData, block.Key, meshdata);
-                }
-
-                if (++i % _iterationsPerFrame == 0)
-                    yield return null;
-            }
-
-            Scheduler.Scheduler.Instance.Add(new BindMeshFilter() { MeshFilter = _filter, MeshData = meshdata });
-            Scheduler.Scheduler.Instance.Add(new BindMeshCollider() { MeshCollider = _collider, MeshData = meshdata });
-
-            _iterationsPerFrame = UpdateIterationsPerFrame;
+            yield break;
         }
 
         void OnDestroy()
         {
             //Serialization.SaveChunk(this);
+
+            foreach (KeyValuePair<Position, GameObject> dynamicGo in _dynamicGos)
+            {
+                Destroy(dynamicGo.Value);
+            }
         }
 
         public WorldObject GetObject(Position position)

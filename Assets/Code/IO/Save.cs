@@ -14,11 +14,11 @@ namespace Assets.Code.IO
 
         public Save(Chunk chunk)
         {
-            for (int x = 0; x < World.World.ChunkSize; x++)
+            for (int x = 0; x < World.WorldSettings.ChunkSize; x++)
             {
-                for (int y = 0; y < World.World.ChunkSize; y++)
+                for (int y = 0; y < World.WorldSettings.ChunkSize; y++)
                 {
-                    for (int z = 0; z < World.World.ChunkSize; z++)
+                    for (int z = 0; z < World.WorldSettings.ChunkSize; z++)
                     {
                         if (!chunk.HasObjectAtPosition(new Position(x, y, z)) || !chunk.GetObject(new Position(x, y, z)).Changed)
                             continue;

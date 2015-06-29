@@ -56,6 +56,8 @@ namespace Assets.Code.GenerationEngine
         {
             try
             {
+                System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
+
                 Generate();
             }
             catch (Exception e)
@@ -72,19 +74,19 @@ namespace Assets.Code.GenerationEngine
 
         public void Generate()
         {
-            for (int x = Position.x - World.World.ChunkSize / 2; x < Position.x + World.World.ChunkSize + World.World.ChunkSize / 2; x++)
+            for (int x = Position.x - World.WorldSettings.ChunkSize / 2; x < Position.x + World.WorldSettings.ChunkSize + World.WorldSettings.ChunkSize / 2; x++)
             {
-                for (int z = Position.z - World.World.ChunkSize / 2; z < Position.z + World.World.ChunkSize + World.World.ChunkSize / 2; z++)
+                for (int z = Position.z - World.WorldSettings.ChunkSize / 2; z < Position.z + World.WorldSettings.ChunkSize + World.WorldSettings.ChunkSize / 2; z++)
                 {
                     GenerateColumnInChunk(x, z);
                 }
             }
 
-            for (int x = Position.x - 1; x < Position.x + World.World.ChunkSize + 1; x++)
+            for (int x = Position.x - 1; x < Position.x + World.WorldSettings.ChunkSize + 1; x++)
             {
-                for (int y = Position.y - 1; y < Position.y + World.World.ChunkSize + 1; y++)
+                for (int y = Position.y - 1; y < Position.y + World.WorldSettings.ChunkSize + 1; y++)
                 {
-                    for (int z = Position.z - 1; z < Position.z + World.World.ChunkSize + 1; z++)
+                    for (int z = Position.z - 1; z < Position.z + World.WorldSettings.ChunkSize + 1; z++)
                     {
                         Position pos = new Position(x, y, z);
                         ChunkData.SetObject(pos, new Air());
@@ -127,7 +129,7 @@ namespace Assets.Code.GenerationEngine
             float dirtHeight = stoneHeight + Mathf.FloorToInt(DirtBaseHeight);
             dirtHeight += Get2DNoise(columnPosition + new Position(0, 100, 0), DirtScale, Mathf.FloorToInt(DirtHeightRange));
             
-            for (int y = Position.y - World.World.ChunkSize - 1; y < Position.y + World.World.ChunkSize + 1; y++)
+            for (int y = Position.y - World.WorldSettings.ChunkSize - 1; y < Position.y + World.WorldSettings.ChunkSize + 1; y++)
             {
                 Position blockPosition = new Position(columnPosition) {y = y};
 
@@ -151,14 +153,14 @@ namespace Assets.Code.GenerationEngine
                         {
                             CreateTree(blockPosition);
                         }
-                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
-                        {
-                            ChunkData.SetObject(blockPosition, new Flower());
-                        }
-                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
-                        {
-                            ChunkData.SetObject(blockPosition, new Grass());
-                        }
+                        //else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
+                        //{
+                        //    ChunkData.SetObject(blockPosition, new Flower());
+                        //}
+                        //else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
+                        //{
+                        //    ChunkData.SetObject(blockPosition, new Grass());
+                        //}
                     }
                 }
             }

@@ -16,18 +16,8 @@ namespace Assets.Code.World
         public GameObject ChunkPrefab;
 
         public static Generator Generator;
-
-        public const int ViewingRange = 16*20;
-
-        public const int LevelHeight = 4;
-
-        public string WorldName = "world";
-
-        public const int ChunkSize = 16;
         
-        public bool OneChunkPerFrame;
-
-        public bool CreateNewChunkPrefab(KeyValuePair<Position, ChunkData> chunk)
+        public bool CreateNewChunk(KeyValuePair<Position, ChunkData> chunk)
         {
             if (Chunks.ContainsKey(chunk.Key))
                 return false;
@@ -61,36 +51,23 @@ namespace Assets.Code.World
             Generator.Start();
         }
 
-        void Update()
-        {
-            OneChunkPerFrame = false;
-        }
-        
         void OnDestroy()
         {
             Generator.Abort();
         }
         
-        public Chunk GetChunk(Position position, bool alreadyAbsolute = false)
+        public Chunk GetChunk(Position position)
         {
-            Position absolutePosition;
-
-            if (!alreadyAbsolute)
+            Position snappedPosition = new Position
             {
-                absolutePosition = new Position();
-
-                absolutePosition.x = Mathf.FloorToInt(position.x / (float)ChunkSize) * ChunkSize;
-                absolutePosition.y = Mathf.FloorToInt(position.y / (float)ChunkSize) * ChunkSize;
-                absolutePosition.z = Mathf.FloorToInt(position.z / (float)ChunkSize) * ChunkSize;
-            }
-            else
-            {
-                absolutePosition = position;
-            }
+                x = Mathf.FloorToInt(position.x/(float) WorldSettings.ChunkSize)*WorldSettings.ChunkSize,
+                y = Mathf.FloorToInt(position.y/(float) WorldSettings.ChunkSize)*WorldSettings.ChunkSize,
+                z = Mathf.FloorToInt(position.z/(float) WorldSettings.ChunkSize)*WorldSettings.ChunkSize
+            };
 
             Chunk containerChunk;
 
-            Chunks.TryGetValue(absolutePosition, out containerChunk);
+            Chunks.TryGetValue(snappedPosition, out containerChunk);
 
             return containerChunk;
         }
@@ -117,12 +94,12 @@ namespace Assets.Code.World
             {
                 chunk.SetObject(position, worldObject);
 
-                UpdateIfEqual(position.x - chunk.Position.x, 0, new Position(position.x - 1, position.y, position.z));
-                UpdateIfEqual(position.x - chunk.Position.x, ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
-                UpdateIfEqual(position.y - chunk.Position.y, 0, new Position(position.x, position.y - 1, position.z));
-                UpdateIfEqual(position.y - chunk.Position.y, ChunkSize - 1, new Position(position.x, position.y + 1, position.z));
-                UpdateIfEqual(position.z - chunk.Position.z, 0, new Position(position.x, position.y, position.z - 1));
-                UpdateIfEqual(position.z - chunk.Position.z, ChunkSize - 1, new Position(position.x, position.y, position.z + 1));
+                UpdateIfNeighbour(position.x - chunk.Position.x, 0, new Position(position.x - 1, position.y, position.z));
+                UpdateIfNeighbour(position.x - chunk.Position.x, WorldSettings.ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
+                UpdateIfNeighbour(position.y - chunk.Position.y, 0, new Position(position.x, position.y - 1, position.z));
+                UpdateIfNeighbour(position.y - chunk.Position.y, WorldSettings.ChunkSize - 1, new Position(position.x, position.y + 1, position.z));
+                UpdateIfNeighbour(position.z - chunk.Position.z, 0, new Position(position.x, position.y, position.z - 1));
+                UpdateIfNeighbour(position.z - chunk.Position.z, WorldSettings.ChunkSize - 1, new Position(position.x, position.y, position.z + 1));
             }
         }
 
@@ -138,7 +115,7 @@ namespace Assets.Code.World
             }
         }
 
-        void UpdateIfEqual(int value1, int value2, Position position)
+        void UpdateIfNeighbour(int value1, int value2, Position position)
         {
             if (value1 == value2)
             {

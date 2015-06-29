@@ -22,12 +22,12 @@ namespace Assets.Code.Player
         
         void Start()
         {
-            int range = (int)Math.Floor((float)(Code.World.World.ViewingRange/Code.World.World.ChunkSize));
+            int range = (int)Math.Floor((float)(Code.World.WorldSettings.ViewingRange/Code.World.WorldSettings.ChunkSize));
 
             for (int x = -range; x < range; x++)
                 for (int y = -range / 2; y < range / 2; y++)
                     for (int z = -range; z < range; z++)
-                        _chunkPositions.Add(new Position(x * Code.World.World.ChunkSize, y * Code.World.World.ChunkSize, z * Code.World.World.ChunkSize));   
+                        _chunkPositions.Add(new Position(x * Code.World.WorldSettings.ChunkSize, y * Code.World.WorldSettings.ChunkSize, z * Code.World.WorldSettings.ChunkSize));   
 
             _chunkPositions = _chunkPositions.OrderBy(w => w.ToVector3().magnitude).ToList();
 
@@ -54,7 +54,7 @@ namespace Assets.Code.Player
 
                 foreach (KeyValuePair<Position, ChunkData> chunk in Code.World.World.Generator.GetNewChunks())
                 {
-                    World.CreateNewChunkPrefab(chunk);
+                    World.CreateNewChunk(chunk);
                 }
 
                 yield return new WaitForSeconds(Random.value);

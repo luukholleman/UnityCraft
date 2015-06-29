@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 
@@ -36,7 +37,7 @@ namespace Assets.Code.IO
             if (save.blocks.Count == 0)
                 return;
 
-            string saveFile = SaveLocation(chunk.World.WorldName);
+            string saveFile = SaveLocation(WorldSettings.WorldName);
             saveFile += FileName(chunk.Position);
 
             IFormatter formatter = new BinaryFormatter();
@@ -47,7 +48,7 @@ namespace Assets.Code.IO
 
         public static bool Load(Chunk chunk)
         {
-            string saveFile = SaveLocation(chunk.World.WorldName);
+            string saveFile = SaveLocation(WorldSettings.WorldName);
             saveFile += FileName(chunk.Position);
 
             if (!File.Exists(saveFile))
