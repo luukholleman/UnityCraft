@@ -51,6 +51,12 @@ namespace Assets.Code.World
             Generator.Start();
         }
 
+        void Update()
+        {
+            Generator.Update();
+            
+        }
+
         void OnDestroy()
         {
             Generator.Abort();

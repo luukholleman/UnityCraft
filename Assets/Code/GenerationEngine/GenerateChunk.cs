@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using Assets.Code.Thread;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
-using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
 using Assets.Code.WorldObjects.Static.Plants;
 using Assets.CoherentNoise;
 using Assets.CoherentNoise.Generation;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace Assets.Code.GenerationEngine
 {
@@ -46,19 +44,22 @@ namespace Assets.Code.GenerationEngine
 
         public MeshData MeshData = new MeshData();
 
-        public GenerateChunk(Position position)
+        private Action<Position, ChunkData> Callback;
+
+        public GenerateChunk(Position position, Action<Position, ChunkData> callback)
         {
             Position = position;
             ChunkData = new ChunkData(Position);
+            Callback = callback;
         }
 
         protected override void ThreadFunction()
         {
             try
             {
-                System.Threading.Thread.CurrentThread.Priority = System.Threading.ThreadPriority.Highest;
+                System.Threading.Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
-                Generate();
+                Generate("s");
             }
             catch (Exception e)
             {
@@ -72,27 +73,29 @@ namespace Assets.Code.GenerationEngine
 
         }
 
-        public void Generate()
+        public void Generate(object callback)
         {
-            for (int x = Position.x - World.WorldSettings.ChunkSize / 2; x < Position.x + World.WorldSettings.ChunkSize + World.WorldSettings.ChunkSize / 2; x++)
+            for (int x = Position.x - WorldSettings.ChunkSize / 2; x < Position.x + WorldSettings.ChunkSize + WorldSettings.ChunkSize / 2; x++)
             {
-                for (int z = Position.z - World.WorldSettings.ChunkSize / 2; z < Position.z + World.WorldSettings.ChunkSize + World.WorldSettings.ChunkSize / 2; z++)
+                for (int z = Position.z - WorldSettings.ChunkSize / 2; z < Position.z + WorldSettings.ChunkSize + WorldSettings.ChunkSize / 2; z++)
                 {
                     GenerateColumnInChunk(x, z);
                 }
             }
 
-            for (int x = Position.x - 1; x < Position.x + World.WorldSettings.ChunkSize + 1; x++)
+            for (int x = Position.x - 1; x < Position.x + WorldSettings.ChunkSize + 1; x++)
             {
-                for (int y = Position.y - 1; y < Position.y + World.WorldSettings.ChunkSize + 1; y++)
+                for (int y = Position.y - 1; y < Position.y + WorldSettings.ChunkSize + 1; y++)
                 {
-                    for (int z = Position.z - 1; z < Position.z + World.WorldSettings.ChunkSize + 1; z++)
+                    for (int z = Position.z - 1; z < Position.z + WorldSettings.ChunkSize + 1; z++)
                     {
                         Position pos = new Position(x, y, z);
                         ChunkData.SetObject(pos, new Air());
                     }
                 }
             }
+
+            Callback(Position, ChunkData);
         }
 
         private static float Get2DNoise(Position position, float scale, int max)
@@ -129,7 +132,7 @@ namespace Assets.Code.GenerationEngine
             float dirtHeight = stoneHeight + Mathf.FloorToInt(DirtBaseHeight);
             dirtHeight += Get2DNoise(columnPosition + new Position(0, 100, 0), DirtScale, Mathf.FloorToInt(DirtHeightRange));
             
-            for (int y = Position.y - World.WorldSettings.ChunkSize - 1; y < Position.y + World.WorldSettings.ChunkSize + 1; y++)
+            for (int y = Position.y - WorldSettings.ChunkSize - 1; y < Position.y + WorldSettings.ChunkSize + 1; y++)
             {
                 Position blockPosition = new Position(columnPosition) {y = y};
 
