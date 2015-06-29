@@ -23,7 +23,7 @@ namespace Assets.Code.WorldObjects.Static
 
             filter.mesh = Item.GetMesh();
 
-            GetComponent<Rigidbody>().velocity = new Vector3(Random.value * 2 - 1, Random.value * 2 - 1, Random.value * 2 - 1);
+            GetComponent<Rigidbody>().velocity = new Vector3(Random.value * 2 - 1, Random.value + 5, Random.value * 2 - 1);
 
             _player = GameObject.FindWithTag("Player");
 

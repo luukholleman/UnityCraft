@@ -39,6 +39,11 @@ namespace Assets.Code.GUI.Inventory
             return Inventory.PopItem(_selectedIndex);
         }
 
+        public Item PeekSelectedItem()
+        {
+            return Inventory.PeekItem(_selectedIndex);
+        }
+
         private void ItemAddedToInventory(int index, Item item, int count)
         {
             if (index >= 10)
@@ -104,8 +109,6 @@ namespace Assets.Code.GUI.Inventory
             int i = 0;
             foreach (Item[] item in Inventory.Items.Take(10))
             {
-                Vector3 point = GUICamera.WorldToScreenPoint(GetWorldBarPosition(i));
-
                 UnityEngine.GUI.Label(GetGUIBarPosition(i, 200, 200), item.Count(it => it != default(Item)).ToString());
 
                 i++;

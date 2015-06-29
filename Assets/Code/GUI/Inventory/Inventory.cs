@@ -81,5 +81,23 @@ namespace Assets.Code.GUI.Inventory
 
             return null;
         }
+
+        public Item PeekItem(int index)
+        {
+            if (Items[index] != null)
+            {
+                for (int i = 99; i >= 0; i--)
+                {
+                    if (Items[index][i] != null)
+                    {
+                        Item item = Items[index][i];
+
+                        return item;
+                    }
+                }
+            }
+
+            return null;
+        }
     }
 }

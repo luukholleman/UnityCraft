@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Code.GenerationEngine;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
+using Frankfort.Threading;
 using UnityEngine;
 
 namespace Assets.Code.Thread
 {
-    class GenerateChunkMesh : ThreadedJob
+    class GenerateChunkMesh : IThreadWorkerObject
     {
-        private ChunkComponent _chunkComponent;
-        private WorldObject[, ,] _blocks;
+        private ChunkData _chunk;
+
+        private Dictionary<Position, WorldObject> _blocks = new Dictionary<Position, WorldObject>();
 
         public MeshData MeshData;
 
@@ -24,41 +27,43 @@ namespace Assets.Code.Thread
         public Vector3[] ColVertices;
         public int[] ColTriangles;
 
-        public GenerateChunkMesh(ChunkComponent chunkComponent, WorldObject[, ,] blocks)
+        public MeshFilter FilterMesh;
+        public MeshCollider CollMesh;
+
+        public GenerateChunkMesh(ChunkData chunk, Dictionary<Position, WorldObject> blocks, MeshFilter filter, MeshCollider coll)
         {
-            _chunkComponent = chunkComponent;
+            _chunk = chunk;
             _blocks = blocks;
 
             MeshData = new MeshData();
+
+            FilterMesh = filter;
+            CollMesh = coll;
         }
-
-        protected override void ThreadFunction()
+        
+        public void ExecuteThreadedWork()
         {
-            for (int x = 0; x < World.World.ChunkSize; x++)
-            {
-                for (int y = 0; y < World.World.ChunkSize; y++)
-                {
-                    for (int z = 0; z < World.World.ChunkSize; z++)
-                    {
-                        if (_blocks[x, y, z] is StaticObject)
-                        {
-                            StaticObject so = _blocks[x, y, z] as StaticObject;
+            MeshData meshdata = new MeshData();
 
-                            MeshData = so.GetChunkMeshData(_chunkComponent, new Position(x, y, z), MeshData);
-                        }
-                    }
+            foreach (KeyValuePair<Position, WorldObject> block in _blocks)
+            {
+                if (Helper.InChunk(block.Key) && block.Value is StaticObject)
+                {
+                    StaticObject so = block.Value as StaticObject;
+
+                    meshdata = so.GetChunkMeshData(_chunk, block.Key, meshdata);
                 }
             }
 
-            Vertices = MeshData.Vertices.ToArray();
-            Triangles = MeshData.Triangles.ToArray();
-            Uv = MeshData.Uv.ToArray();
+            Vertices = meshdata.Vertices.ToArray();
+            Triangles = meshdata.Triangles.ToArray();
+            Uv = meshdata.Uv.ToArray();
 
-            ColVertices = MeshData.ColVertices.ToArray();
-            ColTriangles = MeshData.ColTriangles.ToArray();
+            ColVertices = meshdata.ColVertices.ToArray();
+            ColTriangles = meshdata.ColTriangles.ToArray();
         }
 
-        protected override void OnFinished()
+        public void AbortThreadedWork()
         {
 
         }

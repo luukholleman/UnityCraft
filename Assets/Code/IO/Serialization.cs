@@ -30,14 +30,14 @@ namespace Assets.Code.IO
             return fileName;
         }
 
-        public static void SaveChunk(ChunkComponent chunkComponent)
+        public static void SaveChunk(Chunk chunk)
         {
-            Save save = new Save(chunkComponent);
+            Save save = new Save(chunk);
             if (save.blocks.Count == 0)
                 return;
 
-            string saveFile = SaveLocation(chunkComponent.World.WorldName);
-            saveFile += FileName(chunkComponent.Position);
+            string saveFile = SaveLocation(chunk.World.WorldName);
+            saveFile += FileName(chunk.Position);
 
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new FileStream(saveFile, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -45,10 +45,10 @@ namespace Assets.Code.IO
             stream.Close();
         }
 
-        public static bool Load(ChunkComponent chunkComponent)
+        public static bool Load(Chunk chunk)
         {
-            string saveFile = SaveLocation(chunkComponent.World.WorldName);
-            saveFile += FileName(chunkComponent.Position);
+            string saveFile = SaveLocation(chunk.World.WorldName);
+            saveFile += FileName(chunk.Position);
 
             if (!File.Exists(saveFile))
                 return false;
@@ -60,7 +60,7 @@ namespace Assets.Code.IO
 
             foreach (KeyValuePair<Position, WorldObject> block in save.blocks)
             {
-                chunkComponent.Blocks[block.Key.x, block.Key.y, block.Key.z] = block.Value;
+                //chunk.ChunkData.GetStaticObjects[block.Key] = block.Value;
             }
 
             stream.Close();

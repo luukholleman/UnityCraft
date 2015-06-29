@@ -10,15 +10,15 @@ namespace Assets.Code.Thread
 {
     class SaveChunk : ThreadedJob
     {
-        private ChunkComponent _chunkComponent;
+        private Chunk _chunk;
 
-        public SaveChunk(ChunkComponent chunkComponent)
+        public SaveChunk(Chunk chunk)
         {
-            _chunkComponent = chunkComponent;
+            _chunk = chunk;
         }
         protected override void ThreadFunction()
         {
-            Serialization.SaveChunk(_chunkComponent);
+            Serialization.SaveChunk(_chunk);
         }
 
         protected override void OnFinished()

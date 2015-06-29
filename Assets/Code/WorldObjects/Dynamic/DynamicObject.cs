@@ -6,7 +6,7 @@ using Assets.Code.WorldObjects.Dynamic.Statemachines;
 
 namespace Assets.Code.WorldObjects.Dynamic
 {
-    abstract class DynamicObject : WorldObject
+    public abstract class DynamicObject : WorldObject
     {
         public override bool IsSolid(Direction direction)
         {

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.Code.Items.Blocks
 {
-    class Earth : Item
+    class Earth : BaseBlock
     {
         public override Mesh GetMesh()
         {
@@ -32,6 +32,11 @@ namespace Assets.Code.Items.Blocks
         public override StaticObject GetBlock()
         {
             return new WorldObjects.Static.Earth();
+        }
+
+        public override bool DestroyOnUse()
+        {
+            return true;
         }
     }
 }

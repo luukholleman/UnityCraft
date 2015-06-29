@@ -121,7 +121,7 @@ public class PoolManagerEditor : Editor
 			return;
 		
 		GUILayout.Space(5f);
-		GUILayout.Label("Pool Objects", EditorStyles.boldLabel);
+		GUILayout.Label("Pool WorldObjects", EditorStyles.boldLabel);
 		
 		EditorGUILayout.BeginHorizontal();
 		GUILayout.Space(10f);

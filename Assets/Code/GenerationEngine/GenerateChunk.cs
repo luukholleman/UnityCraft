@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Assets.Code.Thread;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
@@ -8,12 +9,13 @@ using Assets.Code.WorldObjects.Static.Plants;
 using Assets.CoherentNoise;
 using Assets.CoherentNoise.Generation;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Assets.Code.GenerationEngine
 {
     public class GenerateChunk : ThreadedJob
     {
-        public Chunk Chunk;
+        public ChunkData ChunkData;
         public Position Position;
 
         private const float StoneBaseHeight = -24;
@@ -28,16 +30,16 @@ namespace Assets.Code.GenerationEngine
 
         private const float DirtBaseHeight = 2;
         private const float DirtScale = 0.01f;
-        private const float DirtHeightRange = 5;
+        private const float DirtHeightRange = 1;
 
         private const float TreeFrequency = 0.2f;
         private const int TreeDensity = 3;
 
         private const float FlowerFrequency = 0.4f;
-        private const int FlowerDensity = 4;
+        private const int FlowerDensity = 3;
 
-        private const float GrassFrequency = 0.35f;
-        private const int GrassDensity = 10;
+        private const float GrassFrequency = 0.2f;
+        private const int GrassDensity = 5;
 
         private static readonly CoherentNoise.Generator MainLandNoise = new GradientNoise2D(123456789);
         private static readonly CoherentNoise.Generator CaveNoise = new GradientNoise(123456789);
@@ -47,12 +49,20 @@ namespace Assets.Code.GenerationEngine
         public GenerateChunk(Position position)
         {
             Position = position;
-            Chunk = new Chunk(Position);
+            ChunkData = new ChunkData(Position);
         }
 
         protected override void ThreadFunction()
         {
-            Generate();
+            try
+            {
+                Generate();
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+
         }
 
         protected override void OnFinished()
@@ -62,24 +72,22 @@ namespace Assets.Code.GenerationEngine
 
         public void Generate()
         {
-            for (int x = Position.x - Generator.ChunkSize; x < Position.x + Generator.ChunkSize + Generator.ChunkSize; x++)
+            for (int x = Position.x - World.World.ChunkSize / 2; x < Position.x + World.World.ChunkSize + World.World.ChunkSize / 2; x++)
             {
-                for (int z = Position.z - Generator.ChunkSize; z < Position.z + Generator.ChunkSize + Generator.ChunkSize; z++)
+                for (int z = Position.z - World.World.ChunkSize / 2; z < Position.z + World.World.ChunkSize + World.World.ChunkSize / 2; z++)
                 {
                     GenerateColumnInChunk(x, z);
                 }
             }
 
-            for (int x = 0; x < Generator.ChunkSize; x++)
+            for (int x = Position.x - 1; x < Position.x + World.World.ChunkSize + 1; x++)
             {
-                for (int y = 0; y < Generator.ChunkSize; y++)
+                for (int y = Position.y - 1; y < Position.y + World.World.ChunkSize + 1; y++)
                 {
-                    for (int z = 0; z < Generator.ChunkSize; z++)
+                    for (int z = Position.z - 1; z < Position.z + World.World.ChunkSize + 1; z++)
                     {
-                        if (Chunk.Objects[x, y, z] == null)
-                        {
-                            Chunk.Objects[x,y,z] = new Air();
-                        }
+                        Position pos = new Position(x, y, z);
+                        ChunkData.SetObject(pos, new Air());
                     }
                 }
             }
@@ -116,29 +124,24 @@ namespace Assets.Code.GenerationEngine
 
             stoneHeight = Math.Abs(stoneHeight);
 
-            float dirtHeight = Mathf.FloorToInt(DirtBaseHeight);
+            float dirtHeight = stoneHeight + Mathf.FloorToInt(DirtBaseHeight);
             dirtHeight += Get2DNoise(columnPosition + new Position(0, 100, 0), DirtScale, Mathf.FloorToInt(DirtHeightRange));
-
-            stoneHeight -= dirtHeight;
-            dirtHeight += stoneHeight;
-
-            for (int y = Position.y - Generator.ChunkSize; y < Position.y + Generator.ChunkSize; y++)
+            
+            for (int y = Position.y - World.World.ChunkSize - 1; y < Position.y + World.World.ChunkSize + 1; y++)
             {
-                Position blockPosition = new Position(columnPosition);
-
-                blockPosition.y = y;
+                Position blockPosition = new Position(columnPosition) {y = y};
 
                 if (y <= stoneHeight && GetCaveNoise(blockPosition, 0.01f, 1) >= 0.5f)
                 {
-                    Chunk.SetObject(blockPosition, new Air());
+                    ChunkData.SetObject(blockPosition, new Air());
                 }
                 else if (y <= stoneHeight)
                 {
-                    Chunk.SetObject(blockPosition, new Stone());
+                    ChunkData.SetObject(blockPosition, new Stone());
                 }
                 else if (y <= dirtHeight)
                 {
-                    Chunk.SetObject(blockPosition, new Earth());
+                    ChunkData.SetObject(blockPosition, new Earth());
 
                     if (Math.Abs(y - dirtHeight) < 0.5f)
                     {
@@ -150,11 +153,11 @@ namespace Assets.Code.GenerationEngine
                         }
                         else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
                         {
-                            Chunk.SetObject(blockPosition, new Flower());
+                            ChunkData.SetObject(blockPosition, new Flower());
                         }
                         else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
                         {
-                            Chunk.SetObject(blockPosition, new Grass());
+                            ChunkData.SetObject(blockPosition, new Grass());
                         }
                     }
                 }
@@ -163,13 +166,13 @@ namespace Assets.Code.GenerationEngine
 
         private void CreateTree(Position position)
         {
-            int treeHeight = GetSimpleNoise(new Position(position.x, 0, position.z), 1, 4) + 10;
+            int treeHeight = GetSimpleNoise(new Position(position.x, 0, position.z), 1, 3) + 5;
 
             for (int i = 0; i < treeHeight; i++)
             {
                 Position treeblockPosition = new Position(position.x, position.y + i, position.z);
 
-                Chunk.SetObject(treeblockPosition, new Wood(), true);
+                ChunkData.SetObject(treeblockPosition, new Wood(), true);
             }
 
             Position treeTop = new Position(position);
@@ -188,7 +191,7 @@ namespace Assets.Code.GenerationEngine
 
                         if (Vector3.Distance(treeTop.ToVector3(), leafPosition.ToVector3()) < leafRadius - GetSimpleNoise(leafPosition, 1, 2))
                         {
-                            Chunk.SetObject(leafPosition, new Leaves());
+                            ChunkData.SetObject(leafPosition, new Leaves());
                         }
                     }
                 }

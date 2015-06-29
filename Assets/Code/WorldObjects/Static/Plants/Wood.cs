@@ -9,7 +9,7 @@ namespace Assets.Code.WorldObjects.Static.Plants
     {
         public override Item GetItem()
         {
-            return new Items.Plants.Wood();
+            return new Items.Blocks.Wood();
         }
 
         public override Tile TexturePosition(Direction direction)

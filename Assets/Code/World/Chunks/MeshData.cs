@@ -1,11 +1,12 @@
 ﻿//MeshData.cs
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Code.World.Chunks
 {
-    public class MeshData
+    public class MeshData : IDisposable
     {
         public List<Vector3> Vertices = new List<Vector3>();
         public List<int> Triangles = new List<int>();
@@ -56,5 +57,19 @@ namespace Assets.Code.World.Chunks
             }
         }
 
+        public void Optimize()
+        {
+            
+        }
+
+        public void Dispose()
+        {
+            Vertices = null;
+            Triangles = null;
+            Uv = null;
+
+            ColVertices = null;
+            ColTriangles = null;
+        }
     }
 }

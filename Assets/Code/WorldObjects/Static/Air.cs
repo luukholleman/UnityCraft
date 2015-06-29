@@ -1,4 +1,5 @@
 ﻿using System;
+using Assets.Code.GenerationEngine;
 using Assets.Code.Items;
 using Assets.Code.World.Chunks;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace Assets.Code.WorldObjects.Static
             return null;
         }
 
-        public override MeshData GetChunkMeshData(ChunkComponent chunk, Position position, MeshData meshData)
+        public override MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData)
         {
             return meshData;
         }

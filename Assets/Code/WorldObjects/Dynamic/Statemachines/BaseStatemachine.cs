@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 {
-    abstract class BaseStatemachine
+    public abstract class BaseStatemachine
     {
         protected DynamicObjectComponent DynamicObjectComponent;
 

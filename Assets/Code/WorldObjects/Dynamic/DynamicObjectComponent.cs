@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Code.Items;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects.Dynamic.Statemachines;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic
 {
-    class DynamicObjectComponent : MonoBehaviour
+    public class DynamicObjectComponent : MonoBehaviour, Interactable
     {
         public DynamicObject DynamicObject;
 
         public BaseStatemachine BaseStatemachine;
 
-        public ChunkComponent ChunkComponent;
+        public Chunk Chunk;
 
         private MeshFilter _filter;
         private MeshCollider _coll;

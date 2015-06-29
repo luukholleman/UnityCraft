@@ -1,47 +1,62 @@
-﻿using Assets.Code.World.Chunks;
+﻿using Assets.Code.GenerationEngine;
+using Assets.Code.World.Chunks;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Static.Defaults
 {
     public abstract class StaticBlock : StaticObject
     {
-        public override MeshData GetChunkMeshData(ChunkComponent chunk, Position position, MeshData meshData)
+        public override MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData)
         {
             meshData.UseRenderDataForCol = true;
 
-            int x = position.x;
-            int y = position.y;
-            int z = position.z;
+            int oriX = position.x;
+            int oriY = position.y;
+            int oriZ = position.z;
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x, y + 1, z).IsSolid(Direction.Down))
-            {
-                meshData = FaceDataUp(x, y, z, meshData);
-            }
+            Position otherPosition = new Position(position);
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x, y - 1, z).IsSolid(Direction.Up))
+            otherPosition.y += 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.Down))
             {
-                meshData = FaceDataDown(x, y, z, meshData);
+                meshData = FaceDataUp(oriX, oriY, oriZ, meshData);
             }
+            otherPosition.y = oriY;
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x, y, z + 1).IsSolid(Direction.South))
+            otherPosition.y -= 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.Up))
             {
-                meshData = FaceDataNorth(x, y, z, meshData);
+                meshData = FaceDataDown(oriX, oriY, oriZ, meshData);
             }
+            otherPosition.y = oriY;
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x, y, z - 1).IsSolid(Direction.North))
+            otherPosition.z += 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.South))
             {
-                meshData = FaceDataSouth(x, y, z, meshData);
+                meshData = FaceDataNorth(oriX, oriY, oriZ, meshData);
             }
+            otherPosition.z = oriZ;
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x + 1, y, z).IsSolid(Direction.West))
+            otherPosition.z -= 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.North))
             {
-                meshData = FaceDataEast(x, y, z, meshData);
+                meshData = FaceDataSouth(oriX, oriY, oriZ, meshData);
             }
+            otherPosition.z = oriZ;
 
-            if (IsPossibleSolidBlock(chunk, position) && !chunk.GetObject(x - 1, y, z).IsSolid(Direction.East))
+            otherPosition.x += 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.West))
             {
-                meshData = FaceDataWest(x, y, z, meshData);
+                meshData = FaceDataEast(oriX, oriY, oriZ, meshData);
             }
+            otherPosition.x = oriX;
+
+            otherPosition.x -= 1;
+            if (!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.East))
+            {
+                meshData = FaceDataWest(oriX, oriY, oriZ, meshData);
+            }
+            otherPosition.x = oriX;
 
             return meshData;
         }
@@ -59,10 +74,6 @@ namespace Assets.Code.WorldObjects.Static.Defaults
             return meshData;
         }
 
-        private bool IsPossibleSolidBlock(ChunkComponent chunkComponent, Position position)
-        {
-            return chunkComponent.Blocks[position.x, position.y, position.z] != null || chunkComponent.Blocks[position.x, position.y, position.z] is Air;
-        }
         protected virtual MeshData FaceDataUp(int x, int y, int z, MeshData meshData)
         {
             meshData.AddVertex(new Vector3(x - 0.5f, y + 0.5f, z + 0.5f));

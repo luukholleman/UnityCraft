@@ -6,6 +6,7 @@ using System.Linq;
 using Assets.Code.GenerationEngine;
 using Assets.Code.World;
 using UnityEngine;
+using UnityStandardAssets.Characters.FirstPerson;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -15,12 +16,10 @@ namespace Assets.Code.Player
     {
         public World.World World;
 
+        public GameObject Player;
+
         private static List<Position> _chunkPositions = new List<Position>();
-
-        public const int BatchChunkCount = 2;
-
-        private const int MaxMillisecondtime = 5;
-
+        
         void Start()
         {
             int range = (int)Math.Floor((float)(Code.World.World.ViewingRange/Code.World.World.ChunkSize));
@@ -35,49 +34,30 @@ namespace Assets.Code.Player
             StartCoroutine("GetChunksFromGenerationEngine");
             StartCoroutine("DeleteChunks");
         }
+        
+        void Update()
+        {
+            if (Code.World.World.Generator == null)
+                return;
+
+            Code.World.World.Generator.SetPlayerPosition(new Position(Player.transform.position));
+        }
 
         IEnumerator GetChunksFromGenerationEngine()
         {
             for (;;)
             {
                 if (Code.World.World.Generator == null)
-                    yield return null; 
-                
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-
-                Code.World.World.Generator.SetPlayerPosition(new Position(transform.position));
+                    yield return new WaitForSeconds(Random.value);
 
                 int i = 0;
 
-                foreach (Position chunkPosition in _chunkPositions)
+                foreach (KeyValuePair<Position, ChunkData> chunk in Code.World.World.Generator.GetNewChunks())
                 {
-                    if (sw.ElapsedMilliseconds >= MaxMillisecondtime)
-                        break;
-
-                    Position newChunkPosition = new Position(Code.World.World.Generator.PlayerPosition + chunkPosition);
-
-                    //Get the chunk in the defined position
-                    GenerationEngine.Chunk newChunk = Code.World.World.Generator.GetChunk(newChunkPosition);
-
-                    //If the chunk already exists and it's already
-                    //Rendered or in queue to be Rendered continue
-                    if (newChunk == null)
-                        continue;
-
-                    if (Code.World.World.Generator.GetChunk(newChunkPosition) == null)
-                    {
-                        break;
-                    }
-
-                    if (World.CreateNewChunkPrefab(newChunkPosition))
-                    {
-                        if (++i > BatchChunkCount)
-                            break;
-                    }
+                    World.CreateNewChunkPrefab(chunk);
                 }
 
-                yield return null;
+                yield return new WaitForSeconds(Random.value);
             }
         }
         
@@ -85,22 +65,14 @@ namespace Assets.Code.Player
         {
             for (;;)
             {
-                var chunksToDelete = new List<Position>();
+                int j = 0;
 
-                foreach (var chunk in World.Chunks)
+                foreach (Position position in Code.World.World.Generator.GetOutOfRangeChunks())
                 {
-                    float distance = chunk.Value.Position.ManhattanDistance(new Position(transform.position));
-
-                    if (distance > Code.World.World.ViewingRange + Generator.ChunkSize)
-                        chunksToDelete.Add(chunk.Key);
+                    World.DestroyChunk(position);
                 }
 
-                foreach (var chunk in chunksToDelete)
-                {
-                    World.DestroyChunk(chunk);
-                }
-
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(Random.value);
             }
         }
     }

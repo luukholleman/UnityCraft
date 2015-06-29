@@ -34,6 +34,9 @@ namespace Assets.Code
 
         public override bool Equals(object obj)
         {
+            if (obj == null)
+                return false;
+
             if (GetHashCode() == obj.GetHashCode())
                 return true;
 

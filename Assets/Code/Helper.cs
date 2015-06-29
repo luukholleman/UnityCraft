@@ -36,12 +36,25 @@ namespace Assets.Code
 
         public static bool InChunk(Position position)
         {
-            return InChunk(position.x) && InChunk(position.y) && InChunk(position.z);
+            return !(!InChunk(position.x) || !InChunk(position.y) || !InChunk(position.z));
+        }
+
+        public static bool InOuterChunk(Position position)
+        {
+            return !(!InOuterChunk(position.x) || !InOuterChunk(position.y) || !InOuterChunk(position.z));
         }
 
         public static bool InChunk(int index)
         {
-            if (index < 0 || index >= Generator.ChunkSize)
+            if (index < 0 || index >= World.World.ChunkSize)
+                return false;
+
+            return true;
+        }
+
+        public static bool InOuterChunk(int index)
+        {
+            if (index < -1 || index >= World.World.ChunkSize + 1)
                 return false;
 
             return true;
@@ -88,14 +101,14 @@ namespace Assets.Code
 
         public static bool SetBlock(RaycastHit hit, StaticObject staticObject, bool adjacent = false)
         {
-            ChunkComponent chunkComponent = hit.collider.GetComponent<ChunkComponent>();
+            Chunk chunk = hit.collider.GetComponent<Chunk>();
 
-            if (chunkComponent == null)
+            if (chunk == null)
                 return false;
 
             Position position = GetBlockPos(hit, adjacent);
 
-            chunkComponent.World.SetObject(position, staticObject);
+            chunk.World.SetObject(position, staticObject);
 
             return true;
         }
@@ -104,9 +117,9 @@ namespace Assets.Code
         {
             if (hit.collider.CompareTag("Chunk"))
             {
-                ChunkComponent chunkComponent = hit.collider.GetComponent<ChunkComponent>();
+                Chunk chunk = hit.collider.GetComponent<Chunk>();
 
-                return chunkComponent;
+                return chunk;
             }
             else if (hit.collider.CompareTag("DynamicObject"))
             {

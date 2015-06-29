@@ -23,54 +23,70 @@ namespace Assets.Code.Player
         {
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Q))
             {
-                RaycastHit hit;
-
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks", "DynamicObjects")))
-                {
-                    if (hit.collider.CompareTag("Chunk"))
-                    {
-                        ChunkComponent chunk = Helper.GetMonoBehaviour(hit) as ChunkComponent;
-
-                        chunk.Action(hit);
-                    }
-                    else if (hit.collider.CompareTag("DynamicObject"))
-                    {
-                        DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
-
-                        component.Action();
-                    }
-                }
+                HandleLeftClick();
             }
 
             if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.E))
             {
-                RaycastHit hit;
+                HandleRightClick();
+            }
+        }
 
-                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100))
+        private void HandleRightClick()
+        {
+            RaycastHit hit;
+
+            Item item = Inventory.PeekSelectedItem();
+
+            if (item != null)
+            {
+                if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks", "DynamicObjects")))
                 {
+                    Position position = Helper.GetBlockPos(hit, item.AdjacentCast());
+
+                    Interactable interactable = null;
+
                     if (hit.collider.CompareTag("Chunk"))
                     {
-                        Item item = Inventory.PopSelectedItem();
-
-                        if (item != null)
-                        {
-                            StaticObject staticObject = item.GetBlock();
-
-                            if (staticObject != null)
-                            {
-                                Helper.SetBlock(hit, staticObject, true);
-                            }
-                        }
+                        interactable = hit.collider.GetComponent<Chunk>();
                     }
-                    else if(hit.collider.CompareTag("DynamicObject"))
+                    else if (hit.collider.CompareTag("DynamicObject"))
                     {
-                        DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
-
-                        component.Interact();
+                        interactable = hit.collider.GetComponent<DynamicObjectComponent>().Chunk;
                     }
+
+                    if (interactable != null)
+                    {
+                        bool interacted = item.Interact(position, interactable);
+                        interactable.Interact();
+
+                        if (item.DestroyOnUse() && interacted)
+                            Inventory.PopSelectedItem();
+                    }
+
                 }
             }
+        }
 
+        private void HandleLeftClick()
+        {
+            RaycastHit hit;
+
+            if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks", "DynamicObjects")))
+            {
+                if (hit.collider.CompareTag("Chunk"))
+                {
+                    Chunk chunk = Helper.GetMonoBehaviour(hit) as Chunk;
+
+                    chunk.Action(hit);
+                }
+                else if (hit.collider.CompareTag("DynamicObject"))
+                {
+                    DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
+
+                    component.Action();
+                }
+            }
         }
     }
 }

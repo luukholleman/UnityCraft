@@ -20,6 +20,8 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 
         public override void Action()
         {
+            DynamicObjectComponent.Chunk.RemoveObject(new Position(DynamicObjectComponent.transform.position));
+
             GameObject.Destroy(DynamicObjectComponent.gameObject);
         }
 

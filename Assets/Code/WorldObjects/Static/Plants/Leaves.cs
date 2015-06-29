@@ -1,6 +1,8 @@
 ﻿using System;
 using Assets.Code.Items;
+using Assets.Code.Items.Usables;
 using Assets.Code.WorldObjects.Static.Defaults;
+using Random = UnityEngine.Random;
 
 namespace Assets.Code.WorldObjects.Static.Plants
 {
@@ -24,6 +26,11 @@ namespace Assets.Code.WorldObjects.Static.Plants
 
         public override Item GetItem()
         {
+            if (Random.value*10 < 1)
+            {
+                return new Seeder();
+            }
+
             return null;
         }
     }
