@@ -23,7 +23,7 @@ namespace Assets.Code.World.Chunks
     {
         private ChunkData _chunkData;
 
-        public GameObject DynamicObjectPrefab = Resources.Load<GameObject>("Prefabs/DynamicObject");
+        public GameObject DynamicObjectPrefab;
 
         private bool _rebuild;
 
@@ -44,7 +44,9 @@ namespace Assets.Code.World.Chunks
         {
             _filter = gameObject.GetComponent<MeshFilter>();
             _collider = gameObject.GetComponent<MeshCollider>();
-            
+
+            DynamicObjectPrefab = Resources.Load<GameObject>("Prefabs/DynamicObject");
+
             transform.name = "ChunkData " + Position;
         }
 
