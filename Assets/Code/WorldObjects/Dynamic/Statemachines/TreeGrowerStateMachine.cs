@@ -29,7 +29,7 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 
         private void CreateTree(Position position)
         {
-            int treeHeight = (int)Math.Round(Random.value*3 + 4);
+            int treeHeight = (int)Math.Round(Random.value*3 + 20);
 
             for (int i = 0; i < treeHeight; i++)
             {
