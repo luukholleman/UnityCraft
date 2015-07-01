@@ -59,7 +59,7 @@ namespace Assets.Code.GenerationEngine
             {
                 System.Threading.Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
-                Generate("s");
+                Generate();
             }
             catch (Exception e)
             {
@@ -73,7 +73,7 @@ namespace Assets.Code.GenerationEngine
 
         }
 
-        public void Generate(object callback)
+        public void Generate()
         {
             for (int x = Position.x - WorldSettings.ChunkSize / 2; x < Position.x + WorldSettings.ChunkSize + WorldSettings.ChunkSize / 2; x++)
             {
@@ -94,6 +94,8 @@ namespace Assets.Code.GenerationEngine
                     }
                 }
             }
+
+            //System.Threading.Thread.Sleep(50);
 
             Callback(Position, ChunkData);
         }

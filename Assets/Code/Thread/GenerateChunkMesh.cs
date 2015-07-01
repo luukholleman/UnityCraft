@@ -8,6 +8,7 @@ using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
+using Assets.CoherentNoise.Generation.Displacement;
 using Frankfort.Threading;
 using UnityEngine;
 
@@ -54,6 +55,18 @@ namespace Assets.Code.Thread
                     meshdata = block.Value.GetChunkMeshData(_chunk, block.Key, meshdata);
                 }
             }
+
+            List<KeyValuePair<Vector3, Vector3>> Colliders = new List<KeyValuePair<Vector3, Vector3>>();
+
+            foreach (KeyValuePair<Position, StaticObject> block in blocks)
+            {
+                if (Helper.InChunk(block.Key))
+                {
+                    Colliders = block.Value.GetChunkCollider(_chunk, block.Key, Colliders);
+                }
+            }
+
+
             //MeshData meshdata = new MeshData();
 
             //foreach (KeyValuePair<Position, WorldObject> block in _blocks)
@@ -70,10 +83,14 @@ namespace Assets.Code.Thread
             Triangles = meshdata.Triangles.ToArray();
             Uv = meshdata.Uv.ToArray();
 
-            ColVertices = meshdata.ColVertices.ToArray();
-            ColTriangles = meshdata.ColTriangles.ToArray();
+            meshdata.Prepare();
+
+            //ColVertices = meshdata.ColVertices.ToArray();
+            //ColTriangles = meshdata.ColTriangles.ToArray();
 
             Scheduler.Scheduler.Instance.Add(new BindMeshFilter() { MeshFilter = FilterMesh, MeshData = meshdata });
+            //Scheduler.Scheduler.Instance.Add(new SpawnColliderCube() { Chunk = _chunk, Colliders = Colliders });
+
             Scheduler.Scheduler.Instance.Add(new BindMeshCollider() { MeshCollider = CollMesh, MeshData = meshdata });
         }
 

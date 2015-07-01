@@ -45,7 +45,7 @@ namespace Assets.Code.Game
                 yield return null;
             }
         }
-
+        
         void Update()
         {
 

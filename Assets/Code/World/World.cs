@@ -18,11 +18,13 @@ namespace Assets.Code.World
 
         public GameObject ChunkPrefab;
 
+        public GameObject ColliderCube;
+
         public static Generator Generator;
         
         public void CreateNewChunkCallback(Position position, Chunk chunk)
         {
-            Chunks.Add(position, chunk);
+            Chunks[position] = chunk;
         }
         
         void Awake()
@@ -35,13 +37,7 @@ namespace Assets.Code.World
         {
             Generator.Start();
         }
-
-        void Update()
-        {
-            Generator.Update();
-            
-        }
-
+        
         void OnDestroy()
         {
             Generator.Abort();

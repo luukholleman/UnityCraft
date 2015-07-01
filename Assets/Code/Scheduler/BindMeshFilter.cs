@@ -18,10 +18,10 @@ namespace Assets.Code.Scheduler
         {
             yield return null;
 
-            MeshFilter.mesh.Clear();
-            MeshFilter.mesh.vertices = MeshData.Vertices.ToArray();
-            MeshFilter.mesh.triangles = MeshData.Triangles.ToArray();
-            MeshFilter.mesh.uv = MeshData.Uv.ToArray();
+            //MeshFilter.mesh.Clear();
+            MeshFilter.mesh.vertices = MeshData.ArrVertices;
+            MeshFilter.mesh.triangles = MeshData.ArrTriangles;
+            MeshFilter.mesh.uv = MeshData.ArrUv;
             MeshFilter.mesh.RecalculateNormals();
 
             taskDone();

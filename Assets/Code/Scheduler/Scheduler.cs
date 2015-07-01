@@ -82,9 +82,15 @@ namespace Assets.Code.Scheduler
                         task = Tasks.Dequeue();
 
                         StartCoroutine(task.Execute(TaskDone));
+
+                        Debug.Log(task);
                     }
                 }
 
+                yield return null;
+                yield return null;
+                yield return null;
+                yield return null;
                 yield return null;
             }
         }

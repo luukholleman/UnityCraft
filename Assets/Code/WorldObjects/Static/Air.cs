@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Assets.Code.GenerationEngine;
 using Assets.Code.Items;
 using Assets.Code.World.Chunks;
@@ -17,6 +18,11 @@ namespace Assets.Code.WorldObjects.Static
         public override MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData)
         {
             return meshData;
+        }
+
+        public override List<KeyValuePair<Vector3, Vector3>> GetChunkCollider(ChunkData chunk, Position position, List<KeyValuePair<Vector3, Vector3>> colliders)
+        {
+            return colliders;
         }
 
         public override MeshData GetMeshData()

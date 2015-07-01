@@ -28,25 +28,22 @@ namespace Assets.Code.Scheduler
 
             yield return null;
 
-            if (newChunkObject != null)
-            {
-                newChunkObject.transform.position = _chunk.Key.ToVector3();
+            newChunkObject.transform.position = _chunk.Key.ToVector3();
 
-                Chunk newChunk = newChunkObject.GetComponent<Chunk>();
+            Chunk newChunk = newChunkObject.GetComponent<Chunk>();
 
-                newChunk.Position = _chunk.Key;
-                newChunk.World = World.World.Instance;
+            newChunk.Position = _chunk.Key;
+            newChunk.World = World.World.Instance;
 
-                newChunk.SetChunkData(_chunk.Value);
+            newChunk.SetChunkData(_chunk.Value);
 
-                yield return null;
+            yield return null;
 
-                newChunk.SetBlocksUnmodified();
+            //newChunk.SetBlocksUnmodified();
 
-                newChunk.DoRebuild();
+            newChunk.DoRebuild();
 
-                _createNewChunkCallback(_chunk.Key, newChunk);
-            }
+            _createNewChunkCallback(_chunk.Key, newChunk);
 
             taskdone();
 

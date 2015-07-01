@@ -35,6 +35,8 @@ namespace Assets.Code.GenerationEngine
         public Generator()
         {
             PlayerPosition = new Position(GameObject.FindWithTag("Player").transform.position);
+
+            //ThreadPool.SetMaxThreads(1, 1);
             
             for (int x = -MaxHorizontalGenerationDistance; x < MaxHorizontalGenerationDistance; x++)
                 for (int y = -MaxVerticalGenerationDistance; y < MaxVerticalGenerationDistance; y++)
@@ -74,6 +76,9 @@ namespace Assets.Code.GenerationEngine
                     {
                         foreach (Position chunkPosition in _chunkScope)
                         {
+                            if (_aborted)
+                                break;
+
                             Position absoluteChunkPosition = Helper.SnapToGrid(new Position(currentPlayerPosition + chunkPosition));
 
                             bool notGenerating;
@@ -87,11 +92,19 @@ namespace Assets.Code.GenerationEngine
                             {
                                 GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition, Callback);
 
-                                ThreadPool.QueueUserWorkItem(generateChunk.Generate);
+                                generateChunk.Generate();
+
+                                //ThreadPool.QueueUserWorkItem(generateChunk.Generate);
 
                                 lock (Generating)
                                 {
                                     Generating.Add(absoluteChunkPosition);
+                                }
+
+                                lock (PlayerPosition)
+                                {
+                                    if (!Equals(currentPlayerPosition, PlayerPosition))
+                                        break;
                                 }
                             }
                         }
@@ -135,7 +148,6 @@ namespace Assets.Code.GenerationEngine
 
                     }
 
-                    System.Threading.Thread.Sleep(25);
                 }
             }
             catch (Exception e)

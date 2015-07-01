@@ -14,6 +14,10 @@ namespace Assets.Code.World.Chunks
 
         public List<Vector3> ColVertices = new List<Vector3>();
         public List<int> ColTriangles = new List<int>();
+        
+        public Vector3[] ArrVertices;
+        public int[] ArrTriangles;
+        public Vector2[] ArrUv;
 
         public bool UseRenderDataForCol;
 
@@ -60,6 +64,13 @@ namespace Assets.Code.World.Chunks
         public void Optimize()
         {
             
+        }
+
+        public void Prepare()
+        {
+            ArrVertices = Vertices.ToArray();
+            ArrTriangles = Triangles.ToArray();
+            ArrUv = Uv.ToArray();
         }
 
         public void Dispose()
