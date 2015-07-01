@@ -39,7 +39,7 @@ namespace Assets.Code.Scheduler
 
             yield return null;
 
-            //newChunk.SetBlocksUnmodified();
+            newChunk.SetBlocksUnmodified();
 
             newChunk.DoRebuild();
 

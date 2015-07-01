@@ -76,15 +76,15 @@ namespace Assets.Code.GenerationEngine
 
         public void SetBlocksUnmodified()
         {
-            //foreach (KeyValuePair<Position, StaticObject> block in _staticObjects)
-            //{
-            //    block.Value.Changed = false;
-            //}
+            foreach (KeyValuePair<Position, StaticObject> block in _staticObjects)
+            {
+                block.Value.Changed = false;
+            }
 
-            //foreach (KeyValuePair<Position, DynamicObject> block in _dynamicObjects)
-            //{
-            //    block.Value.Changed = false;
-            //}
+            foreach (KeyValuePair<Position, DynamicObject> block in _dynamicObjects)
+            {
+                block.Value.Changed = false;
+            }
         }
 
         public Dictionary<Position, StaticObject> GetStaticObjects()

@@ -56,31 +56,9 @@ namespace Assets.Code.Thread
                 }
             }
             
-
-            //MeshData meshdata = new MeshData();
-
-            //foreach (KeyValuePair<Position, WorldObject> block in _blocks)
-            //{
-            //    if (Helper.InChunk(block.Key) && block.Value is StaticObject)
-            //    {
-            //        StaticObject so = block.Value as StaticObject;
-
-            //        meshdata = so.GetChunkMeshData(_chunk, block.Key, meshdata);
-            //    }
-            //}
-
-            Vertices = meshdata.Vertices.ToArray();
-            Triangles = meshdata.Triangles.ToArray();
-            Uv = meshdata.Uv.ToArray();
-
             meshdata.Prepare();
 
-            //ColVertices = meshdata.ColVertices.ToArray();
-            //ColTriangles = meshdata.ColTriangles.ToArray();
-
             Scheduler.Scheduler.Instance.Add(new BindMeshFilter() { MeshFilter = FilterMesh, MeshData = meshdata });
-            //Scheduler.Scheduler.Instance.Add(new SpawnColliderCube() { Chunk = _chunk, Colliders = Colliders });
-
             Scheduler.Scheduler.Instance.Add(new BindMeshCollider() { MeshCollider = CollMesh, MeshData = meshdata });
         }
 

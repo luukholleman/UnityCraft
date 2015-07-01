@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Code.World.Chunks
 {
-    public class MeshData : IDisposable
+    public class MeshData
     {
         public List<Vector3> Vertices = new List<Vector3>();
         public List<int> Triangles = new List<int>();
@@ -18,6 +18,9 @@ namespace Assets.Code.World.Chunks
         public Vector3[] ArrVertices;
         public int[] ArrTriangles;
         public Vector2[] ArrUv;
+
+        public Vector3[] ArrColVertices;
+        public int[] ArrColTriangles;
 
         public bool UseRenderDataForCol;
 
@@ -71,16 +74,9 @@ namespace Assets.Code.World.Chunks
             ArrVertices = Vertices.ToArray();
             ArrTriangles = Triangles.ToArray();
             ArrUv = Uv.ToArray();
-        }
 
-        public void Dispose()
-        {
-            Vertices = null;
-            Triangles = null;
-            Uv = null;
-
-            ColVertices = null;
-            ColTriangles = null;
+            ArrColVertices = ColVertices.ToArray();
+            ArrColTriangles = ColTriangles.ToArray();
         }
     }
 }

@@ -20,8 +20,8 @@ namespace Assets.Code.Scheduler
 
             Mesh mesh = new Mesh();
 
-            mesh.vertices = MeshData.ColVertices.ToArray();
-            mesh.triangles = MeshData.ColTriangles.ToArray();
+            mesh.vertices = MeshData.ArrColVertices;
+            mesh.triangles = MeshData.ArrColTriangles;
             mesh.RecalculateNormals();
 
             MeshCollider.sharedMesh = mesh;
