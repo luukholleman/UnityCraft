@@ -23,6 +23,7 @@ namespace Assets.Code.Scheduler
             yield return null;
 
             _chunk.GetComponent<MeshFilter>().mesh = new Mesh();
+            _chunk.GetComponent<MeshCollider>().sharedMesh = new Mesh();
 
             PoolManager.Despawn(_chunk.gameObject);
 
