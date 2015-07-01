@@ -55,17 +55,7 @@ namespace Assets.Code.Thread
                     meshdata = block.Value.GetChunkMeshData(_chunk, block.Key, meshdata);
                 }
             }
-
-            List<KeyValuePair<Vector3, Vector3>> Colliders = new List<KeyValuePair<Vector3, Vector3>>();
-
-            foreach (KeyValuePair<Position, StaticObject> block in blocks)
-            {
-                if (Helper.InChunk(block.Key))
-                {
-                    Colliders = block.Value.GetChunkCollider(_chunk, block.Key, Colliders);
-                }
-            }
-
+            
 
             //MeshData meshdata = new MeshData();
 

@@ -12,6 +12,5 @@ namespace Assets.Code.WorldObjects.Static
     public abstract class StaticObject : WorldObject
     {
         public abstract MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData);
-        public abstract List<KeyValuePair<Vector3, Vector3>> GetChunkCollider(ChunkData chunk, Position position, List<KeyValuePair<Vector3, Vector3>> colliders);
     }
 }

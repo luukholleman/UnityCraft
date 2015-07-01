@@ -40,31 +40,14 @@ namespace Assets.Code.Scheduler
             }
         }
 
-        void Update()
-        {
-            //Debug.Log(Tasks.Count);
-            //if (!Tasks.Any())
-            //    return;
-
-
-            //ScheduleTask task = Tasks.Dequeue();
-
-
-            //StartCoroutine(task.Execute());
-            ////task.Execute();
-
-        }
-
-        void OnGUI()
-        {
-            UnityEngine.GUI.Label(new Rect(10, 10, 50, 50), Tasks.Count.ToString());
-        }
+        //void OnGUI()
+        //{
+        //    UnityEngine.GUI.Label(new Rect(10, 10, 50, 50), Tasks.Count.ToString());
+        //}
 
         public void TaskDone()
         {
             _currentTasks--;
-
-            //Debug.Log("Done with task");
         }
 
         IEnumerator RunTasks()
@@ -82,8 +65,6 @@ namespace Assets.Code.Scheduler
                         task = Tasks.Dequeue();
 
                         StartCoroutine(task.Execute(TaskDone));
-
-                        Debug.Log(task);
                     }
                 }
 

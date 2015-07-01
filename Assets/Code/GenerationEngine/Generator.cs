@@ -16,19 +16,15 @@ namespace Assets.Code.GenerationEngine
         public const int MaxVerticalGenerationDistance = 2;
 
         // Thread parameters
-        public List<Position> Generating = new List<Position>();
         private bool _aborted;
 
         // variables for generating and holding chunks
         private Dictionary<Position, ChunkData> _chunks = new Dictionary<Position, ChunkData>();
 
-        private readonly Dictionary<Position, ChunkData> _toAdd = new Dictionary<Position, ChunkData>();
-        private readonly List<Position> _toRemove = new List<Position>();
-
         private readonly List<Position> _chunkScope = new List<Position>((MaxHorizontalGenerationDistance * 2) * (MaxVerticalGenerationDistance * 2) * (MaxHorizontalGenerationDistance * 2));
 
         // player position
-        public Position PlayerPosition = new Position(0, 0, 0);
+        private Position PlayerPosition = new Position(0, 0, 0);
 
         private object _lock = new object();
         
@@ -36,8 +32,6 @@ namespace Assets.Code.GenerationEngine
         {
             PlayerPosition = new Position(GameObject.FindWithTag("Player").transform.position);
 
-            //ThreadPool.SetMaxThreads(1, 1);
-            
             for (int x = -MaxHorizontalGenerationDistance; x < MaxHorizontalGenerationDistance; x++)
                 for (int y = -MaxVerticalGenerationDistance; y < MaxVerticalGenerationDistance; y++)
                     for (int z = -MaxHorizontalGenerationDistance; z < MaxHorizontalGenerationDistance; z++)
@@ -49,7 +43,10 @@ namespace Assets.Code.GenerationEngine
 
         public void SetPlayerPosition(Position playerPosition)
         {
-            PlayerPosition = Helper.SnapToGrid(playerPosition);
+            lock (_lock)
+            {
+                PlayerPosition = Helper.SnapToGrid(playerPosition);
+            }
         }
 
         protected override void ThreadFunction()
@@ -58,22 +55,13 @@ namespace Assets.Code.GenerationEngine
             {
                 while (!_aborted)
                 {
-                    //Position playerChunk;
-
-                    //lock (_lock)
-                    //{
                         Position currentPlayerPosition;
 
-                        lock (PlayerPosition)
+                        lock (_lock)
                         {
                             currentPlayerPosition = PlayerPosition;
                         }
 
-                    //    playerChunk = Helper.SnapToGrid(currentPlayerPosition);
-                    //}
-
-                    lock (_lock)
-                    {
                         foreach (Position chunkPosition in _chunkScope)
                         {
                             if (_aborted)
@@ -81,27 +69,17 @@ namespace Assets.Code.GenerationEngine
 
                             Position absoluteChunkPosition = Helper.SnapToGrid(new Position(currentPlayerPosition + chunkPosition));
 
-                            bool notGenerating;
-
-                            lock (Generating)
+                            if (!ChunkExists(absoluteChunkPosition))
                             {
-                                notGenerating = !Generating.Any(p => p.Equals(absoluteChunkPosition));
-                            }
-
-                            if (!ChunkExists(absoluteChunkPosition) && notGenerating)
-                            {
-                                GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition, Callback);
+                                GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition);
 
                                 generateChunk.Generate();
 
-                                //ThreadPool.QueueUserWorkItem(generateChunk.Generate);
+                                Scheduler.Scheduler.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(generateChunk.Position, generateChunk.ChunkData), World.World.Instance.CreateNewChunkCallback));
 
-                                lock (Generating)
-                                {
-                                    Generating.Add(absoluteChunkPosition);
-                                }
+                                _chunks[generateChunk.Position] = generateChunk.ChunkData;
 
-                                lock (PlayerPosition)
+                                lock (_lock)
                                 {
                                     if (!Equals(currentPlayerPosition, PlayerPosition))
                                         break;
@@ -109,24 +87,24 @@ namespace Assets.Code.GenerationEngine
                             }
                         }
 
+                        List<Position> toRemove = new List<Position>();
+
                         foreach (KeyValuePair<Position, ChunkData> chunk in _chunks)
                         {
-                            if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
+                            if (Vector3.Distance(chunk.Key.ToVector3(), currentPlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
                             {
+                                toRemove.Add(chunk.Key);
+
                                 World.World.Instance.DestroyChunk(chunk.Key);
                             }
                         }
-                    }
 
-                    lock (_lock)
-                    {
-                        lock (_chunks)
+                        foreach (Position position in toRemove)
                         {
-                            _chunks = new Dictionary<Position, ChunkData>(_chunks);
+                            _chunks.Remove(position);
                         }
 
-                    }
-
+                    //_chunks = new Dictionary<Position, ChunkData>(_chunks);
                 }
             }
             catch (Exception e)
@@ -140,76 +118,12 @@ namespace Assets.Code.GenerationEngine
         {
             Scheduler.Scheduler.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(position, chunkData), World.World.Instance.CreateNewChunkCallback));
 
-            lock (_lock)
-            {
-                lock (_chunks)
-                {
-                    _chunks[position] = chunkData;
-                }
-
-                lock (Generating)
-                {
-                    Generating.Remove(position);
-                }
-            }
-        }
-
-        public IEnumerable<KeyValuePair<Position, ChunkData>> GetNewChunks()
-        {
-                List<KeyValuePair<Position, ChunkData>> tmp;
-
-                lock (_toAdd)
-                {
-                    tmp = new List<KeyValuePair<Position, ChunkData>>(_toAdd);
-                    _toAdd.Clear();
-                }
-
-                return tmp;
-        }
-
-        //public IEnumerable<KeyValuePair<Position, ChunkData>> GetNewChunks()
-        //{
-        //    for (; ; )
-        //    {
-        //        KeyValuePair<Position, ChunkData> toAdd;
-
-        //        lock (_toAdd)
-        //        {
-        //            toAdd = _toAdd.FirstOrDefault();
-
-        //            if (toAdd.Equals(default(KeyValuePair<Position, ChunkData>)))
-        //                yield break;
-        //            _toAdd.Remove(toAdd.Key);
-        //        }
-
-        //        yield return toAdd;
-        //    }
-        //}
-
-        public IEnumerable<Position> GetOutOfRangeChunks()
-        {
-            List<Position> tmp;
-
-            lock (_toRemove)
-            {
-                tmp = new List<Position>(_toRemove);
-                _toRemove.Clear();
-            }
-
-            return tmp;
+            _chunks[position] = chunkData;
         }
 
         private bool ChunkExists(Position position)
         {
-            bool exists;
-
-            lock (_chunks)
-                exists = _chunks.ContainsKey(position);
-
-            lock (_toAdd)
-                exists = exists || _toAdd.ContainsKey(position);
-
-            return exists;
+            return _chunks.ContainsKey(position);
         }
 
         public override void Abort()

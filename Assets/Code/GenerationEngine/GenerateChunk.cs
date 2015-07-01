@@ -30,14 +30,14 @@ namespace Assets.Code.GenerationEngine
         private const float DirtScale = 0.01f;
         private const float DirtHeightRange = 1;
 
-        private const float TreeFrequency = 0.2f;
-        private const int TreeDensity = 3;
+        private const float TreeFrequency = 3.1f;
+        private const int TreeDensity = 7;
 
         private const float FlowerFrequency = 0.4f;
-        private const int FlowerDensity = 3;
+        private const int FlowerDensity = 10;
 
-        private const float GrassFrequency = 0.2f;
-        private const int GrassDensity = 5;
+        private const float GrassFrequency = 0.6f;
+        private const int GrassDensity = 20;
 
         private static readonly CoherentNoise.Generator MainLandNoise = new GradientNoise2D(123456789);
         private static readonly CoherentNoise.Generator CaveNoise = new GradientNoise(123456789);
@@ -46,11 +46,10 @@ namespace Assets.Code.GenerationEngine
 
         private Action<Position, ChunkData> Callback;
 
-        public GenerateChunk(Position position, Action<Position, ChunkData> callback)
+        public GenerateChunk(Position position)
         {
             Position = position;
             ChunkData = new ChunkData(Position);
-            Callback = callback;
         }
 
         protected override void ThreadFunction()
@@ -94,10 +93,6 @@ namespace Assets.Code.GenerationEngine
                     }
                 }
             }
-
-            //System.Threading.Thread.Sleep(50);
-
-            Callback(Position, ChunkData);
         }
 
         private static float Get2DNoise(Position position, float scale, int max)
@@ -158,14 +153,14 @@ namespace Assets.Code.GenerationEngine
                         {
                             CreateTree(blockPosition);
                         }
-                        //else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
-                        //{
-                        //    ChunkData.SetObject(blockPosition, new Flower());
-                        //}
-                        //else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
-                        //{
-                        //    ChunkData.SetObject(blockPosition, new Grass());
-                        //}
+                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), FlowerFrequency, 100) < FlowerDensity)
+                        {
+                            ChunkData.SetObject(blockPosition, new Flower());
+                        }
+                        else if (GetSimpleNoise(new Position(blockPosition.x, 0, blockPosition.z), GrassFrequency, 100) < GrassDensity)
+                        {
+                            ChunkData.SetObject(blockPosition, new Grass());
+                        }
                     }
                 }
             }

@@ -62,63 +62,6 @@ namespace Assets.Code.WorldObjects.Static.Defaults
             return meshData;
         }
 
-        public override List<KeyValuePair<Vector3, Vector3>> GetChunkCollider(ChunkData chunk, Position position, List<KeyValuePair<Vector3, Vector3>> colliders)
-        {
-            int oriX = position.x;
-            int oriY = position.y;
-            int oriZ = position.z;
-
-            Position otherPosition = new Position(position);
-
-            bool borderBox = false;
-
-            otherPosition.y += 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.Down)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.y = oriY;
-
-            otherPosition.y -= 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.Up)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.y = oriY;
-
-            otherPosition.z += 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.South)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.z = oriZ;
-
-            otherPosition.z -= 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.North)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.z = oriZ;
-
-            otherPosition.x += 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.West)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.x = oriX;
-
-            otherPosition.x -= 1;
-            if ((!chunk.HasObjectAtPosition(otherPosition) || !chunk.GetObject(otherPosition).IsSolid(Direction.East)) && !borderBox)
-            {
-                borderBox = true;
-            }
-            otherPosition.x = oriX;
-
-            if(borderBox)
-                colliders.Add(new KeyValuePair<Vector3, Vector3>(position.ToVector3(), new Vector3(1, 1, 1)));
-
-            return colliders;
-        }
         public override MeshData GetMeshData()
         {
             MeshData meshData = new MeshData();

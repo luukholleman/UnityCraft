@@ -19,12 +19,7 @@ namespace Assets.Code.WorldObjects.Static
         {
             return meshData;
         }
-
-        public override List<KeyValuePair<Vector3, Vector3>> GetChunkCollider(ChunkData chunk, Position position, List<KeyValuePair<Vector3, Vector3>> colliders)
-        {
-            return colliders;
-        }
-
+        
         public override MeshData GetMeshData()
         {
             return new MeshData();
