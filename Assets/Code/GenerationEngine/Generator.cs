@@ -109,34 +109,13 @@ namespace Assets.Code.GenerationEngine
                             }
                         }
 
-                        //List<KeyValuePair<Position, ChunkData>> tmpRoRemove = new List<KeyValuePair<Position, ChunkData>>();
-
-                        //Dictionary<Position, ChunkData> tmpChunks;
-                        //lock (_chunks)
-                        //{
-                        //    tmpChunks = new Dictionary<Position, ChunkData>(_chunks);
-                        //}
-
-                        //foreach (KeyValuePair<Position, ChunkData> chunk in tmpChunks)
-                        //{
-                        //    if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
-                        //    {
-                        //        lock (_toRemove)
-                        //        {
-                        //            _toRemove.Add(chunk.Key);
-                        //        }
-
-                        //        tmpRoRemove.Add(chunk);
-                        //    }
-                        //}
-
-                        //foreach (KeyValuePair<Position, ChunkData> pair in tmpRoRemove)
-                        //{
-                        //    lock (_chunks)
-                        //    {
-                        //        _chunks.Remove(pair.Key);
-                        //    }
-                        //}
+                        foreach (KeyValuePair<Position, ChunkData> chunk in _chunks)
+                        {
+                            if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
+                            {
+                                World.World.Instance.DestroyChunk(chunk.Key);
+                            }
+                        }
                     }
 
                     lock (_lock)
