@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Assets.Code.Scheduler;
 using Assets.Code.Thread;
 using Assets.Code.World;
 using UnityEngine;
@@ -12,10 +13,10 @@ namespace Assets.Code.GenerationEngine
     {
         // Generation parameters
         public const int MaxHorizontalGenerationDistance = WorldSettings.ViewingRange / WorldSettings.ChunkSize;
-        public const int MaxVerticalGenerationDistance = WorldSettings.ViewingRange / WorldSettings.ChunkSize / 3;
+        public const int MaxVerticalGenerationDistance = 2;
 
         // Thread parameters
-        public List<Position> Generating = new List<Position>(); 
+        public List<Position> Generating = new List<Position>();
         private bool _aborted;
 
         // variables for generating and holding chunks
@@ -30,10 +31,11 @@ namespace Assets.Code.GenerationEngine
         public Position PlayerPosition = new Position(0, 0, 0);
 
         private object _lock = new object();
-
+        
         public Generator()
         {
-            //ThreadPool.SetMaxThreads(8, 8);
+            PlayerPosition = new Position(GameObject.FindWithTag("Player").transform.position);
+            
             for (int x = -MaxHorizontalGenerationDistance; x < MaxHorizontalGenerationDistance; x++)
                 for (int y = -MaxVerticalGenerationDistance; y < MaxVerticalGenerationDistance; y++)
                     for (int z = -MaxHorizontalGenerationDistance; z < MaxHorizontalGenerationDistance; z++)
@@ -54,81 +56,86 @@ namespace Assets.Code.GenerationEngine
             {
                 while (!_aborted)
                 {
-                    lock (_lock)
-                    {
-                    Position currentPlayerPosition;
+                    //Position playerChunk;
 
-                    lock (PlayerPosition)
-                    {
-                        currentPlayerPosition = PlayerPosition;
-                    }
+                    //lock (_lock)
+                    //{
+                        Position currentPlayerPosition;
 
-                    Debug.Log("still running for " + currentPlayerPosition);
-
-
-                    Position playerChunk = Helper.SnapToGrid(currentPlayerPosition);
-
-                    foreach (Position chunkPosition in _chunkScope)
-                    {
-                        Position absoluteChunkPosition = new Position(playerChunk + chunkPosition);
-
-                        bool notGenerating;
-
-                        lock (Generating)
+                        lock (PlayerPosition)
                         {
-                            notGenerating = !Generating.Any(p => p.Equals(absoluteChunkPosition));
+                            currentPlayerPosition = PlayerPosition;
                         }
 
-                        if (!ChunkExists(absoluteChunkPosition) && notGenerating)
-                        {
-                            GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition, Callback);
+                    //    playerChunk = Helper.SnapToGrid(currentPlayerPosition);
+                    //}
 
-                            ThreadPool.QueueUserWorkItem(generateChunk.Generate);
+                    lock (_lock)
+                    {
+                        foreach (Position chunkPosition in _chunkScope)
+                        {
+                            Position absoluteChunkPosition = Helper.SnapToGrid(new Position(currentPlayerPosition + chunkPosition));
+
+                            bool notGenerating;
 
                             lock (Generating)
                             {
-                                Generating.Add(absoluteChunkPosition);
+                                notGenerating = !Generating.Any(p => p.Equals(absoluteChunkPosition));
+                            }
+
+                            if (!ChunkExists(absoluteChunkPosition) && notGenerating)
+                            {
+                                GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition, Callback);
+
+                                ThreadPool.QueueUserWorkItem(generateChunk.Generate);
+
+                                lock (Generating)
+                                {
+                                    Generating.Add(absoluteChunkPosition);
+                                }
                             }
                         }
+
+                        //List<KeyValuePair<Position, ChunkData>> tmpRoRemove = new List<KeyValuePair<Position, ChunkData>>();
+
+                        //Dictionary<Position, ChunkData> tmpChunks;
+                        //lock (_chunks)
+                        //{
+                        //    tmpChunks = new Dictionary<Position, ChunkData>(_chunks);
+                        //}
+
+                        //foreach (KeyValuePair<Position, ChunkData> chunk in tmpChunks)
+                        //{
+                        //    if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
+                        //    {
+                        //        lock (_toRemove)
+                        //        {
+                        //            _toRemove.Add(chunk.Key);
+                        //        }
+
+                        //        tmpRoRemove.Add(chunk);
+                        //    }
+                        //}
+
+                        //foreach (KeyValuePair<Position, ChunkData> pair in tmpRoRemove)
+                        //{
+                        //    lock (_chunks)
+                        //    {
+                        //        _chunks.Remove(pair.Key);
+                        //    }
+                        //}
                     }
 
-                    //List<KeyValuePair<Position, ChunkData>> tmpRoRemove = new List<KeyValuePair<Position, ChunkData>>();
-
-                    //Dictionary<Position, ChunkData> tmpChunks;
-                    //lock (_chunks)
-                    //{
-                    //    tmpChunks = new Dictionary<Position, ChunkData>(_chunks);
-                    //}
-
-                    //foreach (KeyValuePair<Position, ChunkData> chunk in tmpChunks)
-                    //{
-                    //    if (Vector3.Distance(chunk.Key.ToVector3(), PlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
-                    //    {
-                    //        lock (_toRemove)
-                    //        {
-                    //            _toRemove.Add(chunk.Key);
-                    //        }
-
-                    //        tmpRoRemove.Add(chunk);
-                    //    }
-                    //}
-
-                    //foreach (KeyValuePair<Position, ChunkData> pair in tmpRoRemove)
-                    //{
-                    //    lock (_chunks)
-                    //    {
-                    //        _chunks.Remove(pair.Key);
-                    //    }
-                    //}
-
-                    lock (_chunks)
+                    lock (_lock)
                     {
-                        _chunks = new Dictionary<Position, ChunkData>(_chunks);
-                    }
+                        lock (_chunks)
+                        {
+                            _chunks = new Dictionary<Position, ChunkData>(_chunks);
+                        }
 
                     }
 
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(25);
                 }
             }
             catch (Exception e)
@@ -140,13 +147,10 @@ namespace Assets.Code.GenerationEngine
 
         public void Callback(Position position, ChunkData chunkData)
         {
+            Scheduler.Scheduler.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(position, chunkData), World.World.Instance.CreateNewChunkCallback));
+
             lock (_lock)
             {
-                lock (_toAdd)
-                {
-                    _toAdd[position] = chunkData;
-                }
-
                 lock (_chunks)
                 {
                     _chunks[position] = chunkData;
@@ -161,8 +165,6 @@ namespace Assets.Code.GenerationEngine
 
         public IEnumerable<KeyValuePair<Position, ChunkData>> GetNewChunks()
         {
-            lock (_lock)
-            {
                 List<KeyValuePair<Position, ChunkData>> tmp;
 
                 lock (_toAdd)
@@ -172,7 +174,6 @@ namespace Assets.Code.GenerationEngine
                 }
 
                 return tmp;
-            }
         }
 
         //public IEnumerable<KeyValuePair<Position, ChunkData>> GetNewChunks()
@@ -196,18 +197,15 @@ namespace Assets.Code.GenerationEngine
 
         public IEnumerable<Position> GetOutOfRangeChunks()
         {
-            lock (_lock)
+            List<Position> tmp;
+
+            lock (_toRemove)
             {
-                List<Position> tmp;
-
-                lock (_toRemove)
-                {
-                    tmp = new List<Position>(_toRemove);
-                    _toRemove.Clear();
-                }
-
-                return tmp;
+                tmp = new List<Position>(_toRemove);
+                _toRemove.Clear();
             }
+
+            return tmp;
         }
 
         private bool ChunkExists(Position position)
@@ -218,11 +216,11 @@ namespace Assets.Code.GenerationEngine
                 exists = _chunks.ContainsKey(position);
 
             lock (_toAdd)
-                 exists = exists || _toAdd.ContainsKey(position);
+                exists = exists || _toAdd.ContainsKey(position);
 
             return exists;
         }
-        
+
         public override void Abort()
         {
             _aborted = true;

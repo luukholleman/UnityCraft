@@ -31,8 +31,8 @@ namespace Assets.Code.Player
 
             _chunkPositions = _chunkPositions.OrderBy(w => w.ToVector3().magnitude).ToList();
 
-            StartCoroutine("GetChunksFromGenerationEngine");
-            StartCoroutine("DeleteChunks");
+            //StartCoroutine("GetChunksFromGenerationEngine");
+            //StartCoroutine("DeleteChunks");
         }
         
         void Update()
@@ -43,37 +43,41 @@ namespace Assets.Code.Player
             Code.World.World.Generator.SetPlayerPosition(new Position(Player.transform.position));
         }
 
-        IEnumerator GetChunksFromGenerationEngine()
-        {
-            for (;;)
-            {
-                if (Code.World.World.Generator == null)
-                    yield return new WaitForSeconds(Random.value);
+        //IEnumerator GetChunksFromGenerationEngine()
+        //{
+        //    for (;;)
+        //    {
+        //        if (Code.World.World.Generator == null)
+        //            yield return new WaitForSeconds(Random.value);
 
-                int i = 0;
+        //        int i = 0;
 
-                foreach (KeyValuePair<Position, ChunkData> chunk in Code.World.World.Generator.GetNewChunks())
-                {
-                    World.CreateNewChunk(chunk);
-                }
+        //        foreach (KeyValuePair<Position, ChunkData> chunk in Code.World.World.Generator.GetNewChunks())
+        //        {
+        //            World.CreateNewChunk(chunk);
 
-                yield return new WaitForSeconds(Random.value);
-            }
-        }
+        //            //if (++i % 5 == 0)
+        //                yield return null;
+        //        }
+
+        //        yield return null;
+        //    }
+        //}
         
-        IEnumerator DeleteChunks()
-        {
-            for (;;)
-            {
-                int j = 0;
+        //IEnumerator DeleteChunks()
+        //{
+        //    for (;;)
+        //    {
+        //        int j = 0;
 
-                foreach (Position position in Code.World.World.Generator.GetOutOfRangeChunks())
-                {
-                    World.DestroyChunk(position);
-                }
+        //        foreach (Position position in Code.World.World.Generator.GetOutOfRangeChunks())
+        //        {
+        //            World.DestroyChunk(position);
+        //            yield return null;
+        //        }
 
-                yield return new WaitForSeconds(Random.value);
-            }
-        }
+        //        yield return null;
+        //    }
+        //}
     }
 }

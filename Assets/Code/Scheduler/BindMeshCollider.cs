@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,15 @@ using UnityEngine;
 
 namespace Assets.Code.Scheduler
 {
-    class BindMeshCollider : IScheduleTask
+    class BindMeshCollider : ScheduleTask
     {
         public MeshCollider MeshCollider;
         public MeshData MeshData;
 
-        public void Execute()
+        public override IEnumerator Execute(Action taskDone)
         {
+            yield return null;
+
             Mesh mesh = new Mesh();
 
             mesh.vertices = MeshData.ColVertices.ToArray();
@@ -22,6 +25,10 @@ namespace Assets.Code.Scheduler
             mesh.RecalculateNormals();
 
             MeshCollider.sharedMesh = mesh;
+
+            taskDone();
+
+            yield return null;
         }
     }
 }

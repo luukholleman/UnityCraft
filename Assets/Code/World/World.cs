@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Code.GenerationEngine;
+using Assets.Code.Scheduler;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
@@ -13,41 +14,25 @@ namespace Assets.Code.World
     {
         public Dictionary<Position, Chunk> Chunks = new Dictionary<Position, Chunk>();
 
+        public static World Instance;
+
         public GameObject ChunkPrefab;
 
         public static Generator Generator;
         
-        public bool CreateNewChunk(KeyValuePair<Position, ChunkData> chunk)
+        public void CreateNewChunkCallback(Position position, Chunk chunk)
         {
-            if (Chunks.ContainsKey(chunk.Key))
-                return false;
-
-            GameObject newChunkObject = PoolManager.Spawn(ChunkPrefab);
-
-            if (newChunkObject != null)
-            {
-                newChunkObject.transform.position = chunk.Key.ToVector3();
-
-                Chunk newChunk = newChunkObject.GetComponent<Chunk>();
-
-                newChunk.Position = chunk.Key;
-                newChunk.World = this;
-
-                newChunk.SetChunkData(chunk.Value);
-
-                newChunk.SetBlocksUnmodified();
-                
-                newChunk.DoRebuild();
-
-                Chunks.Add(chunk.Key, newChunk);
-            }
-
-            return true;
+            Chunks.Add(position, chunk);
         }
         
         void Awake()
         {
+            Instance = this;
             Generator = new Generator();
+        }
+
+        void Start()
+        {
             Generator.Start();
         }
 
@@ -115,8 +100,8 @@ namespace Assets.Code.World
 
             if (chunk != null)
             {
-                chunk.GetComponent<MeshFilter>().mesh = new Mesh();
-                PoolManager.Despawn(chunk.gameObject);
+                Scheduler.Scheduler.Instance.Add(new DeleteChunk(chunk));
+
                 Chunks.Remove(position);
             }
         }

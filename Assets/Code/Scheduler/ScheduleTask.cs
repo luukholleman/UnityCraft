@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +8,10 @@ using UnityEngine;
 
 namespace Assets.Code.GenerationEngine
 {
-    interface IScheduleTask
+    abstract class ScheduleTask
     {
-        void Execute();
+        public Action Callback;
+
+        public abstract IEnumerator Execute(Action taskdone);
     }
 }

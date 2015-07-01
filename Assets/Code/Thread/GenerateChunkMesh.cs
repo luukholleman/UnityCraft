@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.GenerationEngine;
+using Assets.Code.Scheduler;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
@@ -12,11 +13,9 @@ using UnityEngine;
 
 namespace Assets.Code.Thread
 {
-    class GenerateChunkMesh : IThreadWorkerObject
+    class GenerateChunkMesh
     {
         private ChunkData _chunk;
-
-        private Dictionary<Position, WorldObject> _blocks = new Dictionary<Position, WorldObject>();
 
         public MeshData MeshData;
 
@@ -30,10 +29,9 @@ namespace Assets.Code.Thread
         public MeshFilter FilterMesh;
         public MeshCollider CollMesh;
 
-        public GenerateChunkMesh(ChunkData chunk, Dictionary<Position, WorldObject> blocks, MeshFilter filter, MeshCollider coll)
+        public GenerateChunkMesh(ChunkData chunk, MeshFilter filter, MeshCollider coll)
         {
             _chunk = chunk;
-            _blocks = blocks;
 
             MeshData = new MeshData();
 
@@ -41,19 +39,32 @@ namespace Assets.Code.Thread
             CollMesh = coll;
         }
         
-        public void ExecuteThreadedWork()
+        public void Execute(object state)
         {
             MeshData meshdata = new MeshData();
 
-            foreach (KeyValuePair<Position, WorldObject> block in _blocks)
-            {
-                if (Helper.InChunk(block.Key) && block.Value is StaticObject)
-                {
-                    StaticObject so = block.Value as StaticObject;
+            int i = 0;
 
-                    meshdata = so.GetChunkMeshData(_chunk, block.Key, meshdata);
+            Dictionary<Position, StaticObject> blocks = _chunk.GetStaticObjects();
+
+            foreach (KeyValuePair<Position, StaticObject> block in blocks)
+            {
+                if (Helper.InChunk(block.Key))
+                {
+                    meshdata = block.Value.GetChunkMeshData(_chunk, block.Key, meshdata);
                 }
             }
+            //MeshData meshdata = new MeshData();
+
+            //foreach (KeyValuePair<Position, WorldObject> block in _blocks)
+            //{
+            //    if (Helper.InChunk(block.Key) && block.Value is StaticObject)
+            //    {
+            //        StaticObject so = block.Value as StaticObject;
+
+            //        meshdata = so.GetChunkMeshData(_chunk, block.Key, meshdata);
+            //    }
+            //}
 
             Vertices = meshdata.Vertices.ToArray();
             Triangles = meshdata.Triangles.ToArray();
@@ -61,6 +72,9 @@ namespace Assets.Code.Thread
 
             ColVertices = meshdata.ColVertices.ToArray();
             ColTriangles = meshdata.ColTriangles.ToArray();
+
+            Scheduler.Scheduler.Instance.Add(new BindMeshFilter() { MeshFilter = FilterMesh, MeshData = meshdata });
+            Scheduler.Scheduler.Instance.Add(new BindMeshCollider() { MeshCollider = CollMesh, MeshData = meshdata });
         }
 
         public void AbortThreadedWork()

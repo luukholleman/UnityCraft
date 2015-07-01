@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Assets.Code.GenerationEngine;
 using Assets.Code.Items;
 using Assets.Code.Messenger;
 using Assets.Code.Scheduler;
+using Assets.Code.Thread;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
@@ -94,7 +96,11 @@ namespace Assets.Code.World.Chunks
 
         IEnumerator GenerateMesh()
         {
-            Scheduler.Scheduler.Instance.Add(new GenerateMesh() {_chunkData = _chunkData, _filter = _filter, _collider = _collider});
+            GenerateChunkMesh gcm = new GenerateChunkMesh(_chunkData, _filter, _collider);
+
+            ThreadPool.QueueUserWorkItem(gcm.Execute);
+
+            //Scheduler.Scheduler.Instance.Add(new GenerateMesh() {_chunkData = _chunkData, _filter = _filter, _collider = _collider});
 
             yield break;
         }

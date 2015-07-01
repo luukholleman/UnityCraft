@@ -7,7 +7,7 @@ namespace Assets.Code.World
 {
     class WorldSettings
     {
-        public const int ViewingRange = 10 * 8;
+        public const int ViewingRange = 10 * 10;
 
         public const int ChunkSize = 10;
 

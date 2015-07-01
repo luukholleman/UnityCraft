@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
@@ -10,27 +11,82 @@ namespace Assets.Code.Scheduler
     {
         public static Scheduler Instance;
 
-        void Start()
+        [Range(1, 100)]
+        public int ConcurrentTasks;
+
+        private int _currentTasks = 0;
+
+        private bool _busy = false;
+
+        public object Lock = new object();
+
+        public Queue<ScheduleTask> Tasks = new Queue<ScheduleTask>();
+
+        void Awake()
         {
             Instance = this;
         }
 
-        public Queue<IScheduleTask> Tasks = new Queue<IScheduleTask>(); 
-
-        public void Add(IScheduleTask task)
+        void Start()
         {
-            Tasks.Enqueue(task);
+            StartCoroutine("RunTasks");
         }
-        
+
+        public void Add(ScheduleTask task)
+        {
+            lock (Lock)
+            {
+                Tasks.Enqueue(task);
+            }
+        }
+
         void Update()
         {
-            if (!Tasks.Any())
-                return;
-                
-            
-            IScheduleTask task = Tasks.Dequeue();
+            //Debug.Log(Tasks.Count);
+            //if (!Tasks.Any())
+            //    return;
 
-            task.Execute();
+
+            //ScheduleTask task = Tasks.Dequeue();
+
+
+            //StartCoroutine(task.Execute());
+            ////task.Execute();
+
+        }
+
+        void OnGUI()
+        {
+            UnityEngine.GUI.Label(new Rect(10, 10, 50, 50), Tasks.Count.ToString());
+        }
+
+        public void TaskDone()
+        {
+            _currentTasks--;
+
+            //Debug.Log("Done with task");
+        }
+
+        IEnumerator RunTasks()
+        {
+            for (; ; )
+            {
+                lock (Lock)
+                {
+                    while (_currentTasks <= ConcurrentTasks && Tasks.Any())
+                    {
+                        _currentTasks++;
+
+                        ScheduleTask task;
+
+                        task = Tasks.Dequeue();
+
+                        StartCoroutine(task.Execute(TaskDone));
+                    }
+                }
+
+                yield return null;
+            }
         }
     }
 }
