@@ -91,7 +91,7 @@ namespace Assets.Code.GUI.Inventory
             else if (newIndex < 0)
                 newIndex = 9;
 
-            if (!Equals(ItemBar[_selectedIndex], default(KeyValuePair<int, GameObject>)))
+            if (!Equals(ItemBar[_selectedIndex], default(KeyValuePair<int, GameObject>)) && !Equals(ItemBar[_selectedIndex], default(KeyValuePair<int, GameObject>)))
             {
                 ItemBar[_selectedIndex].Value.GetComponent<ItemComponent>().StopPulsing();
             }

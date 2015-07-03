@@ -21,7 +21,7 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
             {
                 DynamicObjectComponent.Chunk.RemoveObject(new Position(DynamicObjectComponent.transform.position));
 
-                CreateTree(new Position(GO.transform.position));
+                CreateTree(new Position(GameObject.transform.position));
 
                 GameObject.Destroy(DynamicObjectComponent.gameObject);
             }
@@ -68,12 +68,12 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 
         public override void Action()
         {
-
+            Destroy();
         }
 
-        public override void OnGUI()
+        public override void Destroy()
         {
-
+            
         }
     }
 }

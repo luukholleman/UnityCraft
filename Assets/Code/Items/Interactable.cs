@@ -8,5 +8,7 @@ namespace Assets.Code.Items
     public interface Interactable
     {
         void Interact();
+
+        void DoRebuild();
     }
 }

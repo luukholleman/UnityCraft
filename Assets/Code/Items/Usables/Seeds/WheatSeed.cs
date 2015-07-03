@@ -1,26 +1,33 @@
-﻿using Assets.Code.World.Chunks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Assets.Code.Messenger;
+using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Dynamic;
-using Assets.Code.WorldObjects.Static;
+using Assets.Code.WorldObjects.Dynamic.Plants;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
 using UnityEngine;
+using Wheat = Assets.Code.WorldObjects.Dynamic.Plants.Wheat;
 
-namespace Assets.Code.Items.Usables
+namespace Assets.Code.Items.Usables.Seeds
 {
-    class Seeder : BaseUsable
+    class WheatSeed : BaseUsable
     {
         public override Mesh GetMesh()
         {
             MeshData meshData = new MeshData();
 
-            meshData.AddVertex(new Vector3(- 0.5f,  - 0.5f,  - 0.5f));
-            meshData.AddVertex(new Vector3(- 0.5f,  + 0.5f,  - 0.5f));
-            meshData.AddVertex(new Vector3(+ 0.5f,  + 0.5f,  - 0.5f));
-            meshData.AddVertex(new Vector3( + 0.5f,  - 0.5f,  - 0.5f));
+            meshData.AddVertex(new Vector3(-0.5f, -0.5f, -0.5f));
+            meshData.AddVertex(new Vector3(-0.5f, +0.5f, -0.5f));
+            meshData.AddVertex(new Vector3(+0.5f, +0.5f, -0.5f));
+            meshData.AddVertex(new Vector3(+0.5f, -0.5f, -0.5f));
 
             meshData.AddQuadTriangles();
 
             meshData.Uv.AddRange(FaceUVs());
-            
+
             Mesh mesh = new Mesh();
 
             mesh.Clear();
@@ -38,7 +45,10 @@ namespace Assets.Code.Items.Usables
 
             if (doc != null && doc.DynamicObject is PlowedEarth)
             {
-                doc.Chunk.SetObject(position, new TreeGrower(), true);
+                Wheat wheat = new Wheat();
+                Position plantPosition = new Position(position) {y = position.y + 1};
+
+                doc.Chunk.SetObject(plantPosition, wheat, true);
 
                 return true;
             }
@@ -62,8 +72,8 @@ namespace Assets.Code.Items.Usables
 
             WorldObject.Tile tilePos = new WorldObject.Tile();
 
-            tilePos.x = 15;
-            tilePos.y = 15;
+            tilePos.x = 3;
+            tilePos.y = 3;
 
             uvs[0] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y);
             uvs[1] = new Vector2(TileSize * tilePos.x + TileSize, TileSize * tilePos.y + TileSize);

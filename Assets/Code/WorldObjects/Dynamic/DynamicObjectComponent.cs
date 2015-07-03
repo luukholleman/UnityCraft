@@ -13,7 +13,9 @@ namespace Assets.Code.WorldObjects.Dynamic
     {
         public DynamicObject DynamicObject;
 
-        public BaseStatemachine BaseStatemachine;
+        public BaseStatemachine Statemachine;
+
+        public Position Position;
 
         public Chunk Chunk;
 
@@ -24,13 +26,13 @@ namespace Assets.Code.WorldObjects.Dynamic
         {
             BuildMesh();
 
-            BaseStatemachine = DynamicObject.GetBehaviour();
+            Statemachine = DynamicObject.Statemachine;
 
-            if (BaseStatemachine != null)
+            if (Statemachine != null)
             {
-                BaseStatemachine.Setup(this);
+                Statemachine.Setup(this);
 
-                BaseStatemachine.Start();
+                Statemachine.Start();
             }
         }
 
@@ -61,26 +63,31 @@ namespace Assets.Code.WorldObjects.Dynamic
 
         void Update()
         {
-            if(BaseStatemachine != null)
-                BaseStatemachine.Update();
+            if(Statemachine != null)
+                Statemachine.Update();
         }
 
         public void Action()
         {
-            if (BaseStatemachine != null)
-                BaseStatemachine.Action();
+            if (Statemachine != null)
+                Statemachine.Action();
         }
 
         public void Interact()
         {
-            if (BaseStatemachine != null)
-                BaseStatemachine.Interact();
+            if (Statemachine != null)
+                Statemachine.Interact();
         }
 
-        //void OnGUI()
-        //{
-        //    if(BaseStatemachine != null)
-        //        BaseStatemachine.OnGUI();
-        //}
+        public void OnDestroy()
+        {
+            if (Statemachine != null)
+                Statemachine.Destroy();
+        }
+
+        public void DoRebuild()
+        {
+            Chunk.DoRebuild();
+        }
     }
 }

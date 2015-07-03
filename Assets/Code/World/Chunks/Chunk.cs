@@ -34,11 +34,7 @@ namespace Assets.Code.World.Chunks
 
         public Position Position;
 
-        private int _iterationsPerFrame = 100;
-
-        private const int UpdateIterationsPerFrame = 4000;
-
-        private List<KeyValuePair<Position, GameObject>> _dynamicGos = new List<KeyValuePair<Position, GameObject>>(); 
+        private readonly List<KeyValuePair<Position, GameObject>> _dynamicGos = new List<KeyValuePair<Position, GameObject>>(); 
 
         void Start()
         {
@@ -57,21 +53,32 @@ namespace Assets.Code.World.Chunks
 
             foreach (KeyValuePair<Position, DynamicObject> worldObject in dynamicObjects)
             {
+                DynamicObjectComponent dynamicObjectComponent;
+
                 if (Helper.InChunk(worldObject.Key) && !_dynamicGos.Any(o => o.Key == worldObject.Key))
                 {
                     GameObject newDynamicObject = PoolManager.Spawn(DynamicObjectPrefab);
 
-                    newDynamicObject.transform.position = Position.ToVector3() + new Vector3(worldObject.Key.x, worldObject.Key.y, worldObject.Key.z);
+                    newDynamicObject.transform.position = Position.ToVector3() +
+                                                          new Vector3(worldObject.Key.x, worldObject.Key.y,
+                                                              worldObject.Key.z);
 
-                    DynamicObjectComponent dOC = newDynamicObject.GetComponent<DynamicObjectComponent>();
+                    dynamicObjectComponent = newDynamicObject.GetComponent<DynamicObjectComponent>();
 
-                    dOC.DynamicObject = worldObject.Value;
-                    dOC.Chunk = this;
+                    dynamicObjectComponent.Position = worldObject.Key;
+                    dynamicObjectComponent.DynamicObject = worldObject.Value;
+                    dynamicObjectComponent.Chunk = this;
 
                     _dynamicGos.Add(new KeyValuePair<Position, GameObject>(worldObject.Key, newDynamicObject));
-
-                    yield return null;
                 }
+                else
+                {
+                    dynamicObjectComponent = _dynamicGos.Find(o => o.Key == worldObject.Key).Value.GetComponent<DynamicObjectComponent>();
+                }
+
+                dynamicObjectComponent.BuildMesh();
+
+                yield return null;
             }
         }
         

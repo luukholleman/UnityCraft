@@ -26,10 +26,16 @@ namespace Assets.Code.GenerationEngine
 
             if (((emptyOrAir && !_dynamicObjects.ContainsKey(position - Position)) || replaceBlocks) && Helper.InOuterChunk(position - Position))
             {
-                if(staticObject is StaticObject)
+                RemoveObject(position);
+
+                if (staticObject is StaticObject)
+                {
                     _staticObjects[position - Position] = (StaticObject)staticObject;
+                }
                 else if (staticObject is DynamicObject)
+                {
                     _dynamicObjects[position - Position] = (DynamicObject)staticObject;
+                }
                 else
                     Debug.LogWarning("Object not of type static or dynamic");
             }

@@ -7,6 +7,7 @@ using Assets.Code.Items;
 using Assets.Code.Items.Blocks;
 using Assets.Code.Items.Tools;
 using Assets.Code.Items.Usables;
+using Assets.Code.Items.Usables.Seeds;
 using Assets.Code.Messenger;
 using Assets.Code.Player;
 using UnityEngine;
@@ -38,6 +39,17 @@ namespace Assets.Code.Game
                     Postman.Broadcast<Item>("picked up item", new Seeder());
                     Postman.Broadcast<Item>("picked up item", new Seeder());
                     Postman.Broadcast<Item>("picked up item", new Seeder());
+                    Postman.Broadcast<Item>("picked up item", new Shovel());
+                    Postman.Broadcast<Item>("picked up item", new WateringCan());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
+                    Postman.Broadcast<Item>("picked up item", new WheatSeed());
 
                     break;
                 }

@@ -44,26 +44,24 @@ namespace Assets.Code.Player
                 {
                     Position position = Helper.GetBlockPos(hit, item.AdjacentCast());
 
-                    Interactable interactable = null;
-
-                    if (hit.collider.CompareTag("Chunk"))
-                    {
-                        interactable = hit.collider.GetComponent<Chunk>();
-                    }
-                    else if (hit.collider.CompareTag("DynamicObject"))
-                    {
-                        interactable = hit.collider.GetComponent<DynamicObjectComponent>().Chunk;
-                    }
-
+                    Interactable interactable = Helper.GetMonoBehaviour(hit) as Interactable;
+                    
                     if (interactable != null)
                     {
                         bool interacted = item.Interact(position, interactable);
+
                         interactable.Interact();
 
                         if (item.DestroyOnUse() && interacted)
+                        {
                             Inventory.PopSelectedItem();
-                    }
+                        }
 
+                        if (interacted)
+                        {
+                            interactable.DoRebuild();
+                        }
+                    }
                 }
             }
         }

@@ -10,6 +10,11 @@ namespace Assets.Code.WorldObjects.Dynamic
 {
     class TreeGrower : DynamicPlate
     {
+        public TreeGrower()
+        {
+            Statemachine = new TreeGrowerStateMachine();
+        }
+
         public override Tile TexturePosition(Direction direction)
         {
             Tile tile = new Tile();
@@ -22,12 +27,7 @@ namespace Assets.Code.WorldObjects.Dynamic
 
         public override Item GetItem()
         {
-            throw new NotImplementedException();
-        }
-
-        public override BaseStatemachine GetBehaviour()
-        {
-            return new TreeGrowerStateMachine();
+            return null;
         }
     }
 }
