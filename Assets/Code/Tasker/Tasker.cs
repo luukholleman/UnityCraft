@@ -1,15 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Code.GenerationEngine;
-using Assets.Code.World.Chunks;
 using UnityEngine;
 
-namespace Assets.Code.Scheduler
+namespace Assets.Code.Tasker
 {
-    class Scheduler : MonoBehaviour
+    class Tasker : MonoBehaviour
     {
-        public static Scheduler Instance;
+        public static Tasker Instance;
 
         [Range(1, 100)]
         public int ConcurrentTasks;
@@ -20,7 +18,7 @@ namespace Assets.Code.Scheduler
 
         public object Lock = new object();
 
-        public Queue<ScheduleTask> Tasks = new Queue<ScheduleTask>();
+        public Queue<Task> Tasks = new Queue<Task>();
 
         void Awake()
         {
@@ -32,7 +30,7 @@ namespace Assets.Code.Scheduler
             StartCoroutine("RunTasks");
         }
 
-        public void Add(ScheduleTask task)
+        public void Add(Task task)
         {
             lock (Lock)
             {
@@ -60,7 +58,7 @@ namespace Assets.Code.Scheduler
                     {
                         _currentTasks++;
 
-                        ScheduleTask task;
+                        Task task;
 
                         task = Tasks.Dequeue();
 

@@ -21,7 +21,7 @@ namespace Assets.Code.Items
 
         public abstract Mesh GetMesh();
 
-        public abstract bool Interact(Position position, Interactable interactable);
+        public abstract bool Interact(Position position, IInteractable interactable);
 
         public abstract ItemType Type();
 

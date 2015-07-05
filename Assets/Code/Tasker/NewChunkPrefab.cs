@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
 using UnityEngine;
 
-namespace Assets.Code.Scheduler
+namespace Assets.Code.Tasker
 {
-    class NewChunkPrefab : ScheduleTask
+    class NewChunkPrefab : Task
     {
         private KeyValuePair<Position, ChunkData> _chunk;
         private readonly Action<Position, Chunk> _createNewChunkCallback;
@@ -33,13 +31,12 @@ namespace Assets.Code.Scheduler
             Chunk newChunk = newChunkObject.GetComponent<Chunk>();
 
             newChunk.Position = _chunk.Key;
-            newChunk.World = World.World.Instance;
 
             newChunk.SetChunkData(_chunk.Value);
 
             yield return null;
 
-            newChunk.SetBlocksUnmodified();
+            Tasker.Instance.Add(new InitializeBlocks(newChunk, _chunk.Value));
 
             newChunk.DoRebuild();
 

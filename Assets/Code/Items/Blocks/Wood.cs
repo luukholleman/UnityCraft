@@ -8,11 +8,9 @@ namespace Assets.Code.Items.Blocks
     {
         public override Mesh GetMesh()
         {
-            MeshData meshData = new MeshData();
-
             WorldObjects.Static.Plants.Wood block = new WorldObjects.Static.Plants.Wood();
 
-            meshData = block.GetMeshData();
+            MeshData meshData = block.GetMeshData();
 
             Mesh mesh = new Mesh();
 

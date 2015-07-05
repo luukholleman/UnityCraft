@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Code.GenerationEngine;
-using Assets.Code.Scheduler;
+using Assets.Code.Tasker;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
@@ -73,13 +73,13 @@ namespace Assets.Code.World
             return new Air();
         }
 
-        public void SetObject(Position position, WorldObject worldObject)
+        public void SetObject(Position position, WorldObject worldObject, bool replace = false)
         {
             Chunk chunk = GetChunk(position);
             
             if (chunk != null)
             {
-                chunk.SetObject(position, worldObject);
+                chunk.SetObject(position, worldObject, replace);
 
                 UpdateIfNeighbour(position.x - chunk.Position.x, 0, new Position(position.x - 1, position.y, position.z));
                 UpdateIfNeighbour(position.x - chunk.Position.x, WorldSettings.ChunkSize - 1, new Position(position.x + 1, position.y, position.z));
@@ -96,7 +96,7 @@ namespace Assets.Code.World
 
             if (chunk != null)
             {
-                Scheduler.Scheduler.Instance.Add(new DeleteChunk(chunk));
+                Tasker.Tasker.Instance.Add(new DeleteChunk(chunk));
 
                 Chunks.Remove(position);
             }

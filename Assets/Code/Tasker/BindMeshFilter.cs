@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
 using UnityEngine;
 
-namespace Assets.Code.Scheduler
+namespace Assets.Code.Tasker
 {
-    class BindMeshFilter : ScheduleTask
+    class BindMeshFilter : Task
     {
         public MeshFilter MeshFilter;
         public MeshData MeshData;

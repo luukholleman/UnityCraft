@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Assets.Code.GenerationEngine;
+using Assets.Code.GUI.Inventory;
 using Assets.Code.Items;
 using Assets.Code.Messenger;
-using Assets.Code.Scheduler;
 using Assets.Code.Thread;
 using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Dynamic;
@@ -19,7 +19,7 @@ namespace Assets.Code.World.Chunks
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
 
-    public class Chunk : MonoBehaviour, Interactable
+    public class Chunk : MonoBehaviour
     {
         private ChunkData _chunkData;
 
@@ -30,7 +30,7 @@ namespace Assets.Code.World.Chunks
         private MeshFilter _filter;
         private MeshCollider _collider;
 
-        public World World;
+        private World _world;
 
         public Position Position;
 
@@ -38,18 +38,61 @@ namespace Assets.Code.World.Chunks
 
         void Start()
         {
+            _world = World.Instance;
+
             _filter = gameObject.GetComponent<MeshFilter>();
             _collider = gameObject.GetComponent<MeshCollider>();
 
-            DynamicObjectPrefab = Resources.Load<GameObject>("Prefabs/DynamicObject");
-
             transform.name = "ChunkData " + Position;
+
+            Postman.AddListener<Position>("action with worldobject", WorldObjectAction);
+            Postman.AddListener<Position, Item>("interact with worldobject", WorldObjectInteract);
+        }
+
+        private void WorldObjectAction(Position position)
+        {
+            Position localPosition = new Position(position - Position);
+
+            if (Helper.InChunk(localPosition))
+            {
+                IInteractable interactable = GetObject(localPosition);
+
+                if (interactable != null)
+                {
+                    interactable.Action();
+
+                    DoRebuild();
+                }
+            }
+        }
+        private void WorldObjectInteract(Position position, Item item)
+        {
+            if (Helper.InChunk(position - Position))
+            {
+                IInteractable interactable = GetObject(position - Position);
+
+                if (interactable != null)
+                {
+                    bool interacted = item.Interact(position, interactable);
+
+                    interactable.Interact();
+
+                    if (item.DestroyOnUse() && interacted)
+                    {
+                        Inventory.Instance.PopSelectedItem();
+                    }
+
+                    if (interacted)
+                    {
+                        DoRebuild();
+                    }
+                }
+            }
         }
 
         IEnumerator PlaceDynamicObjects()
         {
             var dynamicObjects = _chunkData.GetDynamicObjects();
-            int i = 0;
 
             foreach (KeyValuePair<Position, DynamicObject> worldObject in dynamicObjects)
             {
@@ -108,7 +151,7 @@ namespace Assets.Code.World.Chunks
 
             ThreadPool.QueueUserWorkItem(gcm.Execute);
 
-            //Scheduler.Scheduler.Instance.Add(new GenerateMesh() {_chunkData = _chunkData, _filter = _filter, _collider = _collider});
+            //Tasker.Tasker.Instance.Add(new GenerateMesh() {_chunkData = _chunkData, _filter = _filter, _collider = _collider});
 
             yield break;
         }
@@ -130,26 +173,29 @@ namespace Assets.Code.World.Chunks
                 return _chunkData.GetObject(position);
             }
 
-            return World.GetObject(Position + position);
+            return _world.GetObject(Position + position);
         }
 
         public bool SetObject(Position position, WorldObject block, bool replace = false)
         {
             if (Helper.InChunk(position - Position))
             {
-                _chunkData.SetObject(position, block, replace);
-
+                if (_chunkData.SetObject(position, block, replace))
+                {
+                    block.Position = position;
+                }
+                
                 DoRebuild();
 
                 return true;
             }
 
-            World.SetObject(position, block);
+            _world.SetObject(position, block);
 
             return false;
         }
         
-        public void SetBlocksUnmodified()
+        public void InitializeBlocks()
         {
             _chunkData.SetBlocksUnmodified();
         }
@@ -162,32 +208,23 @@ namespace Assets.Code.World.Chunks
             _chunkData.RemoveObject(position);
         }
 
-        public void Action(RaycastHit hit)
+        public void DestroyBlock(Position position)
         {
-            Position position = Helper.GetBlockPos(hit);
+            WorldObject block = _world.GetObject(position);
 
-            WorldObject block = World.GetObject(position);
-
-            Position pos = Helper.GetBlockPos(hit);
-
-            SetObject(pos, new Air(), true);
+            SetObject(position, new Air(), true);
 
             Item droppedItem = block.GetItem();
 
             if (droppedItem != null)
             {
-                GameObject droppedItemGo = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), pos.ToVector3(), new Quaternion()) as GameObject;
+                GameObject droppedItemGo = Instantiate(Resources.Load<GameObject>("Prefabs/Item"), position.ToVector3(), new Quaternion()) as GameObject;
 
-                droppedItemGo.GetComponent<DroppedItem>().Position = pos;
+                droppedItemGo.GetComponent<DroppedItem>().Position = position;
                 droppedItemGo.GetComponent<DroppedItem>().Item = droppedItem;
             }
         }
-
-        public void Interact()
-        {
-            
-        }
-
+        
         public void SetChunkData(ChunkData chunkData)
         {
             _chunkData = chunkData;

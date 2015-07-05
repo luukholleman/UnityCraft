@@ -61,7 +61,7 @@ namespace Assets.Code.IO
 
             foreach (KeyValuePair<Position, WorldObject> block in save.blocks)
             {
-                //chunk.ChunkData.GetStaticObjects[block.Key] = block.Value;
+                chunk.SetObject(block.Key, block.Value);
             }
 
             stream.Close();

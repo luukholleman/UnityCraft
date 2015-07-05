@@ -4,7 +4,7 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
 {
     class PlowedEarthStatemachine : BaseStatemachine
     {
-        private float _nextDryTime = 0;
+        private float _nextDryTime = float.PositiveInfinity;
 
         public override void Start()
         {
@@ -18,6 +18,8 @@ namespace Assets.Code.WorldObjects.Dynamic.Statemachines
                 ((PlowedEarth) DynamicObject).Watered = false;
 
                 Chunk.DoRebuild();
+
+                _nextDryTime = float.PositiveInfinity;
             }
         }
 

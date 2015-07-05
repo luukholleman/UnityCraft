@@ -149,7 +149,7 @@ public class PoolObject : MonoBehaviour
 	private void SetActive(bool active)
 	{
 		foreach(GameObject go in GameObjectCache)
-			go.active = active;
+			go.SetActive(active);
 	
 		foreach(Renderer r in RendererCache)
 			r.enabled = active;

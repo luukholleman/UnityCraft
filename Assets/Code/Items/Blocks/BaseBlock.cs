@@ -27,7 +27,7 @@ namespace Assets.Code.Items.Blocks
             return true;
         }
 
-        public override bool Interact(Position position, Interactable interactable)
+        public override bool Interact(Position position, IInteractable interactable)
         {
             Chunk chunk = interactable as Chunk;
 

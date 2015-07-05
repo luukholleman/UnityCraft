@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.GenerationEngine;
-using Assets.Code.Scheduler;
+using Assets.Code.Tasker;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
@@ -44,8 +44,6 @@ namespace Assets.Code.Thread
         {
             MeshData meshdata = new MeshData();
 
-            int i = 0;
-
             Dictionary<Position, StaticObject> blocks = _chunk.GetStaticObjects();
 
             foreach (KeyValuePair<Position, StaticObject> block in blocks)
@@ -58,8 +56,8 @@ namespace Assets.Code.Thread
             
             meshdata.Prepare();
 
-            Scheduler.Scheduler.Instance.Add(new BindMeshFilter() { MeshFilter = FilterMesh, MeshData = meshdata });
-            Scheduler.Scheduler.Instance.Add(new BindMeshCollider() { MeshCollider = CollMesh, MeshData = meshdata });
+            Tasker.Tasker.Instance.Add(new BindMeshFilter() { MeshFilter = FilterMesh, MeshData = meshdata });
+            Tasker.Tasker.Instance.Add(new BindMeshCollider() { MeshCollider = CollMesh, MeshData = meshdata });
         }
 
         public void AbortThreadedWork()

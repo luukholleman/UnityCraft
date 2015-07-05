@@ -35,10 +35,5 @@ namespace Assets.Code.WorldObjects.Dynamic.Plants.Statemachines
         {
             DropItem();
         }
-
-        public override void Destroy()
-        {
-
-        }
     }
 }

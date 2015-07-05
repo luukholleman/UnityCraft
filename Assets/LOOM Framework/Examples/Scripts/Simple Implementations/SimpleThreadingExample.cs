@@ -25,11 +25,11 @@ public class SimpleThreadingExample : MonoBehaviour
         myThreadScheduler = Loom.CreateThreadPoolScheduler();
 
         //--------------- Ending Single threaded routine --------------------
-        threadA = Loom.StartSingleThread(EndingSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
+        threadA = Loom.StartSingleThread(EndingSingleThreadCoroutine);
         //--------------- Ending Single threaded routine --------------------
 		
         //--------------- Continues Single threaded routine --------------------
-        threadB = Loom.StartSingleThread(ContinuesSingleThreadCoroutine, System.Threading.ThreadPriority.Normal, true);
+        threadB = Loom.StartSingleThread(ContinuesSingleThreadCoroutine);
         //--------------- Continues Single threaded routine --------------------
 		
         //--------------- Start Multithreaded packages --------------------
@@ -63,8 +63,6 @@ public class SimpleThreadingExample : MonoBehaviour
 
         Debug.LogWarning("About the throw an error...");
         throw new Exception("This is an safe Error and should showup in the Console");
-
-        Debug.Log("It won't get here, but the Thread will die anyways.");
     } 
 
 
@@ -80,7 +78,6 @@ public class SimpleThreadingExample : MonoBehaviour
             Loom.WaitForSeconds(1); 
             Loom.DispatchToMainThread(() => Debug.Log("I waited atleast 1 second. Whats the current frameCount? : " + Time.frameCount), true);
         }
-        Debug.Log("It will never get here, but thats oke...");
     } 
     //--------------- Managing a simple single Thread --------------------
 
@@ -153,7 +150,7 @@ public class LotsOfNumbers : IThreadWorkerObject
 
                 Debug.Log("From WorkerThread: is this the MainThread? " + Loom.CheckIfMainThread());
 
-                GameObject cube = (GameObject)Loom.DispatchToMainThreadReturn(TestThreadSafeDispatch, true);
+                GameObject cube = (GameObject)Loom.DispatchToMainThreadReturn(TestThreadSafeDispatch);
                 Loom.DispatchToMainThread(() => cube.name += "_RenamedFrom: " + Thread.CurrentThread.Name);
             }
             result++;

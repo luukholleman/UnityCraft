@@ -36,13 +36,11 @@ namespace Assets.Code.Items.Tools
             return mesh;
         }
 
-        public override bool Interact(Position position, Interactable interactable)
+        public override bool Interact(Position position, IInteractable interactable)
         {
-            Chunk chunk = interactable as Chunk;
-
-            if (chunk != null)
+            if (interactable is Earth)
             {
-                chunk.SetObject(new Position(position), new PlowedEarth(), true);
+                World.World.Instance.SetObject(new Position(position), new PlowedEarth(), true);
 
                 return true;
             }

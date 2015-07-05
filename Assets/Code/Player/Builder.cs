@@ -1,5 +1,6 @@
 ﻿using Assets.Code.GUI.Inventory;
 using Assets.Code.Items;
+using Assets.Code.Messenger;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects;
@@ -12,11 +13,11 @@ namespace Assets.Code.Player
 {
     public class Builder : MonoBehaviour
     {
-        private InventoryComponent Inventory;
+        private Inventory Inventory;
 
         void Start()
         {
-            Inventory = GameObject.Find("Inventory").GetComponent<InventoryComponent>();
+            Inventory = Inventory.Instance;
         }
 
         void Update()
@@ -44,24 +45,26 @@ namespace Assets.Code.Player
                 {
                     Position position = Helper.GetBlockPos(hit, item.AdjacentCast());
 
-                    Interactable interactable = Helper.GetMonoBehaviour(hit) as Interactable;
+                    Postman.Broadcast<Position, Item>("interact with worldobject", position, item);
+
+                    //IInteractable interactable = Helper.GetMonoBehaviour(hit) as IInteractable;
                     
-                    if (interactable != null)
-                    {
-                        bool interacted = item.Interact(position, interactable);
+                    //if (interactable != null)
+                    //{
+                    //    bool interacted = item.Interact(position, interactable);
 
-                        interactable.Interact();
+                    //    interactable.Interact();
 
-                        if (item.DestroyOnUse() && interacted)
-                        {
-                            Inventory.PopSelectedItem();
-                        }
+                    //    if (item.DestroyOnUse() && interacted)
+                    //    {
+                    //        Storage.PopSelectedItem();
+                    //    }
 
-                        if (interacted)
-                        {
-                            interactable.DoRebuild();
-                        }
-                    }
+                    //    if (interacted)
+                    //    {
+                    //        interactable.DoRebuild();
+                    //    }
+                    //}
                 }
             }
         }
@@ -72,18 +75,7 @@ namespace Assets.Code.Player
 
             if (Physics.Raycast(Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)), out hit, 100, LayerMask.GetMask("Chunks", "DynamicObjects")))
             {
-                if (hit.collider.CompareTag("Chunk"))
-                {
-                    Chunk chunk = Helper.GetMonoBehaviour(hit) as Chunk;
-
-                    chunk.Action(hit);
-                }
-                else if (hit.collider.CompareTag("DynamicObject"))
-                {
-                    DynamicObjectComponent component = Helper.GetMonoBehaviour(hit) as DynamicObjectComponent;
-
-                    component.Action();
-                }
+                Postman.Broadcast<Position>("action with worldobject", Helper.GetBlockPos(hit));
             }
         }
     }

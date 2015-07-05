@@ -12,5 +12,15 @@ namespace Assets.Code.WorldObjects.Static
     public abstract class StaticObject : WorldObject
     {
         public abstract MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData);
+
+        public override void Interact()
+        {
+
+        }
+
+        public override void Action()
+        {
+            Chunk.DestroyBlock(Position);
+        }
     }
 }

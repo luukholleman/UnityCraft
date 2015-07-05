@@ -35,13 +35,13 @@ namespace Assets.Code.Items.Tools
             return mesh;
         }
 
-        public override bool Interact(Position position, Interactable interactable)
+        public override bool Interact(Position position, IInteractable interactable)
         {
-            DynamicObjectComponent doc = interactable as DynamicObjectComponent;
+            PlowedEarth earth = interactable as PlowedEarth;
 
-            if (doc != null && doc.DynamicObject is PlowedEarth)
+            if (earth != null)
             {
-                ((PlowedEarth) doc.DynamicObject).Watered = true;
+                earth.Watered = true;
                 
                 return true;
             }

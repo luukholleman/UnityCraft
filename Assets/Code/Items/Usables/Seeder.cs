@@ -32,7 +32,7 @@ namespace Assets.Code.Items.Usables
             return mesh;
         }
 
-        public override bool Interact(Position position, Interactable interactable)
+        public override bool Interact(Position position, IInteractable interactable)
         {
             DynamicObjectComponent doc = interactable as DynamicObjectComponent;
 

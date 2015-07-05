@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic
 {
-    public class DynamicObjectComponent : MonoBehaviour, Interactable
+    public class DynamicObjectComponent : MonoBehaviour, IInteractable
     {
         public DynamicObject DynamicObject;
 

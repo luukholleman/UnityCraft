@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Assets.Code.Scheduler;
+using Assets.Code.Tasker;
 using Assets.Code.Thread;
 using Assets.Code.World;
 using UnityEngine;
@@ -75,7 +75,7 @@ namespace Assets.Code.GenerationEngine
 
                                 generateChunk.Generate();
 
-                                Scheduler.Scheduler.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(generateChunk.Position, generateChunk.ChunkData), World.World.Instance.CreateNewChunkCallback));
+                                Tasker.Tasker.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(generateChunk.Position, generateChunk.ChunkData), World.World.Instance.CreateNewChunkCallback));
 
                                 _chunks[generateChunk.Position] = generateChunk.ChunkData;
 
@@ -116,7 +116,7 @@ namespace Assets.Code.GenerationEngine
 
         public void Callback(Position position, ChunkData chunkData)
         {
-            Scheduler.Scheduler.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(position, chunkData), World.World.Instance.CreateNewChunkCallback));
+            Tasker.Tasker.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(position, chunkData), World.World.Instance.CreateNewChunkCallback));
 
             _chunks[position] = chunkData;
         }

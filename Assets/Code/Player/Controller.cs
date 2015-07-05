@@ -125,7 +125,6 @@ namespace Assets.Code.Player
 
             Quaternion xQuaternion = Quaternion.AngleAxis(_rotationX, Vector3.up);
             Quaternion yQuaternion = Quaternion.AngleAxis(_rotationY, -Vector3.right);
-            Quaternion zQuaternion = Quaternion.AngleAxis(_rot, Vector3.forward);
 
             Cam.transform.localRotation = _originalRotation * yQuaternion;
             transform.rotation = _originalRotation * xQuaternion;

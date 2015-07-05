@@ -20,7 +20,7 @@ namespace Assets.Code.GenerationEngine
             Position = position;
         }
 
-        public void SetObject(Position position, WorldObject staticObject, bool replaceBlocks = false)
+        public bool SetObject(Position position, WorldObject staticObject, bool replaceBlocks = false)
         {
             bool emptyOrAir = !_staticObjects.ContainsKey(position - Position) || _staticObjects[position - Position] is Air;
 
@@ -31,14 +31,21 @@ namespace Assets.Code.GenerationEngine
                 if (staticObject is StaticObject)
                 {
                     _staticObjects[position - Position] = (StaticObject)staticObject;
+
+                    return true;
                 }
-                else if (staticObject is DynamicObject)
+                
+                if (staticObject is DynamicObject)
                 {
                     _dynamicObjects[position - Position] = (DynamicObject)staticObject;
+
+                    return true;
                 }
-                else
-                    Debug.LogWarning("Object not of type static or dynamic");
+                
+                Debug.LogWarning("Object not of type static or dynamic");
             }
+
+            return false;
         }
 
         public bool HasObjectAtPosition(Position position)

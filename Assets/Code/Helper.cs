@@ -108,7 +108,7 @@ namespace Assets.Code
 
             Position position = GetBlockPos(hit, adjacent);
 
-            chunk.World.SetObject(position, staticObject);
+            World.World.Instance.SetObject(position, staticObject);
 
             return true;
         }

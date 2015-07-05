@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
 using UnityEngine;
 
-namespace Assets.Code.Scheduler
+namespace Assets.Code.Tasker
 {
-    class DeleteChunk : ScheduleTask
+    class DeleteChunk : Task
     {
         private Chunk _chunk;
 
@@ -28,8 +24,6 @@ namespace Assets.Code.Scheduler
             PoolManager.Despawn(_chunk.gameObject);
 
             taskdone();
-
-            yield break;
         }
     }
 }

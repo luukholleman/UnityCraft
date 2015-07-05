@@ -27,7 +27,7 @@ namespace Assets.Code.WorldObjects.Static
 
         public override Tile TexturePosition(Direction direction)
         {
-            throw new NotImplementedException();
+            return new Tile();
         }
 
         public override bool IsSolid(Direction direction)

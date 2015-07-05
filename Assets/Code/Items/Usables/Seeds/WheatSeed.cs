@@ -39,16 +39,15 @@ namespace Assets.Code.Items.Usables.Seeds
             return mesh;
         }
 
-        public override bool Interact(Position position, Interactable interactable)
+        public override bool Interact(Position position, IInteractable interactable)
         {
-            DynamicObjectComponent doc = interactable as DynamicObjectComponent;
-
-            if (doc != null && doc.DynamicObject is PlowedEarth)
+            if (interactable is PlowedEarth)
             {
                 Wheat wheat = new Wheat();
+
                 Position plantPosition = new Position(position) {y = position.y + 1};
 
-                doc.Chunk.SetObject(plantPosition, wheat, true);
+                World.World.Instance.SetObject(plantPosition, wheat, true);
 
                 return true;
             }

@@ -1,4 +1,6 @@
-﻿using Assets.Code.WorldObjects.Dynamic.Statemachines;
+﻿using Assets.Code.Items.Blocks;
+using Assets.Code.WorldObjects.Dynamic.Statemachines;
+using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Dynamic.Plants.Statemachines
@@ -42,6 +44,18 @@ namespace Assets.Code.WorldObjects.Dynamic.Plants.Statemachines
                     _nextGrowTime = GrowTimes[Plant.GrowLevel];
                 }
             }
+
+            WorldObject block = Chunk.GetObject(new Position(DynamicObjectComponent.Position) {y = DynamicObjectComponent.Position.y - 1});
+
+            if (block == null || block is Air)
+            {
+                Destroy();
+            }
+        }
+
+        public override void Destroy()
+        {
+            Object.Destroy(GameObject);
         }
 
         public override void Action()

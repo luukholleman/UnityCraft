@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Assets.Code.Items
 {
-    public interface Interactable
+    public interface IInteractable
     {
-        void Interact();
+        void Action();
 
-        void DoRebuild();
+        void Interact();
     }
 }

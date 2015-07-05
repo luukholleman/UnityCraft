@@ -14,5 +14,17 @@ namespace Assets.Code.WorldObjects.Dynamic
         {
             return false;
         }
+
+        public override void Action()
+        {
+            if(Statemachine != null)
+                Statemachine.Action();
+        }
+
+        public override void Interact()
+        {
+            if(Statemachine != null)
+                Statemachine.Interact();
+        }
     }
 }
