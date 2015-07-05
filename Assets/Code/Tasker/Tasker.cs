@@ -38,10 +38,10 @@ namespace Assets.Code.Tasker
             }
         }
 
-        //void OnGUI()
-        //{
-        //    UnityEngine.GUI.Label(new Rect(10, 10, 50, 50), Tasks.Count.ToString());
-        //}
+        void OnGUI()
+        {
+            UnityEngine.GUI.Label(new Rect(10, 10, 50, 50), Tasks.Count.ToString());
+        }
 
         public void TaskDone()
         {

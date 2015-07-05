@@ -11,7 +11,7 @@ using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace Assets.Code.GenerationEngine
 {
-    public class GenerateChunk : ThreadedJob
+    public class GenerateChunk
     {
         public ChunkData ChunkData;
         public Position Position;
@@ -46,33 +46,35 @@ namespace Assets.Code.GenerationEngine
 
         private Action<Position, ChunkData> Callback;
 
-        public GenerateChunk(Position position)
+        public GenerateChunk(Position position, Action<Position, ChunkData> callback)
         {
             Position = position;
             ChunkData = new ChunkData(Position);
+
+            Callback = callback;
         }
 
-        protected override void ThreadFunction()
-        {
-            try
-            {
-                System.Threading.Thread.CurrentThread.Priority = ThreadPriority.Highest;
+        //protected void ThreadFunction()
+        //{
+        //    try
+        //    {
+        //        System.Threading.Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
-                Generate();
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
+        //        Generate("s");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.Log(e.Message);
+        //    }
 
-        }
+        //}
 
-        protected override void OnFinished()
-        {
+        //protected void OnFinished()
+        //{
 
-        }
+        //}
 
-        public void Generate()
+        public void Generate(object state)
         {
             for (int x = Position.x - WorldSettings.ChunkSize / 2; x < Position.x + WorldSettings.ChunkSize + WorldSettings.ChunkSize / 2; x++)
             {
@@ -93,6 +95,8 @@ namespace Assets.Code.GenerationEngine
                     }
                 }
             }
+
+            Callback(Position, ChunkData);
         }
 
         private static float Get2DNoise(Position position, float scale, int max)

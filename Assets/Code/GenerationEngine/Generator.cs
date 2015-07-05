@@ -24,10 +24,14 @@ namespace Assets.Code.GenerationEngine
         private readonly List<Position> _chunkScope = new List<Position>((MaxHorizontalGenerationDistance * 2) * (MaxVerticalGenerationDistance * 2) * (MaxHorizontalGenerationDistance * 2));
 
         // player position
-        private Position PlayerPosition = new Position(0, 0, 0);
+        public Position PlayerPosition = new Position(0, 0, 0);
 
         private object _lock = new object();
-        
+
+        private Feeder _feeder = new Feeder();
+
+        private List<Position> _generating = new List<Position>(); 
+
         public Generator()
         {
             PlayerPosition = new Position(GameObject.FindWithTag("Player").transform.position);
@@ -39,6 +43,9 @@ namespace Assets.Code.GenerationEngine
                             _chunkScope.Add(new Position(x * WorldSettings.ChunkSize, y * WorldSettings.ChunkSize, z * WorldSettings.ChunkSize));
 
             _chunkScope = _chunkScope.OrderBy(w => w.ToVector3().magnitude).ToList();
+
+            _feeder.Generator = this;
+            _feeder.Start();
         }
 
         public void SetPlayerPosition(Position playerPosition)
@@ -55,40 +62,40 @@ namespace Assets.Code.GenerationEngine
             {
                 while (!_aborted)
                 {
-                        Position currentPlayerPosition;
+                    Position currentPlayerPosition;
 
-                        lock (_lock)
+                    lock (_lock)
+                    {
+                        currentPlayerPosition = PlayerPosition;
+                    }
+
+                    foreach (Position chunkPosition in _chunkScope)
+                    {
+                        if (_aborted)
+                            break;
+
+                        Position absoluteChunkPosition = Helper.SnapToGrid(new Position(currentPlayerPosition + chunkPosition));
+
+                        if (!ChunkExists(absoluteChunkPosition))
                         {
-                            currentPlayerPosition = PlayerPosition;
-                        }
+                            GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition, Callback);
 
-                        foreach (Position chunkPosition in _chunkScope)
-                        {
-                            if (_aborted)
-                                break;
+                            ThreadPool.QueueUserWorkItem(generateChunk.Generate);
 
-                            Position absoluteChunkPosition = Helper.SnapToGrid(new Position(currentPlayerPosition + chunkPosition));
+                            _generating.Add(absoluteChunkPosition);
 
-                            if (!ChunkExists(absoluteChunkPosition))
+                            lock (_lock)
                             {
-                                GenerateChunk generateChunk = new GenerateChunk(absoluteChunkPosition);
-
-                                generateChunk.Generate();
-
-                                Tasker.Tasker.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(generateChunk.Position, generateChunk.ChunkData), World.World.Instance.CreateNewChunkCallback));
-
-                                _chunks[generateChunk.Position] = generateChunk.ChunkData;
-
-                                lock (_lock)
-                                {
-                                    if (!Equals(currentPlayerPosition, PlayerPosition))
-                                        break;
-                                }
+                                if (!Equals(currentPlayerPosition, PlayerPosition))
+                                    break;
                             }
                         }
+                    }
 
-                        List<Position> toRemove = new List<Position>();
+                    List<Position> toRemove = new List<Position>();
 
+                    lock (_lock)
+                    {
                         foreach (KeyValuePair<Position, ChunkData> chunk in _chunks)
                         {
                             if (Vector3.Distance(chunk.Key.ToVector3(), currentPlayerPosition.ToVector3()) > MaxHorizontalGenerationDistance * WorldSettings.ChunkSize)
@@ -97,38 +104,54 @@ namespace Assets.Code.GenerationEngine
 
                                 Tasker.Tasker.Instance.Add(new DeleteChunk(chunk.Key));
                             }
-                        }
+                        }   
+                    }
 
-                        foreach (Position position in toRemove)
-                        {
-                            _chunks.Remove(position);
-                        }
-
-                    //_chunks = new Dictionary<Position, ChunkData>(_chunks);
+                    foreach (Position position in toRemove)
+                    {
+                        _chunks.Remove(position);
+                    }
                 }
             }
             catch (Exception e)
             {
-                Debug.Log(e.Message);
-                throw;
+                Debug.Log("Generator " + e);
+
+                Abort();
             }
         }
 
         public void Callback(Position position, ChunkData chunkData)
         {
-            Tasker.Tasker.Instance.Add(new NewChunkPrefab(new KeyValuePair<Position, ChunkData>(position, chunkData), World.World.Instance.CreateNewChunkCallback));
+            lock (_feeder)
+            {
+                _feeder.Add(new KeyValuePair<Position, ChunkData>(position, chunkData));
+            }
 
-            _chunks[position] = chunkData;
+            lock (_lock)
+            {
+                _chunks[position] = chunkData;
+
+                _generating.Remove(position);
+            }
         }
 
         private bool ChunkExists(Position position)
         {
-            return _chunks.ContainsKey(position);
+            lock (_lock)
+            {
+                return _chunks.ContainsKey(position) || _generating.Contains(position);
+            }
         }
 
         public override void Abort()
         {
             _aborted = true;
+
+            lock (_feeder)
+            {
+                _feeder.Abort();
+            }
 
             base.Abort();
         }
