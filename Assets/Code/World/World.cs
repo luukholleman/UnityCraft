@@ -90,18 +90,6 @@ namespace Assets.Code.World
             }
         }
 
-        public void DestroyChunk(Position position)
-        {
-            Chunk chunk = GetChunk(position);
-
-            if (chunk != null)
-            {
-                Tasker.Tasker.Instance.Add(new DeleteChunk(chunk));
-
-                Chunks.Remove(position);
-            }
-        }
-
         void UpdateIfNeighbour(int value1, int value2, Position position)
         {
             if (value1 == value2)

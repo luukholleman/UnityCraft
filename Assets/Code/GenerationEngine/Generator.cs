@@ -95,7 +95,7 @@ namespace Assets.Code.GenerationEngine
                             {
                                 toRemove.Add(chunk.Key);
 
-                                World.World.Instance.DestroyChunk(chunk.Key);
+                                Tasker.Tasker.Instance.Add(new DeleteChunk(chunk.Key));
                             }
                         }
 

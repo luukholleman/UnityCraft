@@ -7,21 +7,28 @@ namespace Assets.Code.Tasker
 {
     class DeleteChunk : Task
     {
-        private Chunk _chunk;
+        private Position _position;
 
-        public DeleteChunk(Chunk gameObject)
+        public DeleteChunk(Position gameObject)
         {
-            _chunk = gameObject;
+            _position = gameObject;
         }
 
         public override IEnumerator Execute(Action taskdone)
         {
             yield return null;
 
-            _chunk.GetComponent<MeshFilter>().mesh = new Mesh();
-            _chunk.GetComponent<MeshCollider>().sharedMesh = new Mesh();
+            Chunk chunk = World.World.Instance.GetChunk(_position);
 
-            PoolManager.Despawn(_chunk.gameObject);
+            if (chunk != null)
+            {
+                chunk.GetComponent<MeshFilter>().mesh = new Mesh();
+                chunk.GetComponent<MeshCollider>().sharedMesh = new Mesh();
+
+                PoolManager.Despawn(chunk.gameObject);
+
+                World.World.Instance.Chunks.Remove(_position);
+            }
 
             taskdone();
         }
