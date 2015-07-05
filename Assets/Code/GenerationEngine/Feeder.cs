@@ -35,6 +35,8 @@ namespace Assets.Code.GenerationEngine
                             _toAdd.Remove(chunk);
                         }
                     }
+
+                    System.Threading.Thread.Sleep(20);
                 }
 
                 Debug.Log("Aborted");
