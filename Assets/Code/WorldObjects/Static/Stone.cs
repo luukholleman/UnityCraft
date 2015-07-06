@@ -1,9 +1,11 @@
-﻿using Assets.Code.Items;
+﻿using System;
+using Assets.Code.Items;
 using Assets.Code.World.Chunks;
 using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static
 {
+	[Serializable]
     class Stone : StaticBlock
     {
         public override Item GetItem()

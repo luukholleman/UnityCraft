@@ -7,6 +7,7 @@ using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static
 {
+	[Serializable]
     class Water : StaticBlock
     {
         public override Tile TexturePosition(Direction direction)

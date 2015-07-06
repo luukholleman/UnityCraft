@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Assets.Code.GenerationEngine;
 using Assets.Code.World.Chunks;
 using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Static.Defaults
 {
+	[Serializable]
     public abstract class StaticBlock : StaticObject
     {
         public override MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData)

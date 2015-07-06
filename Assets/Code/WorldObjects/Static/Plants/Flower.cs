@@ -8,6 +8,7 @@ using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static.Plants
 {
+	[Serializable]
     class Flower : StaticCross
     {
         public override Tile TexturePosition(Direction direction)

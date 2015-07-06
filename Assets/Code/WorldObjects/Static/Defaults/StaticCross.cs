@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Assets.Code.WorldObjects.Static.Defaults
 {
+	[Serializable]
     abstract class StaticCross : StaticObject
     {
         public override MeshData GetChunkMeshData(ChunkData chunk, Position position, MeshData meshData)

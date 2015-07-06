@@ -8,6 +8,7 @@ using Assets.CoherentNoise;
 using Assets.CoherentNoise.Generation;
 using UnityEngine;
 using ThreadPriority = System.Threading.ThreadPriority;
+using Assets.Code.IO;
 
 namespace Assets.Code.GenerationEngine
 {
@@ -93,6 +94,8 @@ namespace Assets.Code.GenerationEngine
                     }
                 }
             }
+
+			Serialization.Load(Position, ChunkData);
         }
 
         private static float Get2DNoise(Position position, float scale, int max)

@@ -7,6 +7,7 @@ using Assets.Code.WorldObjects.Static.Defaults;
 
 namespace Assets.Code.WorldObjects.Static.Plants
 {
+	[Serializable]
     class Grass : StaticCross
     {
         public override Tile TexturePosition(Direction direction)

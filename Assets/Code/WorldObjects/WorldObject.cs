@@ -9,9 +9,11 @@ using UnityEngine;
 
 namespace Assets.Code.WorldObjects
 {
+	[Serializable]
     public abstract class WorldObject : IInteractable
     {
-        public Chunk Chunk { get; set; }
+		[NonSerialized]
+		public Chunk Chunk;
         public Position Position { get; set; }
         public enum Direction { North, East, South, West, Up, Down };
 
