@@ -4,11 +4,11 @@ using Assets.Code.Items;
 using Assets.Code.Messenger;
 using UnityEngine;
 
-namespace Assets.Code.GUI.Inventory
+namespace Assets.Code.Inventory
 {
     class Inventory : MonoBehaviour
     {
-        private Storage _storage = new Storage("inventory", 100);
+        private Storage _storage = new Storage("inventory", 50);
 
         public static Inventory Instance;
         
@@ -20,6 +20,8 @@ namespace Assets.Code.GUI.Inventory
         private float _width;
 
         private int _selectedIndex = 0;
+
+        private bool _open = false;
 
         void Awake()
         {
@@ -78,9 +80,22 @@ namespace Assets.Code.GUI.Inventory
 
         private void Update()
         {
+            if (Input.GetKeyDown(KeyCode.I))
+            {
+                if (!_open)
+                {
+                    Postman.Broadcast<Storage>("inventory is opened", _storage);
+                    _open = true;
+                }
+                else
+                {
+                    Postman.Broadcast("inventory is closed");
+                    _open = false;
+                }
+            }
+
             float scroll = Input.GetAxisRaw("Mouse ScrollWheel");
-
-
+            
             if (scroll > 0)
                 ChangeSelectedIndex(_selectedIndex + 1);
             else if(scroll < 0)
@@ -128,7 +143,7 @@ namespace Assets.Code.GUI.Inventory
 
         private Vector3 GetWorldBarPosition(int index)
         {
-            return new Vector3(0 + (index - 5), -4.2f, 2);
+            return new Vector3(0 + (index / 8f - 1.5f), -0.8f, 2);
         }
 
         private Rect GetGUIBarPosition(int index, int width, int height)

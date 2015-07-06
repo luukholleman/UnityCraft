@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Assets.Code.GenerationEngine;
-using Assets.Code.GUI.Inventory;
 using Assets.Code.Items;
 using Assets.Code.Messenger;
 using Assets.Code.Thread;
@@ -82,7 +81,7 @@ namespace Assets.Code.World.Chunks
 
                     if (item.DestroyOnUse() && interacted)
                     {
-                        Inventory.Instance.PopSelectedItem();
+                        Inventory.Inventory.Instance.PopSelectedItem();
                     }
 
                     if (interacted)

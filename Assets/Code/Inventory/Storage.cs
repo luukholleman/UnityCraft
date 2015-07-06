@@ -4,7 +4,7 @@ using Assets.Code.Messenger;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Code.GUI.Inventory
+namespace Assets.Code.Inventory
 {
     class Storage
     {

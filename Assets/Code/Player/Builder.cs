@@ -1,4 +1,4 @@
-﻿using Assets.Code.GUI.Inventory;
+﻿using Assets.Code.Inventory;
 using Assets.Code.Items;
 using Assets.Code.Messenger;
 using Assets.Code.World;
@@ -13,11 +13,11 @@ namespace Assets.Code.Player
 {
     public class Builder : MonoBehaviour
     {
-        private Inventory Inventory;
+        private Inventory.Inventory Inventory;
 
         void Start()
         {
-            Inventory = Inventory.Instance;
+            Inventory = Assets.Code.Inventory.Inventory.Instance;
         }
 
         void Update()
