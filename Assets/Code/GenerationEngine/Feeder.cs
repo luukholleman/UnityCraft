@@ -36,7 +36,7 @@ namespace Assets.Code.GenerationEngine
                         }
                     }
 
-                    System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(5);
                 }
 
                 Debug.Log("Aborted");

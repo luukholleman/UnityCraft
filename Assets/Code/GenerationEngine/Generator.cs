@@ -89,6 +89,8 @@ namespace Assets.Code.GenerationEngine
                                 if (!Equals(currentPlayerPosition, PlayerPosition))
                                     break;
                             }
+
+                            System.Threading.Thread.Sleep(10);
                         }
                     }
 
@@ -111,6 +113,8 @@ namespace Assets.Code.GenerationEngine
                     {
                         _chunks.Remove(position);
                     }
+
+                    System.Threading.Thread.Sleep(100);
                 }
             }
             catch (Exception e)
