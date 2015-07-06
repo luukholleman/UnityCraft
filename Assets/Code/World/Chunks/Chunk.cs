@@ -13,6 +13,7 @@ using Assets.Code.WorldObjects.Dynamic;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Assets.Code.IO;
 
 namespace Assets.Code.World.Chunks
 {
@@ -26,6 +27,8 @@ namespace Assets.Code.World.Chunks
         public GameObject DynamicObjectPrefab;
 
         private bool _rebuild;
+
+		public bool Built{ get; private set; }
 
         private MeshFilter _filter;
         private MeshCollider _collider;
@@ -111,6 +114,7 @@ namespace Assets.Code.World.Chunks
                     dynamicObjectComponent.Position = worldObject.Key;
                     dynamicObjectComponent.DynamicObject = worldObject.Value;
                     dynamicObjectComponent.Chunk = this;
+					dynamicObjectComponent.transform.parent = transform;
 
                     _dynamicGos.Add(new KeyValuePair<Position, GameObject>(worldObject.Key, newDynamicObject));
                 }
@@ -143,6 +147,8 @@ namespace Assets.Code.World.Chunks
             StopCoroutine("PlaceDynamicObjects");
 
             _rebuild = true;
+
+			Built = true;
         }
 
         IEnumerator GenerateMesh()
@@ -158,7 +164,7 @@ namespace Assets.Code.World.Chunks
 
         void OnDestroy()
         {
-            //Serialization.SaveChunk(this);
+            Serialization.SaveChunk(this);
 
             foreach (KeyValuePair<Position, GameObject> dynamicGo in _dynamicGos)
             {
