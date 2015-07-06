@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
@@ -29,13 +30,13 @@ namespace Assets.Code.Items.Blocks
 
         public override bool Interact(Position position, IInteractable interactable)
         {
-            Chunk chunk = interactable as Chunk;
+			WorldObject worldObject = interactable as WorldObject;
 
             StaticObject staticObject = GetBlock();
 
-            if (chunk != null && staticObject != null)
+			if (worldObject != null && staticObject != null)
             {
-                chunk.SetObject(position, staticObject, true);
+                World.World.Instance.SetObject(position, staticObject, true);
 
                 return true;
             }
