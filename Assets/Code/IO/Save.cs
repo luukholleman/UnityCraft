@@ -24,7 +24,7 @@ namespace Assets.Code.IO
 							if (!chunk.GetObject(new Position(x, y, z)).Changed)
 								continue;
 							
-							Position position = new Position(x, y, z);
+							Position position = new Position(x, y, z) + chunk.Position;
 							blocks.Add(position, chunk.GetObject(position));
 						}
 					}
