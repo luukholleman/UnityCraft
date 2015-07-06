@@ -8,7 +8,7 @@ namespace Assets.Code.GUI.Inventory
 {
     class Inventory : MonoBehaviour
     {
-        public Storage Storage = new Storage();
+        private Storage _storage = new Storage("inventory", 100);
 
         public static Inventory Instance;
         
@@ -29,8 +29,9 @@ namespace Assets.Code.GUI.Inventory
         void Start()
         {
             Postman.AddListener<Item>("picked up item", PickedUpItem);
-            Postman.AddListener<int, Item, int>("item added to inventory", ItemAddedToInventory);
-            Postman.AddListener<int, Item, int>("item removed from inventory", ItemRemovedFromInventory);
+
+			Postman.AddListener<Storage, int, KeyValuePair<int, Item>>("item added to storage", ItemAddedToInventory);
+			Postman.AddListener<Storage, int, KeyValuePair<int, Item>>("item removed from storage", ItemRemovedFromInventory);
 
             _height = 2f * GUICamera.orthographicSize;
             _width = _height * GUICamera.aspect;
@@ -38,21 +39,24 @@ namespace Assets.Code.GUI.Inventory
 
         private void PickedUpItem(Item item)
         {
-            Storage.AddItem(item);
+            _storage.AddItem(item);
         }
 
         public Item PopSelectedItem()
         {
-            return Storage.PopItem(_selectedIndex);
+            return _storage.PopItem(_selectedIndex);
         }
 
         public Item PeekSelectedItem()
         {
-            return Storage.PeekItem(_selectedIndex);
+            return _storage.PeekItem(_selectedIndex);
         }
 
-        private void ItemAddedToInventory(int index, Item item, int count)
+		private void ItemAddedToInventory(Storage storage, int index, KeyValuePair<int, Item> newState)
         {
+			if (storage != _storage)
+				return;
+
             if (index >= 10)
                 return;
 
@@ -65,9 +69,9 @@ namespace Assets.Code.GUI.Inventory
 
             GameObject newItem = Instantiate(uiitem, GetWorldBarPosition(index), new Quaternion()) as GameObject;
 
-            newItem.GetComponent<ItemComponent>().Item = item;
+            newItem.GetComponent<ItemComponent>().Item = newState.Value;
 
-            ItemBar[index] = new KeyValuePair<int, GameObject>(count, newItem);
+            ItemBar[index] = new KeyValuePair<int, GameObject>(newState.Key, newItem);
 
             ChangeSelectedIndex(_selectedIndex);
         }
@@ -114,9 +118,9 @@ namespace Assets.Code.GUI.Inventory
         void OnGUI()
         {
             int i = 0;
-            foreach (Item[] item in Storage.Items.Take(10))
+            foreach (KeyValuePair<int, Item> itemPair in _storage.Items.Take(10))
             {
-                UnityEngine.GUI.Label(GetGUIBarPosition(i, 200, 200), item.Count(it => it != default(Item)).ToString());
+				UnityEngine.GUI.Label(GetGUIBarPosition(i, 200, 200), itemPair.Key.ToString());
 
                 i++;
             }
@@ -132,9 +136,12 @@ namespace Assets.Code.GUI.Inventory
             return new Rect((index - 5) * (Screen.width / _width) + Screen.width / 2, Screen.height - 40, width, height);
         }
 
-        private void ItemRemovedFromInventory(int index, Item item, int count)
-        {
-            if (index >= 10 || count > 0)
+        private void ItemRemovedFromInventory(Storage storage, int index, KeyValuePair<int, Item> newState)
+		{
+			if (storage != _storage)
+				return;
+
+            if (index >= 10 || newState.Key > 0)
                 return;
 
             Destroy(ItemBar[index].Value);
