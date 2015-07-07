@@ -23,6 +23,11 @@ namespace Assets.Code.Items.Blocks
             return mesh;
         }
 
+        public override Tile TexturePosition()
+        {
+            return new Tile(4, 14);
+        }
+
         public override StaticObject GetBlock()
         {
             return new WorldObjects.Static.Plants.Wood();

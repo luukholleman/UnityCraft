@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
@@ -27,6 +28,11 @@ namespace Assets.Code.Items.Blocks
             mesh.RecalculateNormals();
 
             return mesh;
+        }
+
+        public override Tile TexturePosition()
+        {
+            return new Tile(3, 15);
         }
 
         public override StaticObject GetBlock()

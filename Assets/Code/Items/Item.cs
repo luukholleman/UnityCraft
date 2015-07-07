@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Code.World.Chunks;
+using Assets.Code.WorldObjects;
 using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 
@@ -22,6 +23,7 @@ namespace Assets.Code.Items
         public abstract Mesh GetMesh();
 
         public abstract bool Interact(Position position, IInteractable interactable);
+        public abstract Tile TexturePosition();
 
         public abstract ItemType Type();
 

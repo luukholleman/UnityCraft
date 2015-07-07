@@ -18,7 +18,6 @@ namespace Assets.Code.WorldObjects
         public enum Direction { North, East, South, West, Up, Down };
 
         public const float TileSize = 0.0625f;
-        public struct Tile { public int x; public int y;}
 
         public bool Changed = true;
         public abstract MeshData GetMeshData();

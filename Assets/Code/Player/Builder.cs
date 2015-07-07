@@ -1,5 +1,4 @@
-﻿using Assets.Code.Inventory;
-using Assets.Code.Items;
+﻿using Assets.Code.Items;
 using Assets.Code.Messenger;
 using Assets.Code.World;
 using Assets.Code.World.Chunks;
@@ -13,11 +12,11 @@ namespace Assets.Code.Player
 {
     public class Builder : MonoBehaviour
     {
-        private Inventory.Inventory Inventory;
+        private Bag Inventory;
 
         void Start()
         {
-            Inventory = Assets.Code.Inventory.Inventory.Instance;
+            Inventory = Bag.Instance;
         }
 
         void Update()

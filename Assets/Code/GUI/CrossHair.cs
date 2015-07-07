@@ -12,20 +12,23 @@ namespace Assets.Code.GUI
         void Awake()
         {
             _pausing = GameObject.Find("General").GetComponent<Pausing>();
-        }
 
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        
         void Update()
         {
-            if (_pausing.Paused)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
+            //if (_pausing.Paused)
+            //{
+            //    Cursor.lockState = CursorLockMode.None;
+            //    Cursor.visible = true;
+            //}
+            //else
+            //{
+            //    Cursor.lockState = CursorLockMode.Locked;
+            //    Cursor.visible = false;
+            //}
         }
 
         void OnGUI()

@@ -24,6 +24,10 @@ namespace Assets.Code.Items.Blocks
 
             return mesh;
         }
+        public override Tile TexturePosition()
+        {
+            return new Tile(1, 1);
+        }
 
         public override StaticObject GetBlock()
         {

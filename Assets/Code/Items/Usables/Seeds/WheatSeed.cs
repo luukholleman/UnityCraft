@@ -55,6 +55,11 @@ namespace Assets.Code.Items.Usables.Seeds
             return false;
         }
 
+        public override Tile TexturePosition()
+        {
+            return new Tile(3, 3);
+        }
+
         public override bool DestroyOnUse()
         {
             return true;
@@ -69,7 +74,7 @@ namespace Assets.Code.Items.Usables.Seeds
         {
             Vector2[] uvs = new Vector2[4];
 
-            WorldObject.Tile tilePos = new WorldObject.Tile();
+            Tile tilePos = new Tile();
 
             tilePos.x = 3;
             tilePos.y = 3;

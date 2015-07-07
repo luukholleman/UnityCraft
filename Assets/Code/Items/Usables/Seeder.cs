@@ -31,6 +31,10 @@ namespace Assets.Code.Items.Usables
 
             return mesh;
         }
+        public override Tile TexturePosition()
+        {
+            return new Tile(15, 15);
+        }
 
         public override bool Interact(Position position, IInteractable interactable)
         {
@@ -60,7 +64,7 @@ namespace Assets.Code.Items.Usables
         {
             Vector2[] uvs = new Vector2[4];
 
-            WorldObject.Tile tilePos = new WorldObject.Tile();
+            Tile tilePos = new Tile();
 
             tilePos.x = 15;
             tilePos.y = 15;

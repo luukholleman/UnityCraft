@@ -13,6 +13,7 @@ using Assets.Code.WorldObjects.Static;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Assets.Code.IO;
+using Assets.Code.Player;
 
 namespace Assets.Code.World.Chunks
 {
@@ -81,7 +82,7 @@ namespace Assets.Code.World.Chunks
 
                     if (item.DestroyOnUse() && interacted)
                     {
-                        Inventory.Inventory.Instance.PopSelectedItem();
+                        Bag.Instance.PopSelectedItem();
                     }
 
                     if (interacted)

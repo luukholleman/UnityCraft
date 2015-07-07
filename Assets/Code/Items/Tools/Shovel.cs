@@ -48,6 +48,11 @@ namespace Assets.Code.Items.Tools
             return false;
         }
 
+        public override Tile TexturePosition()
+        {
+            return new Tile(1, 1);
+        }
+
         public override bool DestroyOnUse()
         {
             return false;
@@ -57,7 +62,7 @@ namespace Assets.Code.Items.Tools
         {
             Vector2[] uvs = new Vector2[4];
 
-            WorldObject.Tile tilePos = new WorldObject.Tile();
+            Tile tilePos = new Tile();
 
             tilePos.x = 0;
             tilePos.y = 10;
