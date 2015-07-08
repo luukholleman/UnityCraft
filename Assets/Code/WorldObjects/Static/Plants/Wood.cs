@@ -19,16 +19,16 @@ namespace Assets.Code.WorldObjects.Static.Plants
             switch (direction)
             {
                 case Direction.Up:
-                    tile.x = 5;
+                    tile.x = 1;
                     tile.y = 14;
                     return tile;
                 case Direction.Down:
-                    tile.x = 5;
+                    tile.x = 1;
                     tile.y = 14;
                     return tile;
             }
 
-            tile.x = 4;
+            tile.x = 0;
             tile.y = 14;
 
             return tile;

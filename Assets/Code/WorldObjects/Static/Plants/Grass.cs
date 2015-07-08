@@ -14,8 +14,8 @@ namespace Assets.Code.WorldObjects.Static.Plants
         {
             Tile tile = new Tile();
 
-            tile.y = 10;
-            tile.x = new Random().Next(8, 12);
+            tile.x = 1;
+            tile.y = 13;
 
             return tile;
         }

@@ -23,7 +23,7 @@ namespace Assets.Code.WorldObjects.Static
                     return tile;
             }
 
-            tile.x = 3;
+            tile.x = 1;
             tile.y = 15;
 
             return tile;

@@ -13,8 +13,8 @@ namespace Assets.Code.WorldObjects.Static.Plants
         {
             Tile tile = new Tile();
 
-            tile.x = 4;
-            tile.y = 12;
+            tile.x = 2;
+            tile.y = 14;
 
             return tile;
         }
